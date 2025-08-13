@@ -306,7 +306,9 @@ func parse(tokens []token) (*astNode, error) {
 					node := &astNode{Type: "wildcard", Value: "*"}
 					current.Children = append(current.Children, node)
 					i++
-				default:
+				case tokenRoot, tokenCurrent, tokenDot, tokenDoubleDot,
+					tokenBracketOpen, tokenBracketClose, tokenNumber,
+					tokenString, tokenFilter, tokenSlice, tokenComma, tokenUnion:
 					// Skip other token types after dot
 				}
 			}
@@ -324,7 +326,9 @@ func parse(tokens []token) (*astNode, error) {
 					childNode := &astNode{Type: "wildcard", Value: "*"}
 					node.Children = append(node.Children, childNode)
 					i++
-				default:
+				case tokenRoot, tokenCurrent, tokenDot, tokenDoubleDot,
+					tokenBracketOpen, tokenBracketClose, tokenNumber,
+					tokenString, tokenFilter, tokenSlice, tokenComma, tokenUnion:
 					// Skip other token types after double dot
 				}
 			}
@@ -355,7 +359,8 @@ func parse(tokens []token) (*astNode, error) {
 					i++
 				case tokenComma:
 					i++
-				default:
+				case tokenRoot, tokenCurrent, tokenDot, tokenDoubleDot,
+					tokenBracketOpen, tokenBracketClose, tokenIdentifier, tokenUnion:
 					i++
 				}
 			}
@@ -363,7 +368,8 @@ func parse(tokens []token) (*astNode, error) {
 				i++
 			}
 			current.Children = append(current.Children, bracketNode)
-		default:
+		case tokenBracketClose, tokenIdentifier, tokenNumber, tokenString,
+			tokenWildcard, tokenFilter, tokenSlice, tokenComma, tokenUnion:
 			i++
 		}
 	}
@@ -397,69 +403,14 @@ func evaluateNode(node *astNode, contexts []Result, options *Options) []Result {
 
 	for _, ctx := range contexts {
 		switch node.Type {
-		case "root":
-			results = append(results, ctx)
-		case "current":
+		case "root", "current":
 			results = append(results, ctx)
 		case "property":
-			if obj, ok := ctx.Value.(map[string]interface{}); ok {
-				if val, exists := obj[node.Value]; exists {
-					results = append(results, Result{
-						Value:          val,
-						Path:           ctx.Path + "." + node.Value,
-						Parent:         ctx.Value,
-						ParentProperty: node.Value,
-						Index:          len(results),
-						OriginalIndex:  getOriginalIndex(ctx.Value, node.Value),
-					})
-				}
-			}
+			results = append(results, evaluateProperty(node, ctx)...)
 		case "wildcard":
-			switch v := ctx.Value.(type) {
-			case map[string]interface{}:
-				idx := 0
-				for key, val := range v {
-					results = append(results, Result{
-						Value:          val,
-						Path:           ctx.Path + "." + key,
-						Parent:         ctx.Value,
-						ParentProperty: key,
-						Index:          idx,
-						OriginalIndex:  getOriginalIndex(ctx.Value, key),
-					})
-					idx++
-				}
-			case []interface{}:
-				for i, val := range v {
-					results = append(results, Result{
-						Value:          val,
-						Path:           fmt.Sprintf("%s[%d]", ctx.Path, i),
-						Parent:         ctx.Value,
-						ParentProperty: strconv.Itoa(i),
-						Index:          i,
-						OriginalIndex:  i,
-					})
-				}
-			default:
-				// Other types don't support wildcard
-			}
+			results = append(results, evaluateWildcard(ctx)...)
 		case "index":
-			if arr, ok := ctx.Value.([]interface{}); ok {
-				idx, _ := strconv.Atoi(node.Value)
-				if idx < 0 {
-					idx = len(arr) + idx
-				}
-				if idx >= 0 && idx < len(arr) {
-					results = append(results, Result{
-						Value:          arr[idx],
-						Path:           fmt.Sprintf("%s[%d]", ctx.Path, idx),
-						Parent:         ctx.Value,
-						ParentProperty: strconv.Itoa(idx),
-						Index:          idx,
-						OriginalIndex:  idx,
-					})
-				}
-			}
+			results = append(results, evaluateIndex(node, ctx)...)
 		case "bracket":
 			for _, child := range node.Children {
 				results = append(results, evaluateNode(child, []Result{ctx}, options)...)
@@ -478,24 +429,110 @@ func evaluateNode(node *astNode, contexts []Result, options *Options) []Result {
 	return results
 }
 
+func evaluateProperty(node *astNode, ctx Result) []Result {
+	var results []Result
+	obj, ok := ctx.Value.(map[string]interface{})
+	if !ok {
+		return results
+	}
+	
+	val, exists := obj[node.Value]
+	if !exists {
+		return results
+	}
+	
+	results = append(results, Result{
+		Value:          val,
+		Path:           ctx.Path + "." + node.Value,
+		Parent:         ctx.Value,
+		ParentProperty: node.Value,
+		Index:          len(results),
+		OriginalIndex:  getOriginalIndex(ctx.Value, node.Value),
+	})
+	return results
+}
+
+func evaluateWildcard(ctx Result) []Result {
+	var results []Result
+	
+	switch v := ctx.Value.(type) {
+	case map[string]interface{}:
+		idx := 0
+		for key, val := range v {
+			results = append(results, Result{
+				Value:          val,
+				Path:           ctx.Path + "." + key,
+				Parent:         ctx.Value,
+				ParentProperty: key,
+				Index:          idx,
+				OriginalIndex:  getOriginalIndex(ctx.Value, key),
+			})
+			idx++
+		}
+	case []interface{}:
+		for i, val := range v {
+			results = append(results, Result{
+				Value:          val,
+				Path:           fmt.Sprintf("%s[%d]", ctx.Path, i),
+				Parent:         ctx.Value,
+				ParentProperty: strconv.Itoa(i),
+				Index:          i,
+				OriginalIndex:  i,
+			})
+		}
+	default:
+		// Other types don't support wildcard
+	}
+	return results
+}
+
+func evaluateIndex(node *astNode, ctx Result) []Result {
+	var results []Result
+	arr, ok := ctx.Value.([]interface{})
+	if !ok {
+		return results
+	}
+	
+	idx, _ := strconv.Atoi(node.Value)
+	if idx < 0 {
+		idx = len(arr) + idx
+	}
+	if idx < 0 || idx >= len(arr) {
+		return results
+	}
+	
+	results = append(results, Result{
+		Value:          arr[idx],
+		Path:           fmt.Sprintf("%s[%d]", ctx.Path, idx),
+		Parent:         ctx.Value,
+		ParentProperty: strconv.Itoa(idx),
+		Index:          idx,
+		OriginalIndex:  idx,
+	})
+	return results
+}
+
 func evaluateFilter(filter string, ctx Result, _ *Options) []Result {
 	var results []Result
 
 	filter = strings.TrimPrefix(filter, "?(")
 	filter = strings.TrimSuffix(filter, ")")
 
-	if v, ok := ctx.Value.([]interface{}); ok {
-		for i, item := range v {
-			if evaluateFilterExpression(filter, item, ctx.Value) {
-				results = append(results, Result{
-					Value:          item,
-					Path:           fmt.Sprintf("%s[%d]", ctx.Path, i),
-					Parent:         ctx.Value,
-					ParentProperty: strconv.Itoa(i),
-					Index:          i,
-					OriginalIndex:  i,
-				})
-			}
+	v, ok := ctx.Value.([]interface{})
+	if !ok {
+		return results
+	}
+	
+	for i, item := range v {
+		if evaluateFilterExpression(filter, item, ctx.Value) {
+			results = append(results, Result{
+				Value:          item,
+				Path:           fmt.Sprintf("%s[%d]", ctx.Path, i),
+				Parent:         ctx.Value,
+				ParentProperty: strconv.Itoa(i),
+				Index:          i,
+				OriginalIndex:  i,
+			})
 		}
 	}
 
@@ -628,61 +665,71 @@ func parseValue(s string) interface{} {
 
 func evaluateSlice(slice string, ctx Result, options *Options) []Result {
 	var results []Result
+	
+	arr, ok := ctx.Value.([]interface{})
+	if !ok {
+		return results
+	}
 
-	slice = strings.TrimSpace(slice)
-	parts := strings.Split(slice, ":")
-
-	if arr, ok := ctx.Value.([]interface{}); ok {
-		arrLen := len(arr)
-		start := 0
-		end := arrLen
-		step := 1
-
-		if len(parts) > 0 && parts[0] != "" {
-			start, _ = strconv.Atoi(strings.TrimSpace(parts[0]))
-		}
-
-		if len(parts) > 1 && parts[1] != "" {
-			end, _ = strconv.Atoi(strings.TrimSpace(parts[1]))
-		}
-
-		if len(parts) > 2 && parts[2] != "" {
-			step, _ = strconv.Atoi(strings.TrimSpace(parts[2]))
-		}
-
-		if step == 0 {
-			step = 1
-		}
-
-		if start < 0 {
-			start = arrLen + start
-		}
-		if end < 0 {
-			end = arrLen + end
-		}
-
-		if start < 0 {
-			start = 0
-		}
-		if end > arrLen {
-			end = arrLen
-		}
-
-		for i := start; i < end && i < arrLen; i += step {
-			if i >= 0 {
-				results = append(results, Result{
-					Value:          arr[i],
-					Path:           fmt.Sprintf("%s[%d]", ctx.Path, i),
-					Parent:         ctx.Value,
-					ParentProperty: strconv.Itoa(i),
-					Index:          len(results),
-					OriginalIndex:  i,
-				})
-			}
+	start, end, step := parseSliceParams(slice, len(arr))
+	
+	for i := start; i < end && i < len(arr); i += step {
+		if i >= 0 {
+			results = append(results, Result{
+				Value:          arr[i],
+				Path:           fmt.Sprintf("%s[%d]", ctx.Path, i),
+				Parent:         ctx.Value,
+				ParentProperty: strconv.Itoa(i),
+				Index:          len(results),
+				OriginalIndex:  i,
+			})
 		}
 	}
 
 	return results
+}
+
+func parseSliceParams(slice string, arrLen int) (start, end, step int) {
+	slice = strings.TrimSpace(slice)
+	parts := strings.Split(slice, ":")
+	
+	start = 0
+	end = arrLen
+	step = 1
+
+	if len(parts) > 0 && parts[0] != "" {
+		start, _ = strconv.Atoi(strings.TrimSpace(parts[0]))
+	}
+
+	if len(parts) > 1 && parts[1] != "" {
+		end, _ = strconv.Atoi(strings.TrimSpace(parts[1]))
+	}
+
+	if len(parts) > 2 && parts[2] != "" {
+		step, _ = strconv.Atoi(strings.TrimSpace(parts[2]))
+	}
+
+	if step == 0 {
+		step = 1
+	}
+
+	// Handle negative indices
+	if start < 0 {
+		start = arrLen + start
+	}
+	if end < 0 {
+		end = arrLen + end
+	}
+
+	// Clamp to valid range
+	if start < 0 {
+		start = 0
+	}
+	if end > arrLen {
+		end = arrLen
+	}
+	
+	return start, end, step
 }
 
 func evaluateRecursive(node *astNode, ctx Result, options *Options) []Result {

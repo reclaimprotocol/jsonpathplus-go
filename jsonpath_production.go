@@ -215,6 +215,11 @@ func (e *JSONPathEngine) validateTokens(tokens []token, path string) error {
 					return NewError(ErrInvalidExpression, "unsafe filter expression", path, i)
 				}
 			}
+		case tokenRoot, tokenCurrent, tokenDot, tokenDoubleDot,
+			tokenBracketOpen, tokenBracketClose, tokenIdentifier,
+			tokenNumber, tokenString, tokenWildcard, tokenSlice,
+			tokenComma, tokenUnion:
+			// These tokens are safe, no special validation needed
 		}
 	}
 
