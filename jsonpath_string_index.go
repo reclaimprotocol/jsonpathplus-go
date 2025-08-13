@@ -208,7 +208,7 @@ func findPropertyKeyPosition(propName string, jsonStr string) StringPosition {
 }
 
 // findArrayElementPosition finds the position of an array element
-func findArrayElementPosition(index int, path string, jsonStr string) StringPosition {
+func findArrayElementPosition(index int, _ string, jsonStr string) StringPosition {
 	// Find the array in the JSON string
 	arrayStart := strings.Index(jsonStr, "[")
 	if arrayStart == -1 {

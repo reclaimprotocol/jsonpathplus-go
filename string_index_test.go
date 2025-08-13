@@ -11,7 +11,7 @@ func TestStringIndexPreservation(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create engine: %v", err)
 	}
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 
 	t.Run("SimpleObjectProperty", func(t *testing.T) {
 		testSimpleObjectStringIndex(t, engine)
@@ -38,7 +38,7 @@ func TestStringIndexPreservation(t *testing.T) {
 	})
 }
 
-func testSimpleObjectStringIndex(t *testing.T, engine *JSONPathEngine) {
+func testSimpleObjectStringIndex(t *testing.T, _ *JSONPathEngine) {
 	// Test case: {"id":123,"name":"test"}
 	//             ^   ^    ^     ^
 	//             0   5    11    18
@@ -85,7 +85,7 @@ func testSimpleObjectStringIndex(t *testing.T, engine *JSONPathEngine) {
 	}
 }
 
-func testArrayElementsStringIndex(t *testing.T, engine *JSONPathEngine) {
+func testArrayElementsStringIndex(t *testing.T, _ *JSONPathEngine) {
 	// Test case: ["first","second","third"]
 	//             ^       ^        ^
 	//             1       9        18
@@ -120,7 +120,7 @@ func testArrayElementsStringIndex(t *testing.T, engine *JSONPathEngine) {
 	}
 }
 
-func testNestedObjectsStringIndex(t *testing.T, engine *JSONPathEngine) {
+func testNestedObjectsStringIndex(t *testing.T, _ *JSONPathEngine) {
 	// Test case: {"user":{"name":"john","age":25}}
 	//             ^       ^       ^      ^
 	//             0       8       16     24  
@@ -162,7 +162,7 @@ func testNestedObjectsStringIndex(t *testing.T, engine *JSONPathEngine) {
 	}
 }
 
-func testWhitespacePreservation(t *testing.T, engine *JSONPathEngine) {
+func testWhitespacePreservation(t *testing.T, _ *JSONPathEngine) {
 	// Test with significant whitespace that should be preserved
 	jsonStr := `{
   "id": 123,
@@ -214,7 +214,7 @@ func testWhitespacePreservation(t *testing.T, engine *JSONPathEngine) {
 	}
 }
 
-func testComplexNestingStringIndex(t *testing.T, engine *JSONPathEngine) {
+func testComplexNestingStringIndex(t *testing.T, _ *JSONPathEngine) {
 	jsonStr := `{"company":{"departments":[{"name":"engineering","employees":[{"name":"alice","id":1}]}]}}`
 	
 
@@ -255,7 +255,7 @@ func testComplexNestingStringIndex(t *testing.T, engine *JSONPathEngine) {
 	}
 }
 
-func testArrayOfObjectsStringIndex(t *testing.T, engine *JSONPathEngine) {
+func testArrayOfObjectsStringIndex(t *testing.T, _ *JSONPathEngine) {
 	jsonStr := `[{"id":1,"name":"first"},{"id":2,"name":"second"}]`
 	
 
@@ -270,10 +270,10 @@ func testArrayOfObjectsStringIndex(t *testing.T, engine *JSONPathEngine) {
 	}
 
 	// Find positions of "id" properties in the string
-	firstIdPos := strings.Index(jsonStr, `"id":1`)
-	secondIdPos := strings.Index(jsonStr[firstIdPos+1:], `"id":2`) + firstIdPos + 1
+	firstIDPos := strings.Index(jsonStr, `"id":1`)
+	secondIDPos := strings.Index(jsonStr[firstIDPos+1:], `"id":2`) + firstIDPos + 1
 
-	expectedPositions := []int{firstIdPos, secondIdPos}
+	expectedPositions := []int{firstIDPos, secondIDPos}
 
 	for i, result := range results {
 		expectedPos := expectedPositions[i]
@@ -315,8 +315,8 @@ func validateStringIndex(t *testing.T, jsonStr string, index int, expectedChar b
 			description, expectedChar, index, actualChar)
 		
 		// Show context
-		start := max(0, index-10)
-		end := min(len(jsonStr), index+10)
+		start := maxInt(0, index-10)
+		end := minInt(len(jsonStr), index+10)
 		context := jsonStr[start:end]
 		pointer := strings.Repeat(" ", index-start) + "^"
 		t.Errorf("Context: %s", context)
@@ -324,14 +324,14 @@ func validateStringIndex(t *testing.T, jsonStr string, index int, expectedChar b
 	}
 }
 
-func max(a, b int) int {
+func maxInt(a, b int) int {
 	if a > b {
 		return a
 	}
 	return b
 }
 
-func min(a, b int) int {
+func minInt(a, b int) int {
 	if a < b {
 		return a
 	}

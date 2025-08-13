@@ -59,10 +59,6 @@ func JSONParseWithIndex(jsonStr string) (*IndexedValue, error) {
 	}, nil
 }
 
-// buildPositionMap analyzes the JSON string to build position mappings
-func (t *StringIndexTracker) buildPositionMap(value interface{}) error {
-	return t.parseValue(value, "$", 0)
-}
 
 // parseValue recursively parses values and tracks their positions
 func (t *StringIndexTracker) parseValue(value interface{}, path string, startPos int) error {

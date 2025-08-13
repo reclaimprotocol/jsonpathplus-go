@@ -15,7 +15,7 @@ func TestNewEngine(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create engine: %v", err)
 		}
-		defer engine.Close()
+		defer func() { _ = engine.Close() }()
 		
 		config := engine.GetConfig()
 		if config.MaxPathLength != 1000 {
@@ -32,7 +32,7 @@ func TestNewEngine(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create engine: %v", err)
 		}
-		defer engine.Close()
+		defer func() { _ = engine.Close() }()
 		
 		engineConfig := engine.GetConfig()
 		if engineConfig.MaxPathLength != 500 {
@@ -56,7 +56,7 @@ func TestEngineQuery(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create engine: %v", err)
 	}
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 	
 	data := map[string]interface{}{
 		"users": []interface{}{
@@ -96,7 +96,7 @@ func TestEngineQuery(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to create engine: %v", err)
 		}
-		defer engine2.Close()
+		defer func() { _ = engine2.Close() }()
 		
 		longPath := "$.very.long.path.that.exceeds.limit.and.should.fail"
 		_, err = engine2.QueryData(longPath, data)
@@ -114,7 +114,7 @@ func TestEngineQueryWithContext(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create engine: %v", err)
 	}
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 	
 	data := map[string]interface{}{
 		"items": make([]interface{}, 10000), // Large dataset
@@ -165,7 +165,7 @@ func TestEngineCaching(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create engine: %v", err)
 	}
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 	
 	data := map[string]interface{}{"test": "value"}
 	
@@ -199,7 +199,7 @@ func TestEngineMetrics(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create engine: %v", err)
 	}
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 	
 	data := map[string]interface{}{"test": "value"}
 	
@@ -226,7 +226,7 @@ func TestEngineConcurrency(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create engine: %v", err)
 	}
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 	
 	data := map[string]interface{}{
 		"items": []interface{}{
@@ -245,7 +245,7 @@ func TestEngineConcurrency(t *testing.T) {
 	
 	for i := 0; i < numGoroutines; i++ {
 		wg.Add(1)
-		go func(id int) {
+		go func(_ int) {
 			defer wg.Done()
 			
 			for j := 0; j < queriesPerGoroutine; j++ {
@@ -441,7 +441,7 @@ func BenchmarkEngineQuery(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Failed to create engine: %v", err)
 	}
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 	
 	data := map[string]interface{}{
 		"users": make([]interface{}, 100),
@@ -472,14 +472,14 @@ func BenchmarkCachedQuery(b *testing.B) {
 	if err != nil {
 		b.Fatalf("Failed to create engine: %v", err)
 	}
-	defer engine.Close()
+	defer func() { _ = engine.Close() }()
 	
 	data := map[string]interface{}{
 		"test": "value",
 	}
 	
 	// Warm up cache
-	engine.QueryData("$.test", data)
+	_, _ = engine.QueryData("$.test", data)
 	
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

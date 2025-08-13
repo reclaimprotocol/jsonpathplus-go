@@ -83,7 +83,7 @@ type NoOpLogger struct{}
 func (l *NoOpLogger) Debug(msg string, fields ...Field) {}
 func (l *NoOpLogger) Info(msg string, fields ...Field)  {}
 func (l *NoOpLogger) Warn(msg string, fields ...Field)  {}
-func (l *NoOpLogger) Error(msg string, fields ...Field) {}
+func (l *NoOpLogger) Error(_ string, _ ...Field) {}
 
 // Metrics collects performance metrics
 type Metrics struct {

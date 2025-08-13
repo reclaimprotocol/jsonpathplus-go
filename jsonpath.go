@@ -219,17 +219,6 @@ func findStringEnd(path string, start int) int {
 	return -1
 }
 
-func findSliceStart(path string, pos int) int {
-	for i := pos - 1; i >= 0; i-- {
-		if path[i] == '[' {
-			return i + 1
-		}
-		if !isDigit(path[i]) && path[i] != '-' && path[i] != ' ' {
-			return i + 1
-		}
-	}
-	return 0
-}
 
 func findSliceEnd(path string, start int) int {
 	for i := start; i < len(path); i++ {
@@ -472,7 +461,7 @@ func evaluateNode(node *astNode, contexts []Result, options *Options) []Result {
 	return results
 }
 
-func evaluateFilter(filter string, ctx Result, options *Options) []Result {
+func evaluateFilter(filter string, ctx Result, _ *Options) []Result {
 	var results []Result
 	
 	filter = strings.TrimPrefix(filter, "?(")

@@ -55,7 +55,7 @@ jobs:
           exit 1
         fi
     
-    - name: Run tests
+    - name: Run tests  
       run: go test -v -race -coverprofile=coverage.out ./...
     
     - name: Run benchmarks
@@ -127,7 +127,9 @@ jobs:
         GOARCH: ${{ matrix.arch }}
       run: |
         go build -v ./...
-        cd examples && go build -o example-${{ matrix.os }}-${{ matrix.arch }} .
+        cd cmd/basic && go build -o basic-${{ matrix.os }}-${{ matrix.arch }} .
+        cd ../showcase && go build -o showcase-${{ matrix.os }}-${{ matrix.arch }} .
+        cd ../production && go build -o production-${{ matrix.os }}-${{ matrix.arch }} .
 
   integration:
     name: Integration Tests

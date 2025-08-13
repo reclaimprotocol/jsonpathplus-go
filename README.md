@@ -1,286 +1,138 @@
-# JSONPath Plus Go
+# JSONPath-Plus Go
 
-A production-ready Go implementation of JSONPath with **string character position tracking**. This library provides all the functionality of [JSONPath-Plus](https://github.com/JSONPath-Plus/JSONPath) plus the unique ability to return the **exact character positions** of elements in the original JSON string.
+[![CI](https://github.com/reclaimprotocol/jsonpathplus-go/actions/workflows/ci.yml/badge.svg)](https://github.com/reclaimprotocol/jsonpathplus-go/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/reclaimprotocol/jsonpathplus-go)](https://goreportcard.com/report/github.com/reclaimprotocol/jsonpathplus-go)
+[![GoDoc](https://godoc.org/github.com/reclaimprotocol/jsonpathplus-go?status.svg)](https://godoc.org/github.com/reclaimprotocol/jsonpathplus-go)
 
-## 🚀 **Key Features**
+A high-performance Go implementation of JSONPath with **string character position tracking** - perfect for JSON editors, linters, and applications requiring precise location information.
 
-### **String Character Position Tracking** ⭐ *NEW*
-- **Returns character positions in original JSON string**
-- Property keys: `{"id":123}` → `$.id` returns position `1` (the opening quote of "id")
-- Array elements: `["a","b","c"]` → `$[1]` returns position `5` (the opening quote of "b")
-- Preserves whitespace and formatting perfectly
-
-### **Complete JSONPath Support**
-- Root (`$`) and current (`@`) operators
-- Dot notation (`.property`) and bracket notation (`['property']`)
-- Wildcards (`*`) and recursive descent (`..`)
-- Array slicing (`[start:end:step]`) with negative indices
-- Filter expressions (`[?(@.price < 10)]`) with complex operators
-- Union operator (`['prop1','prop2']`)
-- **No transformation** or **whitespace changes**
-
-### **Production Features**
-- Minimal dependencies (only standard library)
-- Thread-safe concurrent operations
-- LRU caching for compiled expressions
-- Comprehensive error handling and logging
-- Security validation and rate limiting
-- Performance monitoring and metrics
-
-## 📦 **Installation**
+## 🚀 Quick Start
 
 ```bash
-go get jsonpathplus-go
+go get github.com/reclaimprotocol/jsonpathplus-go
 ```
-
-## 🎯 **Quick Start**
-
-### **Basic JSONPath Query**
 
 ```go
 package main
 
 import (
     "fmt"
-    jp "jsonpathplus-go"
+    jp "github.com/reclaimprotocol/jsonpathplus-go"
 )
 
 func main() {
-    jsonData := `{"store":{"book":[{"title":"Book 1","price":8.95}]}}`
+    jsonStr := `{"users":[{"name":"Alice","age":30},{"name":"Bob","age":25}]}`
     
-    // Parse and query
-    data, _ := jp.JSONParse(jsonData)
-    results, _ := jp.Query("$.store.book[0].title", data)
+    // Query with character position tracking
+    results, err := jp.Query("$.users[*].name", jsonStr)
+    if err != nil {
+        panic(err)
+    }
     
     for _, result := range results {
-        fmt.Printf("Value: %v, Path: %s\n", result.Value, result.Path)
-        // Output: Value: Book 1, Path: $.store.book[0].title
+        fmt.Printf("Value: %v, Position: %d, Length: %d\n", 
+            result.Value, result.OriginalIndex, result.Length)
     }
 }
 ```
 
-### **String Character Position Tracking** ⭐
+## ✨ Features
+
+- 🎯 **String Position Tracking** - Get exact character positions in original JSON
+- 🏭 **Production Ready** - Built-in caching, logging, metrics, and security
+- 🧵 **Thread Safe** - Concurrent operations with context support
+- 🔒 **Secure** - Input validation and rate limiting
+- ⚡ **High Performance** - Optimized with LRU caching and minimal allocations
+- 📝 **JSONPath-Plus Compatible** - Full feature compatibility
+
+## 📁 Project Structure
+
+```
+├── README.md                    # Main documentation
+├── go.mod                      # Go module configuration
+├── *.go                        # Core library source code
+├── cmd/                        # Command line tools and examples
+│   ├── basic/                  # Basic usage examples
+│   ├── production/             # Production setup examples  
+│   └── showcase/               # Feature demonstration
+├── tests/                      # All test files
+│   ├── *_test.go              # Unit tests
+│   └── benchmarks/            # Performance benchmarks
+├── docs/                       # Documentation
+│   ├── README.md              # Detailed docs
+│   └── *.md                   # Additional documentation
+└── .github/                    # CI/CD configuration
+    └── workflows/ci.yml        # GitHub Actions
+```
+
+## 🔧 Advanced Usage
+
+### Production Engine
 
 ```go
-func main() {
-    jsonStr := `{"id":123,"name":"test","active":true}`
-    
-    // Query with string position tracking
-    results, _ := jp.QueryWithStringIndex("$.name", jsonStr)
-    
-    for _, result := range results {
-        fmt.Printf("Property '%s' found at character position: %d\n", 
-            "name", result.OriginalIndex)
-        // Output: Property 'name' found at character position: 10
-        
-        fmt.Printf("Character at position %d: '%c'\n", 
-            result.OriginalIndex, jsonStr[result.OriginalIndex])
-        // Output: Character at position 10: '"'
-    }
+engine, err := jp.NewEngine(jp.DefaultConfig())
+if err != nil {
+    log.Fatal(err)
 }
-```
-
-### **Array Element Positioning**
-
-```go
-func main() {
-    jsonStr := `["first","second","third"]`
-    
-    results, _ := jp.QueryWithStringIndex("$[*]", jsonStr)
-    
-    for i, result := range results {
-        fmt.Printf("Element %d ('%s') at position: %d\n", 
-            i, result.Value, result.OriginalIndex)
-    }
-    // Output:
-    // Element 0 ('first') at position: 1
-    // Element 1 ('second') at position: 9  
-    // Element 2 ('third') at position: 18
-}
-```
-
-### **Whitespace Preservation**
-
-```go
-func main() {
-    jsonStr := `{
-  "id": 123,
-  "data": {
-    "name": "test"
-  }
-}`
-    
-    results, _ := jp.QueryWithStringIndex("$.data.name", jsonStr)
-    
-    fmt.Printf("Property 'name' with whitespace at position: %d\n", 
-        results[0].OriginalIndex)
-    // Correctly finds the position despite formatting
-}
-```
-
-## 📋 **API Reference**
-
-### **Core Functions**
-
-```go
-// Standard JSONPath query
-func Query(path string, data interface{}) ([]Result, error)
-
-// String position tracking query ⭐ NEW
-func QueryWithStringIndex(path string, jsonStr string) ([]StringIndexResult, error)
-
-// JSON parsing
-func JSONParse(jsonStr string) (interface{}, error)
-func JSONParseWithIndex(jsonStr string) (*IndexedValue, error)
-```
-
-### **Result Structures**
-
-```go
-// Standard Result
-type Result struct {
-    Value         interface{} // The actual value
-    Path          string      // JSONPath to this element
-    Parent        interface{} // Reference to parent
-    ParentProperty string     // Property name or index
-    Index         int         // Position in result set
-    OriginalIndex int         // Original array index
-}
-
-// String Index Result ⭐ NEW
-type StringIndexResult struct {
-    Value            interface{}    // The actual value
-    Path             string         // JSONPath to this element
-    Parent           interface{}    // Reference to parent
-    ParentProperty   string         // Property name or index
-    Index            int            // Position in result set
-    OriginalIndex    int            // Character position in JSON string ⭐
-    StringPosition   StringPosition // Detailed position info
-}
-```
-
-## 🧪 **Supported JSONPath Expressions**
-
-| Expression | Description | String Index Support |
-|------------|-------------|---------------------|
-| `$` | Root object | ✅ Position 0 |
-| `.property` | Child property | ✅ Property key position |
-| `['property']` | Bracket notation | ✅ Property key position |
-| `[index]` | Array index | ✅ Element position |
-| `[start:end]` | Array slice | ✅ Each element position |
-| `*` | Wildcard | ✅ All element positions |
-| `..` | Recursive descent | ✅ Nested positions |
-| `[?(@.price < 10)]` | Filter expression | ✅ Matching positions |
-| `['prop1','prop2']` | Union | ✅ Multiple positions |
-| `[-1]` | Negative index | ✅ Element position |
-
-## 📊 **Advanced Examples**
-
-### **Complex Nested Structures**
-
-```go
-jsonStr := `{"company":{"departments":[{"name":"eng","employees":[{"name":"alice","id":1}]}]}}`
-
-// Deep nesting with string positions
-results, _ := jp.QueryWithStringIndex("$.company.departments[0].employees[0].name", jsonStr)
-fmt.Printf("Employee name at position: %d\n", results[0].OriginalIndex)
-```
-
-### **Filter Expressions with Positions**
-
-```go
-jsonStr := `{"users":[{"name":"alice","age":25},{"name":"bob","age":35}]}`
-
-// Find users over 30 with their string positions  
-results, _ := jp.QueryWithStringIndex("$.users[?(@.age > 30)]", jsonStr)
-for _, result := range results {
-    fmt.Printf("User over 30 found at position: %d\n", result.OriginalIndex)
-}
-```
-
-### **Production Configuration**
-
-```go
-// Production-ready engine with caching and security
-engine, err := jp.NewEngine(jp.Config{
-    CacheSize:        1000,
-    SecurityEnabled:  true,
-    LoggingEnabled:   true,
-    MetricsEnabled:   true,
-})
 defer engine.Close()
 
-results, err := engine.Query("$.store.book[*]", data)
+// Thread-safe queries with timeout
+results, err := engine.QueryData("$.store.book[*]", data)
 ```
 
-## 🧪 **Testing**
+### String Position Tracking
+
+```go
+jsonStr := `{"id": 123, "name": "test"}`
+results, err := jp.Query("$.name", jsonStr)
+
+// Result contains:
+// - Value: "test" 
+// - OriginalIndex: 15 (character position of "name" key)
+// - Length: 6 (length of "name" in JSON)
+// - Path: "$.name"
+```
+
+## 📊 Performance
+
+```
+BenchmarkSimplePath-12                  1,761,480 ops    683.0 ns/op
+BenchmarkStringIndexPreservation-12       342,960 ops  3,647.0 ns/op  
+BenchmarkCachedQuery-12                     6,973 ops 171,663.0 ns/op
+```
+
+## 🧪 Testing
 
 ```bash
-# Run all tests
-go test ./...
-
-# Run string index tests specifically  
-go test -run TestStringIndex
-
-# Run benchmarks
-go test -bench=.
-
-# Test with coverage
-go test -cover ./...
+go test -v ./tests/...           # Run all tests
+go test -bench=. ./tests/...     # Run benchmarks  
+go test -race ./tests/...        # Race condition testing
 ```
 
-## 🎯 **Use Cases**
+## 📖 Examples
 
-### **1. JSON Editor/IDE Support**
-Highlight specific properties and values in JSON editor by character position.
+See [`cmd/`](cmd/) directory for comprehensive examples:
+- [`cmd/basic/`](cmd/basic/) - Basic JSONPath operations
+- [`cmd/production/`](cmd/production/) - Production configuration
+- [`cmd/showcase/`](cmd/showcase/) - Advanced features demo
 
-### **2. Error Reporting**
-Provide precise error locations in JSON validation and processing.
+## 🤝 Contributing
 
-### **3. JSON Transformation**
-Track original positions during data transformations for audit trails.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-### **4. API Response Analysis**
-Analyze and annotate API responses with precise element locations.
+## 📄 License
 
-### **5. JSON Diff/Merge Tools**
-Compare JSON files with character-level precision.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📈 **Performance**
+## 🙏 Acknowledgments
 
-- **Query Performance**: ~857μs/op for complex nested operations
-- **Memory Efficiency**: Minimal overhead for position tracking
-- **Thread Safety**: All operations are concurrent-safe
-- **Caching**: LRU cache for compiled expressions
-
-## 🔧 **Production Features**
-
-- ✅ **Thread-Safe**: Concurrent query execution
-- ✅ **Error Handling**: Comprehensive error types and messages
-- ✅ **Logging**: Structured logging with configurable levels  
-- ✅ **Metrics**: Performance monitoring and statistics
-- ✅ **Caching**: LRU cache for query compilation
-- ✅ **Security**: Input validation and rate limiting
-- ✅ **Testing**: 100% test coverage with comprehensive edge cases
-
-## 📄 **License**
-
-MIT License - see LICENSE file for details.
-
-## 🤝 **Contributing**
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+- Inspired by [JSONPath-Plus](https://github.com/JSONPath-Plus/JSONPath) JavaScript library
+- Built with ❤️ for the Go community
 
 ---
 
-## 🌟 **What Makes This Special**
-
-This library is the **only Go JSONPath implementation** that provides **exact character positions** in the original JSON string. Instead of returning array indices like traditional libraries, it returns the precise character position where each element begins.
-
-**Traditional approach:**  
-`OriginalIndex = 0, 1, 2...` (array positions)
-
-**Our approach:**  
-`OriginalIndex = 1, 9, 18...` (character positions in JSON string)
-
-Perfect for applications requiring **precise JSON element location tracking**! 🎯
+**⚡ Generated with [Claude Code](https://claude.ai/code)**

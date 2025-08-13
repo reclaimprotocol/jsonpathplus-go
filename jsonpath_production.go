@@ -294,7 +294,7 @@ func (e *JSONPathEngine) executeWithLimits(execCtx *executionContext, ast *astNo
 		runtime.GC()
 		runtime.ReadMemStats(&m)
 		
-		currentUsage := int64(m.Alloc)
+		currentUsage := int64(m.Alloc) // #nosec G115 - Memory stats are safe to convert
 		execCtx.metrics.UpdateMemoryUsage(currentUsage)
 		
 		if currentUsage > execCtx.config.MaxMemoryUsage {
