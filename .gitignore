@@ -41,10 +41,10 @@ Thumbs.db
 /bin/
 /dist/
 
-# Example binaries
-basic
-production  
-showcase
+# Example binaries (only in root directory)
+/basic
+/production  
+/showcase
 *-linux-*
 *-darwin-*
 *-windows-*
