@@ -1,6 +1,5 @@
 run:
   timeout: 5m
-  modules-download-mode: readonly
 
 output:
   format: colored-line-number
@@ -16,7 +15,10 @@ linters-settings:
     statements: 50
   
   gci:
-    local-prefixes: jsonpathplus-go
+    sections:
+      - standard
+      - default
+      - prefix(github.com/reclaimprotocol/jsonpathplus-go)
   
   gocognit:
     min-complexity: 15
@@ -32,24 +34,23 @@ linters-settings:
     simplify: true
   
   goimports:
-    local-prefixes: jsonpathplus-go
+    local-prefixes: github.com/reclaimprotocol/jsonpathplus-go
   
-  golint:
-    min-confidence: 0
-  
-  gomnd:
-    settings:
-      mnd:
-        checks: argument,case,condition,operation,return,assign
+  mnd:
+    ignored-numbers: [0, 1, 2]
+    ignored-functions: 
+      - 'strconv.FormatInt'
+      - 'strconv.FormatUint'
+      - 'strconv.ParseInt'
   
   govet:
-    check-shadowing: true
+    enable-all: true
+    settings:
+      shadow:
+        strict: true
   
   lll:
     line-length: 120
-  
-  maligned:
-    suggest-new: true
   
   misspell:
     locale: US
@@ -58,30 +59,25 @@ linters-settings:
     min-complexity: 4
   
   nolintlint:
-    allow-leading-space: true
     allow-unused: false
     require-explanation: false
     require-specific: false
   
   revive:
-    min-confidence: 0
+    confidence: 0
   
   unparam:
     check-exported: false
   
   unused:
-    check-exported: false
-  
-  whitespace:
-    multi-if: false
-    multi-func: false
+    field-writes-are-uses: true
+    post-statements-are-reads: false
+    exported-is-used: true
 
 linters:
   enable:
     - asciicheck
     - bodyclose
-    - deadcode
-    - depguard
     - dogsled
     - dupl
     - errcheck
@@ -96,16 +92,13 @@ linters:
     - godot
     - gofmt
     - goimports
-    - golint
-    - gomnd
+    - mnd
     - goprintffuncname
     - gosec
     - gosimple
     - govet
     - ineffassign
-    - interfacer
     - lll
-    - maligned
     - misspell
     - nakedret
     - nestif
@@ -114,27 +107,25 @@ linters:
     - prealloc
     - revive
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
 
 issues:
   exclude-rules:
     - path: _test\.go
       linters:
-        - gomnd
+        - mnd
         - funlen
         - gocognit
         - gocyclo
     
-    - path: examples/
+    - path: cmd/examples/
       linters:
-        - gomnd
+        - mnd
         - funlen
     
     - linters:
@@ -144,8 +135,3 @@ issues:
   exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
-  new: false
-
-severity:
-  default-severity: error
-  case-sensitive: false

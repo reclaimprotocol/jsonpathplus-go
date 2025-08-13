@@ -297,4 +297,3 @@ func BenchmarkStringIndexPreservation(b *testing.B) {
 		}
 	}
 }
-

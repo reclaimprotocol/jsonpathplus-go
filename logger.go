@@ -89,10 +89,13 @@ type NoOpLogger struct{}
 
 // Debug does nothing (no-op implementation).
 func (l *NoOpLogger) Debug(_ string, _ ...Field) {}
+
 // Info does nothing (no-op implementation).
-func (l *NoOpLogger) Info(_ string, _ ...Field)  {}
+func (l *NoOpLogger) Info(_ string, _ ...Field) {}
+
 // Warn does nothing (no-op implementation).
-func (l *NoOpLogger) Warn(_ string, _ ...Field)  {}
+func (l *NoOpLogger) Warn(_ string, _ ...Field) {}
+
 // Error does nothing (no-op implementation).
 func (l *NoOpLogger) Error(_ string, _ ...Field) {}
 

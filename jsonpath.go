@@ -172,15 +172,16 @@ func tokenize(path string) ([]token, error) {
 		case ' ', '\t', '\n', '\r':
 			i++
 		default:
-			if isDigit(path[i]) || path[i] == '-' {
+			switch {
+			case isDigit(path[i]) || path[i] == '-':
 				numEnd := findNumberEnd(path, i)
 				tokens = append(tokens, token{Type: tokenNumber, Value: path[i:numEnd]})
 				i = numEnd
-			} else if isIdentifierStart(path[i]) {
+			case isIdentifierStart(path[i]):
 				idEnd := findIdentifierEnd(path, i)
 				tokens = append(tokens, token{Type: tokenIdentifier, Value: path[i:idEnd]})
 				i = idEnd
-			} else {
+			default:
 				return nil, fmt.Errorf("unexpected character: %c at position %d", path[i], i)
 			}
 		}
@@ -305,6 +306,8 @@ func parse(tokens []token) (*astNode, error) {
 					node := &astNode{Type: "wildcard", Value: "*"}
 					current.Children = append(current.Children, node)
 					i++
+				default:
+					// Skip other token types after dot
 				}
 			}
 		case tokenDoubleDot:
@@ -321,6 +324,8 @@ func parse(tokens []token) (*astNode, error) {
 					childNode := &astNode{Type: "wildcard", Value: "*"}
 					node.Children = append(node.Children, childNode)
 					i++
+				default:
+					// Skip other token types after double dot
 				}
 			}
 		case tokenBracketOpen:
@@ -435,6 +440,8 @@ func evaluateNode(node *astNode, contexts []Result, options *Options) []Result {
 						OriginalIndex:  i,
 					})
 				}
+			default:
+				// Other types don't support wildcard
 			}
 		case "index":
 			if arr, ok := ctx.Value.([]interface{}); ok {
@@ -463,6 +470,8 @@ func evaluateNode(node *astNode, contexts []Result, options *Options) []Result {
 			results = append(results, evaluateSlice(node.Value, ctx, options)...)
 		case nodeTypeRecursive:
 			results = append(results, evaluateRecursive(node, ctx, options)...)
+		default:
+			// Unknown node type, skip
 		}
 	}
 
@@ -475,8 +484,7 @@ func evaluateFilter(filter string, ctx Result, _ *Options) []Result {
 	filter = strings.TrimPrefix(filter, "?(")
 	filter = strings.TrimSuffix(filter, ")")
 
-	switch v := ctx.Value.(type) {
-	case []interface{}:
+	if v, ok := ctx.Value.([]interface{}); ok {
 		for i, item := range v {
 			if evaluateFilterExpression(filter, item, ctx.Value) {
 				results = append(results, Result{
@@ -745,6 +753,8 @@ func evaluateRecursive(node *astNode, ctx Result, options *Options) []Result {
 					OriginalIndex:  i,
 				})
 			}
+		default:
+			// Leaf node or unsupported type, no traversal needed
 		}
 	}
 
