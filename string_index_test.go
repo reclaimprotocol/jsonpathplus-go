@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// TestStringIndexPreservation tests that indices represent character positions in original JSON string
+// TestStringIndexPreservation tests that indices represent character positions in original JSON string.
 func TestStringIndexPreservation(t *testing.T) {
 	engine, err := NewEngine(DefaultConfig())
 	if err != nil {
@@ -285,7 +285,7 @@ func testArrayOfObjectsStringIndex(t *testing.T, _ *JSONPathEngine) {
 	}
 }
 
-// Benchmark string index preservation performance
+// Benchmark string index preservation performance.
 func BenchmarkStringIndexPreservation(b *testing.B) {
 	jsonStr := `{"users":[{"name":"alice","age":25},{"name":"bob","age":30},{"name":"charlie","age":35}]}`
 
@@ -298,7 +298,7 @@ func BenchmarkStringIndexPreservation(b *testing.B) {
 	}
 }
 
-// Helper function to validate that string index points to expected character
+// Helper function to validate that string index points to expected character.
 func validateStringIndex(t *testing.T, jsonStr string, index int, expectedChar byte, description string) {
 	if index < 0 || index >= len(jsonStr) {
 		t.Errorf("%s: index %d out of bounds for string length %d", description, index, len(jsonStr))

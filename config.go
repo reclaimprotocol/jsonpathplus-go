@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// Config holds configuration options for JSONPath operations
+// Config holds configuration options for JSONPath operations.
 type Config struct {
 	// MaxPathLength limits the maximum length of JSONPath expressions
 	MaxPathLength int
@@ -34,7 +34,7 @@ type Config struct {
 	EnableMetrics bool
 }
 
-// DefaultConfig returns the default configuration
+// DefaultConfig returns the default configuration.
 func DefaultConfig() *Config {
 	return &Config{
 		MaxPathLength:         1000,
@@ -49,7 +49,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// ProductionConfig returns a configuration suitable for production use
+// ProductionConfig returns a configuration suitable for production use.
 func ProductionConfig() *Config {
 	config := DefaultConfig()
 	config.MaxPathLength = 500
@@ -63,7 +63,7 @@ func ProductionConfig() *Config {
 	return config
 }
 
-// Validate validates the configuration
+// Validate validates the configuration.
 func (c *Config) Validate() error {
 	if c.MaxPathLength <= 0 {
 		return &ValidationError{
@@ -108,7 +108,7 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// Clone creates a copy of the configuration
+// Clone creates a copy of the configuration.
 func (c *Config) Clone() *Config {
 	clone := *c
 	return &clone

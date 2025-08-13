@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+const (
+	nodeTypeRecursive = "recursive"
+)
+
+// Result represents a JSONPath query result with position information.
 type Result struct {
 	Value          interface{} // The actual value
 	Path           string      // JSONPath to this element
@@ -44,12 +49,12 @@ func New(path string, options *Options) *JSONPath {
 	}
 }
 
-// Query executes a JSONPath query with string character position tracking
+// Query executes a JSONPath query with string character position tracking.
 func Query(path string, jsonStr string) ([]Result, error) {
 	return QueryWithStringIndex(path, jsonStr)
 }
 
-// QueryData executes a JSONPath query on parsed data (legacy support)
+// QueryData executes a JSONPath query on parsed data (legacy support).
 func QueryData(path string, data interface{}) ([]Result, error) {
 	jp := New(path, nil)
 	return jp.Execute(data)
@@ -452,7 +457,7 @@ func evaluateNode(node *astNode, contexts []Result, options *Options) []Result {
 			results = append(results, evaluateFilter(node.Value, ctx, options)...)
 		case "slice":
 			results = append(results, evaluateSlice(node.Value, ctx, options)...)
-		case "recursive":
+		case nodeTypeRecursive:
 			results = append(results, evaluateRecursive(node, ctx, options)...)
 		}
 	}

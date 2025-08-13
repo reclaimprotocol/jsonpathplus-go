@@ -29,7 +29,7 @@ type StringIndexTracker struct {
 	pathToPos    map[string]StringPosition
 }
 
-// NewStringIndexTracker creates a new string index tracker
+// NewStringIndexTracker creates a new string index tracker.
 func NewStringIndexTracker(jsonStr string) *StringIndexTracker {
 	return &StringIndexTracker{
 		originalJSON: jsonStr,
@@ -37,7 +37,7 @@ func NewStringIndexTracker(jsonStr string) *StringIndexTracker {
 	}
 }
 
-// JSONParseWithIndex parses JSON while preserving string positions
+// JSONParseWithIndex parses JSON while preserving string positions.
 func JSONParseWithIndex(jsonStr string) (*IndexedValue, error) {
 	tracker := NewStringIndexTracker(jsonStr)
 
@@ -59,9 +59,9 @@ func JSONParseWithIndex(jsonStr string) (*IndexedValue, error) {
 	}, nil
 }
 
-// parseValue recursively parses values and tracks their positions
+// parseValue recursively parses values and tracks their positions (currently unused)
+//nolint:unused
 func (t *StringIndexTracker) parseValue(value interface{}, path string, startPos int) error {
-
 	switch v := value.(type) {
 	case map[string]interface{}:
 		return t.parseObject(v, path, startPos)
@@ -78,7 +78,7 @@ func (t *StringIndexTracker) parseValue(value interface{}, path string, startPos
 	}
 }
 
-// parseObject parses a JSON object and tracks property positions
+// parseObject parses a JSON object and tracks property positions.
 func (t *StringIndexTracker) parseObject(obj map[string]interface{}, path string, startPos int) error {
 	jsonStr := t.originalJSON
 
@@ -132,7 +132,8 @@ func (t *StringIndexTracker) parseObject(obj map[string]interface{}, path string
 	return nil
 }
 
-// parseArray parses a JSON array and tracks element positions
+// parseArray parses a JSON array and tracks element positions (currently unused)
+//nolint:unused
 func (t *StringIndexTracker) parseArray(arr []interface{}, path string, startPos int) error {
 	jsonStr := t.originalJSON
 
@@ -169,7 +170,8 @@ func (t *StringIndexTracker) parseArray(arr []interface{}, path string, startPos
 	return nil
 }
 
-// findPropertyKey finds the position of a property key in the JSON string
+// findPropertyKey finds the position of a property key in the JSON string (currently unused)
+//nolint:unused
 func (t *StringIndexTracker) findPropertyKey(key string, startPos int) int {
 	jsonStr := t.originalJSON
 	searchStr := fmt.Sprintf(`"%s"`, key)
@@ -198,7 +200,8 @@ func (t *StringIndexTracker) findPropertyKey(key string, startPos int) int {
 	}
 }
 
-// findValuePosition finds the character position of a primitive value
+// findValuePosition finds the character position of a primitive value (currently unused)
+//nolint:unused
 func (t *StringIndexTracker) findValuePosition(value interface{}, startPos int) (StringPosition, error) {
 	jsonStr := t.originalJSON
 
@@ -231,7 +234,8 @@ func (t *StringIndexTracker) findValuePosition(value interface{}, startPos int) 
 	}, nil
 }
 
-// findChar finds the next occurrence of a character from the given position
+// findChar finds the next occurrence of a character from the given position (currently unused)
+//nolint:unused
 func (t *StringIndexTracker) findChar(char byte, startPos int) int {
 	jsonStr := t.originalJSON
 	for i := startPos; i < len(jsonStr); i++ {
@@ -242,7 +246,7 @@ func (t *StringIndexTracker) findChar(char byte, startPos int) int {
 	return -1
 }
 
-// findNextElementStart finds the start position of the next array element
+// findNextElementStart finds the start position of the next array element.
 func (t *StringIndexTracker) findNextElementStart(currentPos int) int {
 	jsonStr := t.originalJSON
 
@@ -295,19 +299,19 @@ func (t *StringIndexTracker) findNextElementStart(currentPos int) int {
 	return len(jsonStr)
 }
 
-// GetStringPositionByPath returns the string position for a given JSONPath
+// GetStringPositionByPath returns the string position for a given JSONPath.
 func (t *StringIndexTracker) GetStringPositionByPath(path string) (StringPosition, bool) {
 	pos, exists := t.pathToPos[path]
 	return pos, exists
 }
 
-// GetPositionByPath returns the string position for a given JSONPath
+// GetPositionByPath returns the string position for a given JSONPath.
 func (t *StringIndexTracker) GetPositionByPath(path string) (StringPosition, bool) {
 	pos, exists := t.pathToPos[path]
 	return pos, exists
 }
 
-// isWhitespace checks if a character is whitespace
+// isWhitespace checks if a character is whitespace.
 func isWhitespace(char byte) bool {
 	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
 }

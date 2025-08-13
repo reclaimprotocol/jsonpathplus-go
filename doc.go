@@ -1,6 +1,6 @@
 /*
 Package jsonpathplus provides a production-ready JSONPath implementation for Go
-with comprehensive features including caching, security, metrics, and resource limits.
+with comprehensive features including security, metrics, and resource limits.
 
 # Overview
 
@@ -10,7 +10,6 @@ the full JSONPath specification with additional production-ready features:
 - Full JSONPath syntax support ($.., *, filters, slicing, etc.)
 - Original index preservation
 - Thread-safe concurrent access
-- Comprehensive caching with LRU eviction
 - Security validation and sandboxing
 - Performance metrics and monitoring
 - Resource limits (memory, time, recursion)

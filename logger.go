@@ -11,9 +11,13 @@ import (
 type LogLevel int
 
 const (
+	// LogLevelDebug represents debug level logging.
 	LogLevelDebug LogLevel = iota
+	// LogLevelInfo represents info level logging.
 	LogLevelInfo
+	// LogLevelWarn represents warning level logging.
 	LogLevelWarn
+	// LogLevelError represents error level logging.
 	LogLevelError
 )
 
@@ -61,14 +65,17 @@ func (l *DefaultLogger) log(level LogLevel, levelStr, msg string, fields ...Fiel
 	l.logger.Printf("[%s] %s%s", levelStr, msg, fieldStr)
 }
 
+// Debug logs a debug message with optional fields.
 func (l *DefaultLogger) Debug(msg string, fields ...Field) {
 	l.log(LogLevelDebug, "DEBUG", msg, fields...)
 }
 
+// Info logs an info message with optional fields.
 func (l *DefaultLogger) Info(msg string, fields ...Field) {
 	l.log(LogLevelInfo, "INFO", msg, fields...)
 }
 
+// Warn logs a warning message with optional fields.
 func (l *DefaultLogger) Warn(msg string, fields ...Field) {
 	l.log(LogLevelWarn, "WARN", msg, fields...)
 }
@@ -80,10 +87,14 @@ func (l *DefaultLogger) Error(msg string, fields ...Field) {
 // NoOpLogger implements a logger that does nothing
 type NoOpLogger struct{}
 
-func (l *NoOpLogger) Debug(msg string, fields ...Field) {}
-func (l *NoOpLogger) Info(msg string, fields ...Field)  {}
-func (l *NoOpLogger) Warn(msg string, fields ...Field)  {}
-func (l *NoOpLogger) Error(_ string, _ ...Field)        {}
+// Debug does nothing (no-op implementation).
+func (l *NoOpLogger) Debug(_ string, _ ...Field) {}
+// Info does nothing (no-op implementation).
+func (l *NoOpLogger) Info(_ string, _ ...Field)  {}
+// Warn does nothing (no-op implementation).
+func (l *NoOpLogger) Warn(_ string, _ ...Field)  {}
+// Error does nothing (no-op implementation).
+func (l *NoOpLogger) Error(_ string, _ ...Field) {}
 
 // Metrics collects performance metrics
 type Metrics struct {
@@ -140,23 +151,27 @@ func (m *MetricsCollector) Reset() {
 	m.metrics = Metrics{}
 }
 
-// Helper functions for creating fields
+// String creates a field with a string value.
 func String(key, value string) Field {
 	return Field{Key: key, Value: value}
 }
 
+// Int creates a field with an int value.
 func Int(key string, value int) Field {
 	return Field{Key: key, Value: value}
 }
 
+// Int64 creates a field with an int64 value.
 func Int64(key string, value int64) Field {
 	return Field{Key: key, Value: value}
 }
 
+// Duration creates a field with a time.Duration value.
 func Duration(key string, value time.Duration) Field {
 	return Field{Key: key, Value: value}
 }
 
+// Error creates a field with an error value.
 func Error(key string, err error) Field {
 	return Field{Key: key, Value: err}
 }

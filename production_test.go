@@ -259,9 +259,9 @@ func TestSecurityValidator(t *testing.T) {
 	})
 
 	t.Run("ComplexPath", func(t *testing.T) {
-		config := DefaultSecurityConfig()
-		config.MaxPathComplexity = 5
-		validator := NewSecurityValidator(config)
+		secConfig := DefaultSecurityConfig()
+		secConfig.MaxPathComplexity = 5
+		validator := NewSecurityValidator(secConfig)
 
 		complexPath := "$..[*]..[*]..[*]..[*]" // Very complex path
 		err := validator.ValidatePath(complexPath)
@@ -429,7 +429,7 @@ func BenchmarkEngineQuery(b *testing.B) {
 	}
 }
 
-// Helper function for error assertion
+// Helper function for error assertion.
 func As(err error, target interface{}) bool {
 	// Simple implementation for testing
 	switch e := err.(type) {

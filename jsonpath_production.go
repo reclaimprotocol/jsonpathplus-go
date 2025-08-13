@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// JSONPathEngine is the main production-ready JSONPath engine
+// JSONPathEngine is the main production-ready JSONPath engine.
 type JSONPathEngine struct {
 	config  *Config
 	logger  Logger
@@ -17,7 +17,7 @@ type JSONPathEngine struct {
 	mu      sync.RWMutex
 }
 
-// NewEngine creates a new JSONPath engine with the given configuration
+// NewEngine creates a new JSONPath engine with the given configuration.
 func NewEngine(config *Config) (*JSONPathEngine, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -41,24 +41,24 @@ func NewEngine(config *Config) (*JSONPathEngine, error) {
 	}, nil
 }
 
-// SetLogger sets a custom logger
+// SetLogger sets a custom logger.
 func (e *JSONPathEngine) SetLogger(logger Logger) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	e.logger = logger
 }
 
-// Query executes a JSONPath query with string character position tracking
+// Query executes a JSONPath query with string character position tracking.
 func (e *JSONPathEngine) Query(path string, jsonStr string) ([]Result, error) {
 	return QueryWithStringIndex(path, jsonStr)
 }
 
-// QueryData executes a JSONPath query on parsed data with timeout and resource limits
+// QueryData executes a JSONPath query on parsed data with timeout and resource limits.
 func (e *JSONPathEngine) QueryData(path string, data interface{}) ([]Result, error) {
 	return e.QueryDataWithContext(context.Background(), path, data)
 }
 
-// QueryDataWithContext executes a JSONPath query on parsed data with context for cancellation
+// QueryDataWithContext executes a JSONPath query on parsed data with context for cancellation.
 func (e *JSONPathEngine) QueryDataWithContext(ctx context.Context, path string, data interface{}) ([]Result, error) {
 	start := time.Now()
 	var err error
@@ -127,7 +127,7 @@ func (e *JSONPathEngine) QueryDataWithContext(ctx context.Context, path string, 
 	return results, nil
 }
 
-// executionContext holds state for query execution
+// executionContext holds state for query execution.
 type executionContext struct {
 	ctx            context.Context
 	config         *Config
@@ -137,7 +137,7 @@ type executionContext struct {
 	resultCount    int
 }
 
-// validateInput validates the input parameters
+// validateInput validates the input parameters.
 func (e *JSONPathEngine) validateInput(path string, data interface{}) error {
 	if path == "" {
 		return NewError(ErrInvalidPath, "empty path", "", -1)
@@ -162,7 +162,7 @@ func (e *JSONPathEngine) validateInput(path string, data interface{}) error {
 	return nil
 }
 
-// compileAST compiles the JSONPath expression into an AST
+// compileAST compiles the JSONPath expression into an AST.
 func (e *JSONPathEngine) compileAST(path string) (*astNode, error) {
 	// Compile AST
 	tokens, err := e.tokenizeWithValidation(path)
@@ -178,7 +178,7 @@ func (e *JSONPathEngine) compileAST(path string) (*astNode, error) {
 	return ast, nil
 }
 
-// tokenizeWithValidation tokenizes with enhanced validation
+// tokenizeWithValidation tokenizes with enhanced validation.
 func (e *JSONPathEngine) tokenizeWithValidation(path string) ([]token, error) {
 	tokens, err := tokenize(path)
 	if err != nil {
@@ -195,7 +195,7 @@ func (e *JSONPathEngine) tokenizeWithValidation(path string) ([]token, error) {
 	return tokens, nil
 }
 
-// validateTokens performs additional token validation
+// validateTokens performs additional token validation.
 func (e *JSONPathEngine) validateTokens(tokens []token, path string) error {
 	if len(tokens) == 0 {
 		return NewError(ErrInvalidPath, "no tokens found", path, -1)
@@ -265,7 +265,9 @@ func (e *JSONPathEngine) validateAST(ast *astNode, path string) error {
 }
 
 // executeWithLimits executes the query with resource monitoring
-func (e *JSONPathEngine) executeWithLimits(execCtx *executionContext, ast *astNode, data interface{}) ([]Result, error) {
+func (e *JSONPathEngine) executeWithLimits(
+	execCtx *executionContext, ast *astNode, data interface{},
+) ([]Result, error) {
 	// Check memory usage periodically
 	if execCtx.config.MaxMemoryUsage > 0 {
 		var m runtime.MemStats
@@ -299,7 +301,9 @@ func (e *JSONPathEngine) executeWithLimits(execCtx *executionContext, ast *astNo
 }
 
 // evaluateWithContext is a wrapper around the original evaluate function with context
-func (e *JSONPathEngine) evaluateWithContext(execCtx *executionContext, ast *astNode, data interface{}) ([]Result, error) {
+func (e *JSONPathEngine) evaluateWithContext(
+	execCtx *executionContext, ast *astNode, data interface{},
+) ([]Result, error) {
 	// Use the original evaluate function but with context checking
 	options := &Options{
 		ResultType: "value",
@@ -311,7 +315,9 @@ func (e *JSONPathEngine) evaluateWithContext(execCtx *executionContext, ast *ast
 }
 
 // evaluateWithResourceLimits performs evaluation with resource limits
-func (e *JSONPathEngine) evaluateWithResourceLimits(execCtx *executionContext, ast *astNode, data interface{}, options *Options) ([]Result, error) {
+func (e *JSONPathEngine) evaluateWithResourceLimits(
+	execCtx *executionContext, ast *astNode, data interface{}, options *Options,
+) ([]Result, error) {
 	results := []Result{{
 		Value:         data,
 		Path:          "$",
@@ -349,7 +355,9 @@ func (e *JSONPathEngine) evaluateWithResourceLimits(execCtx *executionContext, a
 }
 
 // evaluateNodeWithLimits evaluates a single node with resource limits
-func (e *JSONPathEngine) evaluateNodeWithLimits(execCtx *executionContext, node *astNode, contexts []Result, options *Options) ([]Result, error) {
+func (e *JSONPathEngine) evaluateNodeWithLimits(
+	execCtx *executionContext, node *astNode, contexts []Result, options *Options,
+) ([]Result, error) {
 	// Check recursion depth
 	if node.Type == "recursive" {
 		if execCtx.recursionDepth >= execCtx.config.MaxRecursionDepth {
