@@ -30,7 +30,7 @@ type JSONPathError struct {
 
 func (e *JSONPathError) Error() string {
 	var parts []string
-	
+
 	switch e.Type {
 	case ErrInvalidPath:
 		parts = append(parts, "invalid JSONPath")
@@ -49,23 +49,23 @@ func (e *JSONPathError) Error() string {
 	case ErrRecursionLimit:
 		parts = append(parts, "recursion limit exceeded")
 	}
-	
+
 	if e.Path != "" {
 		parts = append(parts, fmt.Sprintf("path: %s", e.Path))
 	}
-	
+
 	if e.Position >= 0 {
 		parts = append(parts, fmt.Sprintf("position: %d", e.Position))
 	}
-	
+
 	if e.Message != "" {
 		parts = append(parts, e.Message)
 	}
-	
+
 	if e.Cause != nil {
 		parts = append(parts, fmt.Sprintf("caused by: %v", e.Cause))
 	}
-	
+
 	return strings.Join(parts, ": ")
 }
 

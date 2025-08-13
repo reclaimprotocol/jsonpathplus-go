@@ -12,7 +12,6 @@ import (
 // JSONPathEngine is the main production-ready JSONPath engine
 type JSONPathEngine struct {
 	config  *Config
-	cache   Cache
 	logger  Logger
 	metrics *MetricsCollector
 	mu      sync.RWMutex
@@ -23,28 +22,20 @@ func NewEngine(config *Config) (*JSONPathEngine, error) {
 	if config == nil {
 		config = DefaultConfig()
 	}
-	
+
 	if err := config.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid configuration: %w", err)
 	}
-	
-	var cache Cache
-	if config.CacheSize > 0 {
-		cache = NewLRUCache(config.CacheSize)
-	} else {
-		cache = &NoCache{}
-	}
-	
+
 	var logger Logger
 	if config.EnableLogging {
 		logger = NewDefaultLogger(LogLevelInfo)
 	} else {
 		logger = &NoOpLogger{}
 	}
-	
+
 	return &JSONPathEngine{
 		config:  config.Clone(),
-		cache:   cache,
 		logger:  logger,
 		metrics: NewMetricsCollector(config.EnableMetrics),
 	}, nil
@@ -71,11 +62,11 @@ func (e *JSONPathEngine) QueryData(path string, data interface{}) ([]Result, err
 func (e *JSONPathEngine) QueryDataWithContext(ctx context.Context, path string, data interface{}) ([]Result, error) {
 	start := time.Now()
 	var err error
-	
+
 	defer func() {
 		duration := time.Since(start)
 		e.metrics.RecordQuery(duration, err)
-		
+
 		if err != nil {
 			e.logger.Error("Query failed",
 				String("path", path),
@@ -89,41 +80,41 @@ func (e *JSONPathEngine) QueryDataWithContext(ctx context.Context, path string, 
 			)
 		}
 	}()
-	
+
 	// Validate input
 	if err = e.validateInput(path, data); err != nil {
 		return nil, err
 	}
-	
+
 	// Check timeout
 	if e.config.Timeout > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, e.config.Timeout)
 		defer cancel()
 	}
-	
+
 	// Create execution context
 	execCtx := &executionContext{
-		ctx:           ctx,
-		config:        e.config,
-		logger:        e.logger,
-		metrics:       e.metrics,
+		ctx:            ctx,
+		config:         e.config,
+		logger:         e.logger,
+		metrics:        e.metrics,
 		recursionDepth: 0,
-		resultCount:   0,
+		resultCount:    0,
 	}
-	
-	// Get or compile AST
-	ast, err := e.getOrCompileAST(path)
+
+	// Compile AST
+	ast, err := e.compileAST(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to compile path: %w", err)
 	}
-	
+
 	// Execute query with resource limits
 	results, err := e.executeWithLimits(execCtx, ast, data)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Apply result limits
 	if len(results) > e.config.MaxResultCount {
 		e.logger.Warn("Result count exceeded limit",
@@ -132,7 +123,7 @@ func (e *JSONPathEngine) QueryDataWithContext(ctx context.Context, path string, 
 		)
 		results = results[:e.config.MaxResultCount]
 	}
-	
+
 	return results, nil
 }
 
@@ -151,52 +142,39 @@ func (e *JSONPathEngine) validateInput(path string, data interface{}) error {
 	if path == "" {
 		return NewError(ErrInvalidPath, "empty path", "", -1)
 	}
-	
+
 	if len(path) > e.config.MaxPathLength {
 		return &PathLengthError{
 			Length: len(path),
 			Limit:  e.config.MaxPathLength,
 		}
 	}
-	
+
 	if data == nil {
 		return NewError(ErrInvalidJSON, "nil data", path, -1)
 	}
-	
+
 	// Basic path validation
 	if !strings.HasPrefix(path, "$") {
 		return NewError(ErrInvalidPath, "path must start with '$'", path, 0)
 	}
-	
+
 	return nil
 }
 
-// getOrCompileAST retrieves AST from cache or compiles it
-func (e *JSONPathEngine) getOrCompileAST(path string) (*astNode, error) {
-	// Try cache first
-	if ast, found := e.cache.Get(path); found {
-		e.metrics.RecordCacheHit()
-		e.logger.Debug("Cache hit", String("path", path))
-		return ast, nil
-	}
-	
-	e.metrics.RecordCacheMiss()
-	e.logger.Debug("Cache miss", String("path", path))
-	
+// compileAST compiles the JSONPath expression into an AST
+func (e *JSONPathEngine) compileAST(path string) (*astNode, error) {
 	// Compile AST
 	tokens, err := e.tokenizeWithValidation(path)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	ast, err := e.parseWithValidation(tokens, path)
 	if err != nil {
 		return nil, err
 	}
-	
-	// Cache the result
-	e.cache.Put(path, ast)
-	
+
 	return ast, nil
 }
 
@@ -206,14 +184,14 @@ func (e *JSONPathEngine) tokenizeWithValidation(path string) ([]token, error) {
 	if err != nil {
 		return nil, WrapError(ErrParseError, err, path, -1)
 	}
-	
+
 	// Additional validation in strict mode
 	if e.config.StrictMode {
 		if err := e.validateTokens(tokens, path); err != nil {
 			return nil, err
 		}
 	}
-	
+
 	return tokens, nil
 }
 
@@ -222,11 +200,11 @@ func (e *JSONPathEngine) validateTokens(tokens []token, path string) error {
 	if len(tokens) == 0 {
 		return NewError(ErrInvalidPath, "no tokens found", path, -1)
 	}
-	
+
 	if tokens[0].Type != tokenRoot {
 		return NewError(ErrInvalidPath, "path must start with root token", path, 0)
 	}
-	
+
 	// Check for suspicious patterns
 	for i, tok := range tokens {
 		switch tok.Type {
@@ -239,7 +217,7 @@ func (e *JSONPathEngine) validateTokens(tokens []token, path string) error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
@@ -249,12 +227,12 @@ func (e *JSONPathEngine) parseWithValidation(tokens []token, path string) (*astN
 	if err != nil {
 		return nil, WrapError(ErrParseError, err, path, -1)
 	}
-	
+
 	// Validate AST structure
 	if err := e.validateAST(ast, path); err != nil {
 		return nil, err
 	}
-	
+
 	return ast, nil
 }
 
@@ -263,7 +241,7 @@ func (e *JSONPathEngine) validateAST(ast *astNode, path string) error {
 	if ast == nil {
 		return NewError(ErrParseError, "nil AST", path, -1)
 	}
-	
+
 	// Count recursive nodes to prevent excessive recursion
 	recursiveCount := 0
 	var validateNode func(*astNode) error
@@ -274,7 +252,7 @@ func (e *JSONPathEngine) validateAST(ast *astNode, path string) error {
 				return NewError(ErrRecursionLimit, "too many recursive operators", path, -1)
 			}
 		}
-		
+
 		for _, child := range node.Children {
 			if err := validateNode(child); err != nil {
 				return err
@@ -282,7 +260,7 @@ func (e *JSONPathEngine) validateAST(ast *astNode, path string) error {
 		}
 		return nil
 	}
-	
+
 	return validateNode(ast)
 }
 
@@ -293,30 +271,30 @@ func (e *JSONPathEngine) executeWithLimits(execCtx *executionContext, ast *astNo
 		var m runtime.MemStats
 		runtime.GC()
 		runtime.ReadMemStats(&m)
-		
+
 		currentUsage := int64(m.Alloc) // #nosec G115 - Memory stats are safe to convert
 		execCtx.metrics.UpdateMemoryUsage(currentUsage)
-		
+
 		if currentUsage > execCtx.config.MaxMemoryUsage {
-			return nil, NewError(ErrEvaluationError, 
+			return nil, NewError(ErrEvaluationError,
 				fmt.Sprintf("memory usage %d exceeds limit %d", currentUsage, execCtx.config.MaxMemoryUsage),
 				"", -1)
 		}
 	}
-	
+
 	// Check context cancellation
 	select {
 	case <-execCtx.ctx.Done():
 		return nil, execCtx.ctx.Err()
 	default:
 	}
-	
+
 	// Execute the evaluation
 	results, err := e.evaluateWithContext(execCtx, ast, data)
 	if err != nil {
 		return nil, WrapError(ErrEvaluationError, err, "", -1)
 	}
-	
+
 	return results, nil
 }
 
@@ -328,19 +306,19 @@ func (e *JSONPathEngine) evaluateWithContext(execCtx *executionContext, ast *ast
 		Flatten:    false,
 		Wrap:       true,
 	}
-	
+
 	return e.evaluateWithResourceLimits(execCtx, ast, data, options)
 }
 
 // evaluateWithResourceLimits performs evaluation with resource limits
 func (e *JSONPathEngine) evaluateWithResourceLimits(execCtx *executionContext, ast *astNode, data interface{}, options *Options) ([]Result, error) {
 	results := []Result{{
-		Value: data,
-		Path:  "$",
-		Index: 0,
+		Value:         data,
+		Path:          "$",
+		Index:         0,
 		OriginalIndex: 0,
 	}}
-	
+
 	for _, child := range ast.Children {
 		// Check context cancellation
 		select {
@@ -348,25 +326,25 @@ func (e *JSONPathEngine) evaluateWithResourceLimits(execCtx *executionContext, a
 			return nil, execCtx.ctx.Err()
 		default:
 		}
-		
+
 		// Check result count limit
 		if len(results) > execCtx.config.MaxResultCount {
 			break
 		}
-		
+
 		newResults, err := e.evaluateNodeWithLimits(execCtx, child, results, options)
 		if err != nil {
 			return nil, err
 		}
 		results = newResults
 	}
-	
+
 	if options.ResultType == "path" {
 		for i := range results {
 			results[i].Value = results[i].Path
 		}
 	}
-	
+
 	return results, nil
 }
 
@@ -383,7 +361,7 @@ func (e *JSONPathEngine) evaluateNodeWithLimits(execCtx *executionContext, node 
 		execCtx.recursionDepth++
 		defer func() { execCtx.recursionDepth-- }()
 	}
-	
+
 	// Use original evaluation logic but with context checking
 	return evaluateNode(node, contexts, options), nil
 }
@@ -391,16 +369,6 @@ func (e *JSONPathEngine) evaluateNodeWithLimits(execCtx *executionContext, node 
 // GetMetrics returns current performance metrics
 func (e *JSONPathEngine) GetMetrics() Metrics {
 	return e.metrics.GetMetrics()
-}
-
-// GetCacheStats returns cache statistics
-func (e *JSONPathEngine) GetCacheStats() CacheStats {
-	return e.cache.Stats()
-}
-
-// ClearCache clears the compilation cache
-func (e *JSONPathEngine) ClearCache() {
-	e.cache.Clear()
 }
 
 // GetConfig returns a copy of the current configuration
@@ -415,21 +383,12 @@ func (e *JSONPathEngine) UpdateConfig(newConfig *Config) error {
 	if err := newConfig.Validate(); err != nil {
 		return fmt.Errorf("invalid configuration: %w", err)
 	}
-	
+
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
+
 	e.config = newConfig.Clone()
-	
-	// Update components if needed
-	if newConfig.CacheSize != e.config.CacheSize {
-		if newConfig.CacheSize > 0 {
-			e.cache = NewLRUCache(newConfig.CacheSize)
-		} else {
-			e.cache = &NoCache{}
-		}
-	}
-	
+
 	return nil
 }
 
@@ -437,15 +396,11 @@ func (e *JSONPathEngine) UpdateConfig(newConfig *Config) error {
 func (e *JSONPathEngine) Close() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	
-	if e.cache != nil {
-		e.cache.Clear()
-	}
-	
+
 	if e.metrics != nil {
 		e.metrics.Reset()
 	}
-	
+
 	e.logger.Info("JSONPath engine closed")
 	return nil
 }

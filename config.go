@@ -8,31 +8,28 @@ import (
 type Config struct {
 	// MaxPathLength limits the maximum length of JSONPath expressions
 	MaxPathLength int
-	
+
 	// MaxRecursionDepth limits the depth of recursive descent operations
 	MaxRecursionDepth int
-	
+
 	// MaxResultCount limits the number of results returned
 	MaxResultCount int
-	
+
 	// Timeout for query execution
 	Timeout time.Duration
-	
+
 	// EnableLogging enables debug logging
 	EnableLogging bool
-	
-	// CacheSize for compiled JSONPath expressions (0 = no cache)
-	CacheSize int
-	
+
 	// StrictMode enforces stricter validation
 	StrictMode bool
-	
+
 	// AllowUnsafeOperations enables potentially unsafe operations
 	AllowUnsafeOperations bool
-	
+
 	// MaxMemoryUsage limits memory usage in bytes (0 = no limit)
 	MaxMemoryUsage int64
-	
+
 	// EnableMetrics enables performance metrics collection
 	EnableMetrics bool
 }
@@ -45,7 +42,6 @@ func DefaultConfig() *Config {
 		MaxResultCount:        10000,
 		Timeout:               30 * time.Second,
 		EnableLogging:         false,
-		CacheSize:             100,
 		StrictMode:            false,
 		AllowUnsafeOperations: false,
 		MaxMemoryUsage:        100 * 1024 * 1024, // 100MB
@@ -76,7 +72,7 @@ func (c *Config) Validate() error {
 			Message: "must be greater than 0",
 		}
 	}
-	
+
 	if c.MaxRecursionDepth <= 0 {
 		return &ValidationError{
 			Field:   "MaxRecursionDepth",
@@ -84,7 +80,7 @@ func (c *Config) Validate() error {
 			Message: "must be greater than 0",
 		}
 	}
-	
+
 	if c.MaxResultCount <= 0 {
 		return &ValidationError{
 			Field:   "MaxResultCount",
@@ -92,7 +88,7 @@ func (c *Config) Validate() error {
 			Message: "must be greater than 0",
 		}
 	}
-	
+
 	if c.Timeout <= 0 {
 		return &ValidationError{
 			Field:   "Timeout",
@@ -100,15 +96,7 @@ func (c *Config) Validate() error {
 			Message: "must be greater than 0",
 		}
 	}
-	
-	if c.CacheSize < 0 {
-		return &ValidationError{
-			Field:   "CacheSize",
-			Value:   c.CacheSize,
-			Message: "must be >= 0",
-		}
-	}
-	
+
 	if c.MaxMemoryUsage < 0 {
 		return &ValidationError{
 			Field:   "MaxMemoryUsage",
@@ -116,7 +104,7 @@ func (c *Config) Validate() error {
 			Message: "must be >= 0",
 		}
 	}
-	
+
 	return nil
 }
 

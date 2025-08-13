@@ -70,7 +70,6 @@ import (
 func main() {
     // Create production engine
     config := jp.ProductionConfig()
-    config.CacheSize = 1000
     config.EnableMetrics = true
     
     engine, err := jp.NewEngine(config)
@@ -90,10 +89,6 @@ func main() {
     fmt.Printf("Queries executed: %d\n", metrics.QueriesExecuted)
     fmt.Printf("Average time: %v\n", metrics.AverageExecutionTime)
     
-    // Check cache performance
-    stats := engine.GetCacheStats()
-    fmt.Printf("Cache hit rate: %.2f%%\n", 
-        float64(stats.Hits)/float64(stats.Hits+stats.Misses)*100)
 }
 ```
 

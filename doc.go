@@ -21,13 +21,13 @@ the full JSONPath specification with additional production-ready features:
 # Quick Start
 
 	package main
-	
+
 	import (
 		"fmt"
 		"log"
 		jp "jsonpathplus-go"
 	)
-	
+
 	func main() {
 		// Create engine with default configuration
 		engine, err := jp.NewEngine(jp.DefaultConfig())
@@ -35,7 +35,7 @@ the full JSONPath specification with additional production-ready features:
 			log.Fatal(err)
 		}
 		defer engine.Close()
-		
+
 		// Parse JSON data
 		data, err := jp.JSONParse(`{
 			"users": [
@@ -46,13 +46,13 @@ the full JSONPath specification with additional production-ready features:
 		if err != nil {
 			log.Fatal(err)
 		}
-		
+
 		// Query with JSONPath
 		results, err := engine.Query("$.users[?(@.age > 25)].name", data)
 		if err != nil {
 			log.Fatal(err)
 		}
-		
+
 		for _, result := range results {
 			fmt.Printf("Name: %s, Path: %s\n", result.Value, result.Path)
 		}
@@ -66,7 +66,7 @@ For production environments, use the production configuration:
 	config.MaxResultCount = 500
 	config.Timeout = 3 * time.Second
 	config.EnableMetrics = true
-	
+
 	engine, err := jp.NewEngine(config)
 	if err != nil {
 		log.Fatal(err)
@@ -80,11 +80,11 @@ The library includes comprehensive security features:
 	config := jp.DefaultConfig()
 	config.StrictMode = true
 	config.AllowUnsafeOperations = false
-	
+
 	// Add security validator
 	securityConfig := jp.DefaultSecurityConfig()
 	validator := jp.NewSecurityValidator(securityConfig)
-	
+
 	// Validate paths before execution
 	if err := validator.ValidatePath(jsonPath); err != nil {
 		log.Printf("Unsafe path: %v", err)
@@ -96,16 +96,16 @@ The library includes comprehensive security features:
 Monitor performance with built-in metrics:
 
 	engine, _ := jp.NewEngine(jp.DefaultConfig())
-	
+
 	// Execute queries...
-	
+
 	metrics := engine.GetMetrics()
-	fmt.Printf("Queries: %d, Avg time: %v\n", 
-		metrics.QueriesExecuted, 
+	fmt.Printf("Queries: %d, Avg time: %v\n",
+		metrics.QueriesExecuted,
 		metrics.AverageExecutionTime)
-	
+
 	cacheStats := engine.GetCacheStats()
-	fmt.Printf("Cache hit ratio: %.2f%%\n", 
+	fmt.Printf("Cache hit ratio: %.2f%%\n",
 		cacheStats.HitRatio * 100)
 
 # JSONPath Syntax Support
@@ -136,10 +136,10 @@ Comprehensive filter expression support:
 	$.store.book[?(@.price >= 10)]          // Greater than or equal
 	$.store.book[?(@.price == 10)]          // Equal
 	$.store.book[?(@.price != 10)]          // Not equal
-	
+
 	// Property existence
 	$.store.book[?(@.isbn)]                 // Has isbn property
-	
+
 	// String matching
 	$.store.book[?(@.category == 'fiction')]
 
@@ -167,13 +167,13 @@ The library provides detailed error types for better error handling:
 All operations are thread-safe and support concurrent access:
 
 	engine, _ := jp.NewEngine(jp.DefaultConfig())
-	
+
 	// Safe to use from multiple goroutines
 	go func() {
 		results, _ := engine.Query("$.users[*].name", data)
 		// Process results...
 	}()
-	
+
 	go func() {
 		results, _ := engine.Query("$.products[*].price", data)
 		// Process results...
@@ -188,7 +188,7 @@ Configure resource limits to prevent abuse:
 	config.MaxResultCount = 1000           // Limit results
 	config.MaxMemoryUsage = 50 * 1024 * 1024  // 50MB limit
 	config.Timeout = 5 * time.Second       // 5 second timeout
-	
+
 	engine, _ := jp.NewEngine(config)
 
 # Custom Logging
@@ -198,12 +198,12 @@ Integrate with your logging system:
 	type MyLogger struct {
 		logger *logrus.Logger
 	}
-	
+
 	func (l *MyLogger) Debug(msg string, fields ...jp.Field) {
 		l.logger.WithFields(convertFields(fields)).Debug(msg)
 	}
 	// ... implement other methods
-	
+
 	engine, _ := jp.NewEngine(jp.DefaultConfig())
 	engine.SetLogger(&MyLogger{logger: logrus.New()})
 
@@ -212,14 +212,14 @@ Integrate with your logging system:
 Implement rate limiting for API endpoints:
 
 	limiter := jp.NewRateLimiter(100, time.Minute) // 100 requests per minute
-	
+
 	func handleJSONPathQuery(w http.ResponseWriter, r *http.Request) {
 		clientIP := r.RemoteAddr
 		if !limiter.Allow(clientIP) {
 			http.Error(w, "Rate limit exceeded", http.StatusTooManyRequests)
 			return
 		}
-		
+
 		// Process query...
 	}
 
@@ -271,6 +271,5 @@ Contributions are welcome! Please see CONTRIBUTING.md for guidelines.
 For issues, feature requests, or questions:
 - GitHub Issues: https://github.com/user/jsonpathplus-go/issues
 - Documentation: https://pkg.go.dev/jsonpathplus-go
-
 */
 package jsonpathplus

@@ -44,12 +44,12 @@ func TestBasicPaths(t *testing.T) {
 		},
 		"expensive": 10
 	}`
-	
+
 	data, err := JSONParse(jsonStr)
 	if err != nil {
 		t.Fatalf("Failed to parse JSON: %v", err)
 	}
-	
+
 	tests := []struct {
 		path     string
 		expected int
@@ -70,7 +70,7 @@ func TestBasicPaths(t *testing.T) {
 		{"$.store.book[2].title", 1, "Title of third book"},
 		{"$.store.book[0]['title']", 1, "Title with bracket notation"},
 	}
-	
+
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
 			results, err := QueryData(test.path, data)
@@ -94,28 +94,28 @@ func TestIndexPreservation(t *testing.T) {
 			"third": 3
 		}
 	}`
-	
+
 	data, err := JSONParse(jsonStr)
 	if err != nil {
 		t.Fatalf("Failed to parse JSON: %v", err)
 	}
-	
+
 	results, err := QueryData("$.items[*]", data)
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	
+
 	for i, result := range results {
 		if result.OriginalIndex != i {
 			t.Errorf("Expected original index %d, got %d", i, result.OriginalIndex)
 		}
 	}
-	
+
 	results, err = QueryData("$.nested.*", data)
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	
+
 	for _, result := range results {
 		if result.OriginalIndex < 0 {
 			t.Errorf("Original index not preserved for object properties")
@@ -132,12 +132,12 @@ func TestFilterExpressions(t *testing.T) {
 			{"name": "Alice", "age": 28}
 		]
 	}`
-	
+
 	data, err := JSONParse(jsonStr)
 	if err != nil {
 		t.Fatalf("Failed to parse JSON: %v", err)
 	}
-	
+
 	tests := []struct {
 		path     string
 		expected []string
@@ -149,7 +149,7 @@ func TestFilterExpressions(t *testing.T) {
 		{"$.users[?(@.age <= 30)]", []string{"John", "Jane", "Alice"}, "Age less than or equal to 30"},
 		{"$.users[?(@.name != 'Bob')]", []string{"John", "Jane", "Alice"}, "Name not Bob"},
 	}
-	
+
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
 			results, err := QueryData(test.path, data)
@@ -157,7 +157,7 @@ func TestFilterExpressions(t *testing.T) {
 				t.Errorf("Query failed for path %s: %v", test.path, err)
 				return
 			}
-			
+
 			var names []string
 			for _, result := range results {
 				if user, ok := result.Value.(map[string]interface{}); ok {
@@ -166,7 +166,7 @@ func TestFilterExpressions(t *testing.T) {
 					}
 				}
 			}
-			
+
 			if !reflect.DeepEqual(names, test.expected) {
 				t.Errorf("Path %s: expected %v, got %v", test.path, test.expected, names)
 			}
@@ -178,12 +178,12 @@ func TestSliceNotation(t *testing.T) {
 	jsonStr := `{
 		"numbers": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 	}`
-	
+
 	data, err := JSONParse(jsonStr)
 	if err != nil {
 		t.Fatalf("Failed to parse JSON: %v", err)
 	}
-	
+
 	tests := []struct {
 		path     string
 		expected []int
@@ -197,7 +197,7 @@ func TestSliceNotation(t *testing.T) {
 		{"$.numbers[-3:]", []int{7, 8, 9}, "Last 3 elements"},
 		{"$.numbers[-5:-2]", []int{5, 6, 7}, "Negative indices"},
 	}
-	
+
 	for _, test := range tests {
 		t.Run(test.desc, func(t *testing.T) {
 			results, err := QueryData(test.path, data)
@@ -205,7 +205,7 @@ func TestSliceNotation(t *testing.T) {
 				t.Errorf("Query failed for path %s: %v", test.path, err)
 				return
 			}
-			
+
 			var values []int
 			for _, result := range results {
 				if num, ok := result.Value.(int); ok {
@@ -214,7 +214,7 @@ func TestSliceNotation(t *testing.T) {
 					values = append(values, int(num))
 				}
 			}
-			
+
 			if !reflect.DeepEqual(values, test.expected) {
 				t.Errorf("Path %s: expected %v, got %v", test.path, test.expected, values)
 			}
@@ -235,22 +235,22 @@ func TestRecursiveDescent(t *testing.T) {
 		},
 		"c": 4
 	}`
-	
+
 	data, err := JSONParse(jsonStr)
 	if err != nil {
 		t.Fatalf("Failed to parse JSON: %v", err)
 	}
-	
+
 	results, err := QueryData("$..c", data)
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	
+
 	expected := []int{1, 2, 3, 4}
 	if len(results) != len(expected) {
 		t.Errorf("Expected %d results, got %d", len(expected), len(results))
 	}
-	
+
 	var values []int
 	for _, result := range results {
 		if num, ok := result.Value.(int); ok {
@@ -259,7 +259,7 @@ func TestRecursiveDescent(t *testing.T) {
 			values = append(values, int(num))
 		}
 	}
-	
+
 	for _, exp := range expected {
 		found := false
 		for _, val := range values {
@@ -294,22 +294,22 @@ func TestComplexNestedStructure(t *testing.T) {
 			}
 		}
 	}`
-	
+
 	data, err := JSONParse(jsonStr)
 	if err != nil {
 		t.Fatalf("Failed to parse JSON: %v", err)
 	}
-	
+
 	results, err := QueryData("$..items[*].value", data)
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	
+
 	expected := []string{"a", "b", "c", "d", "e"}
 	if len(results) != len(expected) {
 		t.Errorf("Expected %d results, got %d", len(expected), len(results))
 	}
-	
+
 	// Collect actual values for comparison
 	var actualValues []string
 	for _, result := range results {
@@ -317,7 +317,7 @@ func TestComplexNestedStructure(t *testing.T) {
 			actualValues = append(actualValues, str)
 		}
 	}
-	
+
 	// Check that all expected values are present
 	for _, expectedVal := range expected {
 		found := false
@@ -340,27 +340,27 @@ func TestParentAndPath(t *testing.T) {
 			{"name": "Jane", "age": 25}
 		]
 	}`
-	
+
 	data, err := JSONParse(jsonStr)
 	if err != nil {
 		t.Fatalf("Failed to parse JSON: %v", err)
 	}
-	
+
 	results, err := QueryData("$.users[*].name", data)
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	
+
 	for i, result := range results {
 		expectedPath := []string{"$.users[0].name", "$.users[1].name"}
 		if result.Path != expectedPath[i] {
 			t.Errorf("Expected path %s, got %s", expectedPath[i], result.Path)
 		}
-		
+
 		if result.ParentProperty != "name" {
 			t.Errorf("Expected parent property 'name', got %s", result.ParentProperty)
 		}
-		
+
 		if result.Parent == nil {
 			t.Errorf("Parent should not be nil")
 		}
@@ -369,17 +369,17 @@ func TestParentAndPath(t *testing.T) {
 
 func TestEmptyResults(t *testing.T) {
 	jsonStr := `{"a": 1, "b": 2}`
-	
+
 	data, err := JSONParse(jsonStr)
 	if err != nil {
 		t.Fatalf("Failed to parse JSON: %v", err)
 	}
-	
+
 	results, err := QueryData("$.nonexistent", data)
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	
+
 	if len(results) != 0 {
 		t.Errorf("Expected 0 results for nonexistent path, got %d", len(results))
 	}
@@ -389,21 +389,21 @@ func TestWildcardWithArrays(t *testing.T) {
 	jsonStr := `{
 		"data": [1, 2, 3, 4, 5]
 	}`
-	
+
 	data, err := JSONParse(jsonStr)
 	if err != nil {
 		t.Fatalf("Failed to parse JSON: %v", err)
 	}
-	
+
 	results, err := QueryData("$.data[*]", data)
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	
+
 	if len(results) != 5 {
 		t.Errorf("Expected 5 results, got %d", len(results))
 	}
-	
+
 	for i, result := range results {
 		if result.OriginalIndex != i {
 			t.Errorf("Expected original index %d, got %d", i, result.OriginalIndex)
@@ -430,26 +430,26 @@ func TestUnionOperator(t *testing.T) {
 			"isbn": "123456789"
 		}
 	}`
-	
+
 	data, err := JSONParse(jsonStr)
 	if err != nil {
 		t.Fatalf("Failed to parse JSON: %v", err)
 	}
-	
+
 	results, err := QueryData("$.book['title','author']", data)
 	if err != nil {
 		t.Fatalf("Query failed: %v", err)
 	}
-	
+
 	if len(results) != 2 {
 		t.Errorf("Expected 2 results, got %d", len(results))
 	}
-	
+
 	expectedValues := map[string]bool{
 		"Example":  false,
 		"John Doe": false,
 	}
-	
+
 	for _, result := range results {
 		if str, ok := result.Value.(string); ok {
 			if _, exists := expectedValues[str]; exists {
@@ -457,7 +457,7 @@ func TestUnionOperator(t *testing.T) {
 			}
 		}
 	}
-	
+
 	for val, found := range expectedValues {
 		if !found {
 			t.Errorf("Expected value %s not found", val)
@@ -473,7 +473,7 @@ func BenchmarkSimplePath(b *testing.B) {
 			},
 		},
 	}
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, _ = QueryData("$.a.b.c", data)
@@ -493,7 +493,7 @@ func BenchmarkRecursivePath(b *testing.B) {
 		},
 		"c": 4,
 	}
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, _ = QueryData("$..c", data)
@@ -511,7 +511,7 @@ func BenchmarkFilterExpression(b *testing.B) {
 	data := map[string]interface{}{
 		"items": items,
 	}
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_, _ = QueryData("$.items[?(@.value > 500)]", data)
@@ -520,22 +520,22 @@ func BenchmarkFilterExpression(b *testing.B) {
 
 func TestJSONParsePreservesOrder(t *testing.T) {
 	jsonStr := `{"z": 1, "a": 2, "m": 3, "b": 4}`
-	
+
 	data, err := JSONParse(jsonStr)
 	if err != nil {
 		t.Fatalf("Failed to parse JSON: %v", err)
 	}
-	
+
 	obj, ok := data.(map[string]interface{})
 	if !ok {
 		t.Fatalf("Expected map, got %T", data)
 	}
-	
+
 	marshaledBytes, err := json.Marshal(obj)
 	if err != nil {
 		t.Fatalf("Failed to marshal: %v", err)
 	}
-	
+
 	marshaled := string(marshaledBytes)
 	if marshaled != jsonStr {
 		t.Logf("Note: Go's map type doesn't preserve insertion order")

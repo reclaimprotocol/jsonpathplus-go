@@ -45,9 +45,9 @@ func testSimpleObjectStringIndex(t *testing.T, _ *JSONPathEngine) {
 	jsonStr := `{"id":123,"name":"test"}`
 
 	tests := []struct {
-		path           string
-		expectedIndex  int
-		description    string
+		path          string
+		expectedIndex int
+		description   string
 	}{
 		{"$.id", 1, "Property 'id' starts at position 1 (after opening brace)"},
 		{"$.name", 10, "Property 'name' starts at position 10"},
@@ -66,9 +66,9 @@ func testSimpleObjectStringIndex(t *testing.T, _ *JSONPathEngine) {
 
 			result := results[0]
 			if result.OriginalIndex != test.expectedIndex {
-				t.Errorf("Expected string index %d, got %d for path %s", 
+				t.Errorf("Expected string index %d, got %d for path %s",
 					test.expectedIndex, result.OriginalIndex, test.path)
-				
+
 				// Show context for debugging
 				if test.expectedIndex < len(jsonStr) {
 					char := jsonStr[test.expectedIndex]
@@ -79,7 +79,7 @@ func testSimpleObjectStringIndex(t *testing.T, _ *JSONPathEngine) {
 					t.Errorf("Character at actual position %d: '%c'", result.OriginalIndex, char)
 				}
 				t.Errorf("JSON string: %s", jsonStr)
-				t.Errorf("Position markers: %s", strings.Repeat(" ", test.expectedIndex) + "^")
+				t.Errorf("Position markers: %s", strings.Repeat(" ", test.expectedIndex)+"^")
 			}
 		})
 	}
@@ -112,10 +112,10 @@ func testArrayElementsStringIndex(t *testing.T, _ *JSONPathEngine) {
 		}
 
 		if result.OriginalIndex != expectedIndex {
-			t.Errorf("Result %d (%s): expected string index %d, got %d", 
+			t.Errorf("Result %d (%s): expected string index %d, got %d",
 				i, expectedValue, expectedIndex, result.OriginalIndex)
 			t.Errorf("JSON: %s", jsonStr)
-			t.Errorf("Expected position: %s", strings.Repeat(" ", expectedIndex) + "^")
+			t.Errorf("Expected position: %s", strings.Repeat(" ", expectedIndex)+"^")
 		}
 	}
 }
@@ -123,14 +123,13 @@ func testArrayElementsStringIndex(t *testing.T, _ *JSONPathEngine) {
 func testNestedObjectsStringIndex(t *testing.T, _ *JSONPathEngine) {
 	// Test case: {"user":{"name":"john","age":25}}
 	//             ^       ^       ^      ^
-	//             0       8       16     24  
+	//             0       8       16     24
 	jsonStr := `{"user":{"name":"john","age":25}}`
-	
 
 	tests := []struct {
-		path           string
-		expectedIndex  int
-		description    string
+		path          string
+		expectedIndex int
+		description   string
 	}{
 		{"$.user", 1, "Property 'user' starts at position 1"},
 		{"$.user.name", 9, "Nested property 'name' starts at position 9"},
@@ -150,12 +149,12 @@ func testNestedObjectsStringIndex(t *testing.T, _ *JSONPathEngine) {
 
 			result := results[0]
 			if result.OriginalIndex != test.expectedIndex {
-				t.Errorf("Path %s: expected string index %d, got %d", 
+				t.Errorf("Path %s: expected string index %d, got %d",
 					test.path, test.expectedIndex, result.OriginalIndex)
 				t.Errorf("JSON: %s", jsonStr)
-				t.Errorf("Expected: %s", strings.Repeat(" ", test.expectedIndex) + "^")
+				t.Errorf("Expected: %s", strings.Repeat(" ", test.expectedIndex)+"^")
 				if result.OriginalIndex < len(jsonStr) {
-					t.Errorf("Actual:   %s", strings.Repeat(" ", result.OriginalIndex) + "^")
+					t.Errorf("Actual:   %s", strings.Repeat(" ", result.OriginalIndex)+"^")
 				}
 			}
 		})
@@ -171,7 +170,6 @@ func testWhitespacePreservation(t *testing.T, _ *JSONPathEngine) {
     "values": [1, 2, 3]
   }
 }`
-	
 
 	// Find where "id" appears in the string (after newline and spaces)
 	idPos := strings.Index(jsonStr, `"id"`)
@@ -179,9 +177,9 @@ func testWhitespacePreservation(t *testing.T, _ *JSONPathEngine) {
 	valuesPos := strings.Index(jsonStr, `"values"`)
 
 	tests := []struct {
-		path           string
-		expectedIndex  int
-		description    string
+		path          string
+		expectedIndex int
+		description   string
 	}{
 		{"$.id", idPos, "Property 'id' position with whitespace"},
 		{"$.data.name", namePos, "Nested property 'name' position with whitespace"},
@@ -201,9 +199,9 @@ func testWhitespacePreservation(t *testing.T, _ *JSONPathEngine) {
 
 			result := results[0]
 			if result.OriginalIndex != test.expectedIndex {
-				t.Errorf("Path %s: expected string index %d, got %d", 
+				t.Errorf("Path %s: expected string index %d, got %d",
 					test.path, test.expectedIndex, result.OriginalIndex)
-				
+
 				// Show context lines
 				lines := strings.Split(jsonStr, "\n")
 				for i, line := range lines {
@@ -216,11 +214,10 @@ func testWhitespacePreservation(t *testing.T, _ *JSONPathEngine) {
 
 func testComplexNestingStringIndex(t *testing.T, _ *JSONPathEngine) {
 	jsonStr := `{"company":{"departments":[{"name":"engineering","employees":[{"name":"alice","id":1}]}]}}`
-	
 
 	tests := []struct {
-		path           string
-		description    string
+		path        string
+		description string
 	}{
 		{"$.company", "Root company object"},
 		{"$.company.departments", "Departments array"},
@@ -242,14 +239,14 @@ func testComplexNestingStringIndex(t *testing.T, _ *JSONPathEngine) {
 			}
 
 			result := results[0]
-			
+
 			// Verify the index points to a reasonable position in the string
 			if result.OriginalIndex < 0 || result.OriginalIndex >= len(jsonStr) {
-				t.Errorf("String index %d is out of bounds for JSON string of length %d", 
+				t.Errorf("String index %d is out of bounds for JSON string of length %d",
 					result.OriginalIndex, len(jsonStr))
 			}
 
-			t.Logf("Path %s -> index %d (char: '%c')", 
+			t.Logf("Path %s -> index %d (char: '%c')",
 				test.path, result.OriginalIndex, jsonStr[result.OriginalIndex])
 		})
 	}
@@ -257,7 +254,6 @@ func testComplexNestingStringIndex(t *testing.T, _ *JSONPathEngine) {
 
 func testArrayOfObjectsStringIndex(t *testing.T, _ *JSONPathEngine) {
 	jsonStr := `[{"id":1,"name":"first"},{"id":2,"name":"second"}]`
-	
 
 	// Test accessing objects in array
 	results, err := Query("$[*].id", jsonStr)
@@ -277,13 +273,13 @@ func testArrayOfObjectsStringIndex(t *testing.T, _ *JSONPathEngine) {
 
 	for i, result := range results {
 		expectedPos := expectedPositions[i]
-		
-		t.Logf("Result %d: id=%v, string index=%d, expected=%d", 
+
+		t.Logf("Result %d: id=%v, string index=%d, expected=%d",
 			i, result.Value, result.OriginalIndex, expectedPos)
 
 		// The index should be close to the expected position (exact position depends on implementation)
 		if result.OriginalIndex < expectedPos-5 || result.OriginalIndex > expectedPos+5 {
-			t.Errorf("Result %d: string index %d is not close to expected position %d", 
+			t.Errorf("Result %d: string index %d is not close to expected position %d",
 				i, result.OriginalIndex, expectedPos)
 		}
 	}
@@ -311,9 +307,9 @@ func validateStringIndex(t *testing.T, jsonStr string, index int, expectedChar b
 
 	actualChar := jsonStr[index]
 	if actualChar != expectedChar {
-		t.Errorf("%s: expected char '%c' at index %d, got '%c'", 
+		t.Errorf("%s: expected char '%c' at index %d, got '%c'",
 			description, expectedChar, index, actualChar)
-		
+
 		// Show context
 		start := maxInt(0, index-10)
 		end := minInt(len(jsonStr), index+10)

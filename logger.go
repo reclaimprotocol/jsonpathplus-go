@@ -49,7 +49,7 @@ func (l *DefaultLogger) log(level LogLevel, levelStr, msg string, fields ...Fiel
 	if level < l.level {
 		return
 	}
-	
+
 	fieldStr := ""
 	if len(fields) > 0 {
 		fieldStr = " |"
@@ -57,7 +57,7 @@ func (l *DefaultLogger) log(level LogLevel, levelStr, msg string, fields ...Fiel
 			fieldStr += fmt.Sprintf(" %s=%v", field.Key, field.Value)
 		}
 	}
-	
+
 	l.logger.Printf("[%s] %s%s", levelStr, msg, fieldStr)
 }
 
@@ -83,7 +83,7 @@ type NoOpLogger struct{}
 func (l *NoOpLogger) Debug(msg string, fields ...Field) {}
 func (l *NoOpLogger) Info(msg string, fields ...Field)  {}
 func (l *NoOpLogger) Warn(msg string, fields ...Field)  {}
-func (l *NoOpLogger) Error(_ string, _ ...Field) {}
+func (l *NoOpLogger) Error(_ string, _ ...Field)        {}
 
 // Metrics collects performance metrics
 type Metrics struct {
@@ -91,8 +91,6 @@ type Metrics struct {
 	TotalExecutionTime   time.Duration
 	AverageExecutionTime time.Duration
 	ErrorCount           int64
-	CacheHits            int64
-	CacheMisses          int64
 	MemoryUsage          int64
 }
 
@@ -114,30 +112,14 @@ func (m *MetricsCollector) RecordQuery(duration time.Duration, err error) {
 	if !m.enabled {
 		return
 	}
-	
+
 	m.metrics.QueriesExecuted++
 	m.metrics.TotalExecutionTime += duration
 	m.metrics.AverageExecutionTime = time.Duration(int64(m.metrics.TotalExecutionTime) / m.metrics.QueriesExecuted)
-	
+
 	if err != nil {
 		m.metrics.ErrorCount++
 	}
-}
-
-// RecordCacheHit records a cache hit
-func (m *MetricsCollector) RecordCacheHit() {
-	if !m.enabled {
-		return
-	}
-	m.metrics.CacheHits++
-}
-
-// RecordCacheMiss records a cache miss
-func (m *MetricsCollector) RecordCacheMiss() {
-	if !m.enabled {
-		return
-	}
-	m.metrics.CacheMisses++
 }
 
 // UpdateMemoryUsage updates the current memory usage

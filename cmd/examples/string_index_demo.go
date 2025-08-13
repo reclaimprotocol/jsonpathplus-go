@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	jp "jsonpathplus-go"
+	"strings"
 )
 
 func main() {
@@ -48,7 +48,7 @@ func testBasicPropertyPositions() {
 	jsonStr := `{"id":123,"name":"test","active":true}`
 	fmt.Printf("JSON: %s\n", jsonStr)
 	showPositions(jsonStr)
-	
+
 	tests := []struct {
 		query    string
 		expected int
@@ -65,18 +65,18 @@ func testBasicPropertyPositions() {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue
 		}
-		
+
 		if len(results) == 0 {
 			fmt.Printf("❌ %s: No results\n", test.desc)
 			continue
 		}
-		
+
 		result := results[0]
 		if result.OriginalIndex == test.expected {
-			fmt.Printf("✅ %s: Expected %d, Got %d ('%c')\n", 
+			fmt.Printf("✅ %s: Expected %d, Got %d ('%c')\n",
 				test.desc, test.expected, result.OriginalIndex, jsonStr[result.OriginalIndex])
 		} else {
-			fmt.Printf("❌ %s: Expected %d, Got %d\n", 
+			fmt.Printf("❌ %s: Expected %d, Got %d\n",
 				test.desc, test.expected, result.OriginalIndex)
 		}
 	}
@@ -86,13 +86,13 @@ func testArrayElementPositions() {
 	jsonStr := `["first","second","third"]`
 	fmt.Printf("JSON: %s\n", jsonStr)
 	showPositions(jsonStr)
-	
+
 	tests := []struct {
-		query    string
-		desc     string
+		query string
+		desc  string
 	}{
 		{"$[0]", "First array element"},
-		{"$[1]", "Second array element"}, 
+		{"$[1]", "Second array element"},
 		{"$[2]", "Third array element"},
 		{"$[*]", "All array elements"},
 	}
@@ -103,19 +103,19 @@ func testArrayElementPositions() {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue
 		}
-		
+
 		if len(results) == 0 {
 			fmt.Printf("❌ %s: No results\n", test.desc)
 			continue
 		}
-		
+
 		fmt.Printf("📍 %s:\n", test.desc)
 		for i, result := range results {
 			if result.OriginalIndex < len(jsonStr) {
-				fmt.Printf("   Result %d: Value='%v', Index=%d ('%c')\n", 
+				fmt.Printf("   Result %d: Value='%v', Index=%d ('%c')\n",
 					i, result.Value, result.OriginalIndex, jsonStr[result.OriginalIndex])
 			} else {
-				fmt.Printf("   Result %d: Value='%v', Index=%d (out of bounds)\n", 
+				fmt.Printf("   Result %d: Value='%v', Index=%d (out of bounds)\n",
 					i, result.Value, result.OriginalIndex)
 			}
 		}
@@ -126,10 +126,10 @@ func testNestedObjectPositions() {
 	jsonStr := `{"user":{"name":"john","age":30},"status":"active"}`
 	fmt.Printf("JSON: %s\n", jsonStr)
 	showPositions(jsonStr)
-	
+
 	tests := []struct {
-		query    string
-		desc     string
+		query string
+		desc  string
 	}{
 		{"$.user", "Nested object"},
 		{"$.user.name", "Nested property 'name'"},
@@ -143,15 +143,15 @@ func testNestedObjectPositions() {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue
 		}
-		
+
 		if len(results) == 0 {
 			fmt.Printf("❌ %s: No results\n", test.desc)
 			continue
 		}
-		
+
 		result := results[0]
 		if result.OriginalIndex < len(jsonStr) {
-			fmt.Printf("✅ %s: Value='%v', Index=%d ('%c')\n", 
+			fmt.Printf("✅ %s: Value='%v', Index=%d ('%c')\n",
 				test.desc, result.Value, result.OriginalIndex, jsonStr[result.OriginalIndex])
 		} else {
 			fmt.Printf("❌ %s: Index %d out of bounds\n", test.desc, result.OriginalIndex)
@@ -168,7 +168,7 @@ func testWhitespacePreservation() {
   }
 }`
 	fmt.Printf("JSON:\n%s\n", jsonStr)
-	
+
 	tests := []struct {
 		query string
 		desc  string
@@ -185,12 +185,12 @@ func testWhitespacePreservation() {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue
 		}
-		
+
 		if len(results) == 0 {
 			fmt.Printf("❌ %s: No results\n", test.desc)
 			continue
 		}
-		
+
 		result := results[0]
 		if result.OriginalIndex < len(jsonStr) {
 			// Show context around the position
@@ -199,8 +199,8 @@ func testWhitespacePreservation() {
 			context := jsonStr[start:end]
 			context = strings.ReplaceAll(context, "\n", "\\n")
 			context = strings.ReplaceAll(context, "  ", "·")
-			
-			fmt.Printf("✅ %s: Index=%d, Context='%s'\n", 
+
+			fmt.Printf("✅ %s: Index=%d, Context='%s'\n",
 				test.desc, result.OriginalIndex, context)
 		} else {
 			fmt.Printf("❌ %s: Index %d out of bounds\n", test.desc, result.OriginalIndex)
@@ -212,7 +212,7 @@ func testComplexNestedStructures() {
 	jsonStr := `{"company":{"departments":[{"name":"eng","employees":[{"name":"alice","id":1}]}],"founded":2020}}`
 	fmt.Printf("JSON: %s\n", jsonStr)
 	showPositions(jsonStr)
-	
+
 	tests := []struct {
 		query string
 		desc  string
@@ -234,16 +234,16 @@ func testComplexNestedStructures() {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue
 		}
-		
+
 		if len(results) == 0 {
 			fmt.Printf("❌ %s: No results\n", test.desc)
 			continue
 		}
-		
+
 		result := results[0]
 		if result.OriginalIndex < len(jsonStr) && result.OriginalIndex >= 0 {
 			char := jsonStr[result.OriginalIndex]
-			fmt.Printf("📍 %s: Value='%v', Index=%d ('%c')\n", 
+			fmt.Printf("📍 %s: Value='%v', Index=%d ('%c')\n",
 				test.desc, result.Value, result.OriginalIndex, char)
 		} else {
 			fmt.Printf("❌ %s: Invalid index %d\n", test.desc, result.OriginalIndex)
@@ -270,25 +270,25 @@ func testEdgeCases() {
 	for _, test := range tests {
 		fmt.Printf("Testing: %s\n", test.desc)
 		fmt.Printf("JSON: %s\n", test.jsonStr)
-		
+
 		results, err := jp.QueryWithStringIndex(test.query, test.jsonStr)
 		if err != nil {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue
 		}
-		
+
 		if len(results) == 0 {
 			fmt.Printf("❌ %s: No results\n", test.desc)
 			continue
 		}
-		
+
 		result := results[0]
 		if result.OriginalIndex >= 0 && result.OriginalIndex < len(test.jsonStr) {
 			char := test.jsonStr[result.OriginalIndex]
-			fmt.Printf("✅ %s: Value='%v', Index=%d ('%c')\n", 
+			fmt.Printf("✅ %s: Value='%v', Index=%d ('%c')\n",
 				test.desc, result.Value, result.OriginalIndex, char)
 		} else {
-			fmt.Printf("📍 %s: Value='%v', Index=%d\n", 
+			fmt.Printf("📍 %s: Value='%v', Index=%d\n",
 				test.desc, result.Value, result.OriginalIndex)
 		}
 		fmt.Println()

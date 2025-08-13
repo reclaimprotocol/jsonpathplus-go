@@ -10,13 +10,13 @@ import (
 )
 
 type Result struct {
-	Value            interface{} // The actual value
-	Path             string      // JSONPath to this element
-	Parent           interface{} // Reference to parent object/array
-	ParentProperty   string      // Property name or array index in parent
-	Index            int         // Position in result set
-	OriginalIndex    int         // Character position in original JSON string
-	Length           int         // Length of the element in the JSON string
+	Value          interface{} // The actual value
+	Path           string      // JSONPath to this element
+	Parent         interface{} // Reference to parent object/array
+	ParentProperty string      // Property name or array index in parent
+	Index          int         // Position in result set
+	OriginalIndex  int         // Character position in original JSON string
+	Length         int         // Length of the element in the JSON string
 }
 
 type Options struct {
@@ -60,12 +60,12 @@ func (jp *JSONPath) Execute(data interface{}) ([]Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	ast, err := parse(tokens)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return evaluate(ast, data, jp.options)
 }
 
@@ -98,7 +98,7 @@ func tokenize(path string) ([]token, error) {
 	i := 0
 	inBracket := false
 	bracketStart := 0
-	
+
 	for i < len(path) {
 		switch path[i] {
 		case '$':
@@ -142,7 +142,7 @@ func tokenize(path string) ([]token, error) {
 			if strEnd == -1 {
 				return nil, fmt.Errorf("unclosed string")
 			}
-			tokens = append(tokens, token{Type: tokenString, Value: path[i+1:strEnd]})
+			tokens = append(tokens, token{Type: tokenString, Value: path[i+1 : strEnd]})
 			i = strEnd + 1
 		case ':':
 			if inBracket {
@@ -176,7 +176,7 @@ func tokenize(path string) ([]token, error) {
 			}
 		}
 	}
-	
+
 	return tokens, nil
 }
 
@@ -184,7 +184,7 @@ func findFilterEnd(path string, start int) int {
 	depth := 0
 	inString := false
 	stringChar := byte(0)
-	
+
 	for i := start; i < len(path); i++ {
 		if inString {
 			if path[i] == stringChar && (i == 0 || path[i-1] != '\\') {
@@ -192,7 +192,7 @@ func findFilterEnd(path string, start int) int {
 			}
 			continue
 		}
-		
+
 		switch path[i] {
 		case '\'', '"':
 			inString = true
@@ -218,7 +218,6 @@ func findStringEnd(path string, start int) int {
 	}
 	return -1
 }
-
 
 func findSliceEnd(path string, start int) int {
 	for i := start; i < len(path); i++ {
@@ -270,11 +269,11 @@ func parse(tokens []token) (*astNode, error) {
 	if len(tokens) == 0 {
 		return nil, fmt.Errorf("empty path")
 	}
-	
+
 	root := &astNode{Type: "path"}
 	current := root
 	i := 0
-	
+
 	for i < len(tokens) {
 		switch tokens[i].Type {
 		case tokenRoot:
@@ -354,34 +353,34 @@ func parse(tokens []token) (*astNode, error) {
 			i++
 		}
 	}
-	
+
 	return root, nil
 }
 
 func evaluate(ast *astNode, data interface{}, options *Options) ([]Result, error) {
 	results := []Result{{
-		Value: data,
-		Path:  "$",
-		Index: 0,
+		Value:         data,
+		Path:          "$",
+		Index:         0,
 		OriginalIndex: 0,
 	}}
-	
+
 	for _, child := range ast.Children {
 		results = evaluateNode(child, results, options)
 	}
-	
+
 	if options.ResultType == "path" {
 		for i := range results {
 			results[i].Value = results[i].Path
 		}
 	}
-	
+
 	return results, nil
 }
 
 func evaluateNode(node *astNode, contexts []Result, options *Options) []Result {
 	var results []Result
-	
+
 	for _, ctx := range contexts {
 		switch node.Type {
 		case "root":
@@ -457,16 +456,16 @@ func evaluateNode(node *astNode, contexts []Result, options *Options) []Result {
 			results = append(results, evaluateRecursive(node, ctx, options)...)
 		}
 	}
-	
+
 	return results
 }
 
 func evaluateFilter(filter string, ctx Result, _ *Options) []Result {
 	var results []Result
-	
+
 	filter = strings.TrimPrefix(filter, "?(")
 	filter = strings.TrimSuffix(filter, ")")
-	
+
 	switch v := ctx.Value.(type) {
 	case []interface{}:
 		for i, item := range v {
@@ -482,7 +481,7 @@ func evaluateFilter(filter string, ctx Result, _ *Options) []Result {
 			}
 		}
 	}
-	
+
 	return results
 }
 
@@ -490,8 +489,8 @@ func evaluateFilterExpression(expr string, current, root interface{}) bool {
 	expr = strings.TrimSpace(expr)
 	expr = strings.TrimPrefix(expr, "@")
 	expr = strings.TrimSpace(expr)
-	
-	// Handle comparison operators  
+
+	// Handle comparison operators
 	re := regexp.MustCompile(`\.(\w+)\s*(<=|>=|==|!=|<|>)\s*(.+)`)
 	matches := re.FindStringSubmatch(expr)
 	// fmt.Printf("DEBUG: expr=%q, matches=%v\n", expr, matches)
@@ -499,7 +498,7 @@ func evaluateFilterExpression(expr string, current, root interface{}) bool {
 		property := matches[1]
 		operator := matches[2]
 		valueStr := strings.TrimSpace(matches[3])
-		
+
 		if obj, ok := current.(map[string]interface{}); ok {
 			if propValue, exists := obj[property]; exists {
 				parsedValue := parseValue(valueStr)
@@ -512,7 +511,7 @@ func evaluateFilterExpression(expr string, current, root interface{}) bool {
 			}
 		}
 	}
-	
+
 	// Handle existence check
 	reExists := regexp.MustCompile(`^\.(\w+)$`)
 	if matches := reExists.FindStringSubmatch(expr); len(matches) == 2 {
@@ -528,7 +527,7 @@ func evaluateFilterExpression(expr string, current, root interface{}) bool {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
@@ -585,14 +584,14 @@ func toNumber(v interface{}) (float64, bool) {
 
 func parseValue(s string) interface{} {
 	s = strings.TrimSpace(s)
-	
+
 	if strings.HasPrefix(s, "'") && strings.HasSuffix(s, "'") {
 		return s[1 : len(s)-1]
 	}
 	if strings.HasPrefix(s, "\"") && strings.HasSuffix(s, "\"") {
 		return s[1 : len(s)-1]
 	}
-	
+
 	if s == "true" {
 		return true
 	}
@@ -602,56 +601,56 @@ func parseValue(s string) interface{} {
 	if s == "null" {
 		return nil
 	}
-	
+
 	if num, err := strconv.ParseFloat(s, 64); err == nil {
 		return num
 	}
-	
+
 	return s
 }
 
 func evaluateSlice(slice string, ctx Result, options *Options) []Result {
 	var results []Result
-	
+
 	slice = strings.TrimSpace(slice)
 	parts := strings.Split(slice, ":")
-	
+
 	if arr, ok := ctx.Value.([]interface{}); ok {
 		arrLen := len(arr)
 		start := 0
 		end := arrLen
 		step := 1
-		
+
 		if len(parts) > 0 && parts[0] != "" {
 			start, _ = strconv.Atoi(strings.TrimSpace(parts[0]))
 		}
-		
+
 		if len(parts) > 1 && parts[1] != "" {
 			end, _ = strconv.Atoi(strings.TrimSpace(parts[1]))
 		}
-		
+
 		if len(parts) > 2 && parts[2] != "" {
 			step, _ = strconv.Atoi(strings.TrimSpace(parts[2]))
 		}
-		
+
 		if step == 0 {
 			step = 1
 		}
-		
+
 		if start < 0 {
 			start = arrLen + start
 		}
 		if end < 0 {
 			end = arrLen + end
 		}
-		
+
 		if start < 0 {
 			start = 0
 		}
 		if end > arrLen {
 			end = arrLen
 		}
-		
+
 		for i := start; i < end && i < arrLen; i += step {
 			if i >= 0 {
 				results = append(results, Result{
@@ -665,21 +664,21 @@ func evaluateSlice(slice string, ctx Result, options *Options) []Result {
 			}
 		}
 	}
-	
+
 	return results
 }
 
 func evaluateRecursive(node *astNode, ctx Result, options *Options) []Result {
 	var results []Result
 	visited := make(map[string]bool)
-	
+
 	var traverse func(current Result)
 	traverse = func(current Result) {
 		if visited[current.Path] {
 			return
 		}
 		visited[current.Path] = true
-		
+
 		if len(node.Children) > 0 {
 			childResults := evaluateNode(node.Children[0], []Result{current}, options)
 			results = append(results, childResults...)
@@ -713,7 +712,7 @@ func evaluateRecursive(node *astNode, ctx Result, options *Options) []Result {
 				}
 			}
 		}
-		
+
 		switch v := current.Value.(type) {
 		case map[string]interface{}:
 			for key, val := range v {
@@ -739,7 +738,7 @@ func evaluateRecursive(node *astNode, ctx Result, options *Options) []Result {
 			}
 		}
 	}
-	
+
 	traverse(ctx)
 	return results
 }
@@ -765,12 +764,12 @@ func getOriginalIndex(data interface{}, key string) int {
 func JSONParse(jsonStr string) (interface{}, error) {
 	decoder := json.NewDecoder(strings.NewReader(jsonStr))
 	decoder.UseNumber()
-	
+
 	var result interface{}
 	if err := decoder.Decode(&result); err != nil {
 		return nil, err
 	}
-	
+
 	return convertNumbers(result), nil
 }
 

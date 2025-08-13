@@ -8,10 +8,10 @@ import (
 const (
 	// Version represents the current version of the library
 	Version = "1.0.0"
-	
+
 	// APIVersion represents the API version for compatibility tracking
 	APIVersion = "v1"
-	
+
 	// MinSupportedGoVersion is the minimum Go version required
 	MinSupportedGoVersion = "1.19"
 )
@@ -46,12 +46,12 @@ func IsCompatible(apiVersion string) bool {
 // CheckGoVersion verifies the Go runtime version meets minimum requirements
 func CheckGoVersion() error {
 	version := runtime.Version()
-	
+
 	// Simple version check - in production you'd want more robust parsing
 	if len(version) < 4 || version[:4] < "go1.19" {
-		return fmt.Errorf("Go version %s is not supported, minimum required: %s", 
+		return fmt.Errorf("Go version %s is not supported, minimum required: %s",
 			version, MinSupportedGoVersion)
 	}
-	
+
 	return nil
 }
