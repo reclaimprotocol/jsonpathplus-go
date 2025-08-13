@@ -435,7 +435,7 @@ func evaluateProperty(node *astNode, ctx Result) []Result {
 	if !ok {
 		return results
 	}
-	
+
 	val, exists := obj[node.Value]
 	if !exists {
 		return results
@@ -454,7 +454,7 @@ func evaluateProperty(node *astNode, ctx Result) []Result {
 
 func evaluateWildcard(ctx Result) []Result {
 	var results []Result
-	
+
 	switch v := ctx.Value.(type) {
 	case map[string]interface{}:
 		idx := 0
@@ -492,7 +492,7 @@ func evaluateIndex(node *astNode, ctx Result) []Result {
 	if !ok {
 		return results
 	}
-	
+
 	idx, _ := strconv.Atoi(node.Value)
 	if idx < 0 {
 		idx = len(arr) + idx
@@ -500,7 +500,7 @@ func evaluateIndex(node *astNode, ctx Result) []Result {
 	if idx < 0 || idx >= len(arr) {
 		return results
 	}
-	
+
 	results = append(results, Result{
 		Value:          arr[idx],
 		Path:           fmt.Sprintf("%s[%d]", ctx.Path, idx),
@@ -522,7 +522,7 @@ func evaluateFilter(filter string, ctx Result, _ *Options) []Result {
 	if !ok {
 		return results
 	}
-	
+
 	for i, item := range v {
 		if evaluateFilterExpression(filter, item, ctx.Value) {
 			results = append(results, Result{
@@ -541,17 +541,17 @@ func evaluateFilter(filter string, ctx Result, _ *Options) []Result {
 
 func evaluateFilterExpression(expr string, current, root interface{}) bool {
 	expr = cleanFilterExpression(expr)
-	
+
 	// Try comparison expression first
 	if result, ok := tryComparisonFilter(expr, current); ok {
 		return result
 	}
-	
+
 	// Try existence check
 	if result, ok := tryExistenceFilter(expr, current); ok {
 		return result
 	}
-	
+
 	return false
 }
 
@@ -567,21 +567,21 @@ func tryComparisonFilter(expr string, current interface{}) (bool, bool) {
 	if len(matches) != 4 { // Full match + 3 captured groups
 		return false, false
 	}
-	
+
 	property := matches[1]
 	operator := matches[2]
 	valueStr := strings.TrimSpace(matches[3])
-	
+
 	obj, ok := current.(map[string]interface{})
 	if !ok {
 		return false, true
 	}
-	
+
 	propValue, exists := obj[property]
 	if !exists {
 		return operator == "!=", true
 	}
-	
+
 	parsedValue := parseValue(valueStr)
 	return compareValues(propValue, operator, parsedValue), true
 }
@@ -592,18 +592,18 @@ func tryExistenceFilter(expr string, current interface{}) (bool, bool) {
 	if len(matches) != 2 {
 		return false, false
 	}
-	
+
 	property := matches[1]
 	obj, ok := current.(map[string]interface{})
 	if !ok {
 		return false, true
 	}
-	
+
 	propValue, exists := obj[property]
 	if !exists {
 		return false, true
 	}
-	
+
 	return propValue != nil && propValue != false, true
 }
 
@@ -687,14 +687,14 @@ func parseValue(s string) interface{} {
 
 func evaluateSlice(slice string, ctx Result, _ *Options) []Result {
 	var results []Result
-	
+
 	arr, ok := ctx.Value.([]interface{})
 	if !ok {
 		return results
 	}
 
 	start, end, step := parseSliceParams(slice, len(arr))
-	
+
 	for i := start; i < end && i < len(arr); i += step {
 		if i >= 0 {
 			results = append(results, Result{
@@ -714,7 +714,7 @@ func evaluateSlice(slice string, ctx Result, _ *Options) []Result {
 func parseSliceParams(slice string, arrLen int) (start, end, step int) {
 	slice = strings.TrimSpace(slice)
 	parts := strings.Split(slice, ":")
-	
+
 	start = 0
 	end = arrLen
 	step = 1
@@ -750,7 +750,7 @@ func parseSliceParams(slice string, arrLen int) (start, end, step int) {
 	if end > arrLen {
 		end = arrLen
 	}
-	
+
 	return start, end, step
 }
 

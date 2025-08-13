@@ -125,8 +125,8 @@ func (v *SecurityValidator) calculateComplexity(path string) int {
 	complexity += strings.Count(path, "..") * ComplexityRecursive // Recursive descent
 	complexity += strings.Count(path, "*") * 2                    // Wildcards
 	complexity += strings.Count(path, "?") * ComplexityFilter     // Filters
-	complexity += strings.Count(path, "[") * 1  // Brackets
-	complexity += strings.Count(path, ",") * 1  // Union
+	complexity += strings.Count(path, "[") * 1                    // Brackets
+	complexity += strings.Count(path, ",") * 1                    // Union
 
 	// Nested expressions add complexity
 	depth := 0
