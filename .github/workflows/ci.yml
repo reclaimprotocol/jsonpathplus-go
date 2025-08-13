@@ -110,9 +110,9 @@ jobs:
         GOARCH: ${{ matrix.arch }}
       run: |
         go build -v ./...
-        cd cmd/examples/basic && go build -o basic-${{ matrix.os }}-${{ matrix.arch }} .
-        cd ../showcase && go build -o showcase-${{ matrix.os }}-${{ matrix.arch }} .
-        cd ../production && go build -o production-${{ matrix.os }}-${{ matrix.arch }} .
+        cd cmd/examples/basic && go mod download && go build -o basic-${{ matrix.os }}-${{ matrix.arch }} .
+        cd ../showcase && go mod download && go build -o showcase-${{ matrix.os }}-${{ matrix.arch }} .
+        cd ../production && go mod download && go build -o production-${{ matrix.os }}-${{ matrix.arch }} .
 
   integration:
     name: Integration Tests
