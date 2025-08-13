@@ -21,7 +21,7 @@ help:
 .PHONY: build
 build:
 	@echo "Building ${BINARY_NAME}..."
-	cd examples && go build ${LDFLAGS} -o ../bin/${BINARY_NAME} .
+	cd cmd/examples/basic && go build ${LDFLAGS} -o ../../../bin/${BINARY_NAME} .
 	@echo "Binary built: bin/${BINARY_NAME}"
 
 ## build-all: Build for multiple platforms
@@ -29,10 +29,10 @@ build:
 build-all:
 	@echo "Building for multiple platforms..."
 	@mkdir -p bin
-	cd examples && GOOS=linux GOARCH=amd64 go build ${LDFLAGS} -o ../bin/${BINARY_NAME}-linux-amd64 .
-	cd examples && GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -o ../bin/${BINARY_NAME}-darwin-amd64 .
-	cd examples && GOOS=darwin GOARCH=arm64 go build ${LDFLAGS} -o ../bin/${BINARY_NAME}-darwin-arm64 .
-	cd examples && GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -o ../bin/${BINARY_NAME}-windows-amd64.exe .
+	cd cmd/examples/basic && GOOS=linux GOARCH=amd64 go build ${LDFLAGS} -o ../../../bin/${BINARY_NAME}-linux-amd64 .
+	cd cmd/examples/basic && GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -o ../../../bin/${BINARY_NAME}-darwin-amd64 .
+	cd cmd/examples/basic && GOOS=darwin GOARCH=arm64 go build ${LDFLAGS} -o ../../../bin/${BINARY_NAME}-darwin-arm64 .
+	cd cmd/examples/basic && GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -o ../../../bin/${BINARY_NAME}-windows-amd64.exe .
 	@echo "All binaries built in bin/"
 
 ## test: Run all tests
@@ -111,19 +111,19 @@ update-deps:
 .PHONY: install
 install:
 	@echo "Installing package..."
-	cd examples && go install ${LDFLAGS} .
+	cd cmd/examples/basic && go install ${LDFLAGS} .
 
 ## run: Run the example
 .PHONY: run
 run:
 	@echo "Running example..."
-	cd examples && go run . 2>/dev/null
+	cd cmd/examples/basic && go run . 2>/dev/null
 
 ## run-production: Run the production example
 .PHONY: run-production
 run-production:
 	@echo "Running production example..."
-	cd examples && go run production.go
+	cd cmd/examples/production && go run production.go
 
 ## docker-build: Build Docker image
 .PHONY: docker-build
@@ -177,12 +177,12 @@ serve-docs:
 .PHONY: profile
 profile:
 	@echo "Running CPU profiling..."
-	cd examples && go run -cpuprofile=cpu.prof production.go
-	@echo "Profile saved to examples/cpu.prof"
+	cd cmd/examples/production && go run -cpuprofile=cpu.prof production.go
+	@echo "Profile saved to cmd/examples/production/cpu.prof"
 
 ## memory-profile: Run memory profiling
 .PHONY: memory-profile
 memory-profile:
 	@echo "Running memory profiling..."
-	cd examples && go run -memprofile=mem.prof production.go
-	@echo "Profile saved to examples/mem.prof"
+	cd cmd/examples/production && go run -memprofile=mem.prof production.go
+	@echo "Profile saved to cmd/examples/production/mem.prof"
