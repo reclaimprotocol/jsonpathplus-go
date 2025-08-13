@@ -10,7 +10,7 @@ on:
     - cron: '0 2 * * *'
 
 env:
-  GO_VERSION: '1.21'
+  GO_VERSION: '1.22'
 
 jobs:
   test:
@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ['1.19', '1.20', '1.21']
+        go-version: ['1.21', '1.22']
     
     steps:
     - uses: actions/checkout@v4
@@ -79,10 +79,11 @@ jobs:
       with:
         go-version: ${{ env.GO_VERSION }}
     
+    - name: Install Gosec
+      run: go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+    
     - name: Run Gosec Security Scanner
-      uses: securecodewarrior/github-action-gosec@master
-      with:
-        args: './...'
+      run: gosec ./...
 
   lint:
     name: Lint

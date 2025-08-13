@@ -128,7 +128,7 @@ func basicQueries(engine *jp.JSONPathEngine, data interface{}) {
 		fmt.Printf("\n  Query %d: %s\n", i+1, query.description)
 		fmt.Printf("  Path: %s\n", query.path)
 		
-		results, err := engine.Query(query.path, data)
+		results, err := engine.QueryData(query.path, data)
 		if err != nil {
 			fmt.Printf("  ❌ Error: %v\n", err)
 			continue
@@ -162,7 +162,7 @@ func indexPreservation(engine *jp.JSONPathEngine, data interface{}) {
 		fmt.Printf("\n  Demo %d: %s\n", i+1, query.description)
 		fmt.Printf("  Path: %s\n", query.path)
 		
-		results, err := engine.Query(query.path, data)
+		results, err := engine.QueryData(query.path, data)
 		if err != nil {
 			fmt.Printf("  ❌ Error: %v\n", err)
 			continue
@@ -200,7 +200,7 @@ func filterExpressions(engine *jp.JSONPathEngine, data interface{}) {
 		fmt.Printf("\n  Filter %d: %s\n", i+1, filter.description)
 		fmt.Printf("  Expression: %s\n", filter.path)
 		
-		results, err := engine.Query(filter.path, data)
+		results, err := engine.QueryData(filter.path, data)
 		if err != nil {
 			fmt.Printf("  ❌ Error: %v\n", err)
 			continue
@@ -244,7 +244,7 @@ func performanceFeatures(engine *jp.JSONPathEngine, data interface{}) {
 	fmt.Println("\n  Executing queries for metrics...")
 	for i, query := range queries {
 		for j := 0; j < 5; j++ { // Run each query 5 times
-			_, err := engine.Query(query, data)
+			_, err := engine.QueryData(query, data)
 			if err != nil {
 				fmt.Printf("  ❌ Query %d.%d failed: %v\n", i+1, j+1, err)
 			}

@@ -113,7 +113,7 @@ func basicUsage(engine *jp.JSONPathEngine) {
 		fmt.Printf("\nQuery: %s\n", query)
 		
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		results, err := engine.QueryWithContext(ctx, query, data)
+		results, err := engine.QueryDataWithContext(ctx, query, data)
 		cancel()
 		
 		if err != nil {
@@ -195,7 +195,7 @@ func performanceMonitoring(engine *jp.JSONPathEngine) {
 	start := time.Now()
 	for i, query := range queries {
 		for j := 0; j < 10; j++ {
-			results, err := engine.Query(query, data)
+			results, err := engine.QueryData(query, data)
 			if err != nil {
 				fmt.Printf("  Query %d failed: %v\n", i+1, err)
 				continue
@@ -317,7 +317,7 @@ func (h *HTTPHandler) handleQuery(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 	
-	results, err := h.engine.QueryWithContext(ctx, path, data)
+	results, err := h.engine.QueryDataWithContext(ctx, path, data)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Query failed: %v", err), http.StatusInternalServerError)
 		return

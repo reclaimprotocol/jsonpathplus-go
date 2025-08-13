@@ -47,25 +47,20 @@ func main() {
 		"expensive": 10
 	}`
 	
-	data, err := jp.JSONParse(jsonData)
-	if err != nil {
-		log.Fatalf("Failed to parse JSON: %v", err)
-	}
+	fmt.Println("JSONPath Examples with String Position Tracking")
+	fmt.Println("================================================")
 	
-	fmt.Println("JSONPath Examples with Original Index Preservation")
-	fmt.Println("==================================================")
-	
-	example1(data)
-	example2(data)
-	example3(data)
-	example4(data)
-	example5(data)
+	example1(jsonData)
+	example2(jsonData)
+	example3(jsonData)
+	example4(jsonData)
+	example5(jsonData)
 	example6()
 }
 
-func example1(data interface{}) {
+func example1(jsonStr string) {
 	fmt.Println("\n1. Get all book authors:")
-	results, err := jp.Query("$.store.book[*].author", data)
+	results, err := jp.Query("$.store.book[*].author", jsonStr)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return
@@ -77,9 +72,9 @@ func example1(data interface{}) {
 	}
 }
 
-func example2(data interface{}) {
+func example2(jsonStr string) {
 	fmt.Println("\n2. Get all prices recursively:")
-	results, err := jp.Query("$..price", data)
+	results, err := jp.Query("$..price", jsonStr)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return
@@ -91,9 +86,9 @@ func example2(data interface{}) {
 	}
 }
 
-func example3(data interface{}) {
+func example3(jsonStr string) {
 	fmt.Println("\n3. Filter books with price < 10:")
-	results, err := jp.Query("$.store.book[?(@.price < 10)]", data)
+	results, err := jp.Query("$.store.book[?(@.price < 10)]", jsonStr)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return
@@ -107,9 +102,9 @@ func example3(data interface{}) {
 	}
 }
 
-func example4(data interface{}) {
+func example4(jsonStr string) {
 	fmt.Println("\n4. Get books using slice notation [0:2]:")
-	results, err := jp.Query("$.store.book[0:2]", data)
+	results, err := jp.Query("$.store.book[0:2]", jsonStr)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return
@@ -123,9 +118,9 @@ func example4(data interface{}) {
 	}
 }
 
-func example5(data interface{}) {
+func example5(jsonStr string) {
 	fmt.Println("\n5. Get last book using negative index:")
-	results, err := jp.Query("$.store.book[-1]", data)
+	results, err := jp.Query("$.store.book[-1]", jsonStr)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return
@@ -149,12 +144,7 @@ func example6() {
 		}
 	}`
 	
-	data, err := jp.JSONParse(arrayData)
-	if err != nil {
-		log.Fatalf("Failed to parse JSON: %v", err)
-	}
-	
-	results, err := jp.Query("$.numbers[*]", data)
+	results, err := jp.Query("$.numbers[*]", arrayData)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return
@@ -166,7 +156,7 @@ func example6() {
 			result.Value, result.OriginalIndex, result.Path)
 	}
 	
-	results, err = jp.Query("$.nested.items[*]", data)
+	results, err = jp.Query("$.nested.items[*]", arrayData)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		return
