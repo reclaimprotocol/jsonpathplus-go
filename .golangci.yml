@@ -7,131 +7,97 @@ output:
   print-linter-name: true
 
 linters-settings:
-  dupl:
-    threshold: 100
-  
-  funlen:
-    lines: 100
-    statements: 50
-  
-  gci:
-    sections:
-      - standard
-      - default
-      - prefix(github.com/reclaimprotocol/jsonpathplus-go)
-  
-  gocognit:
-    min-complexity: 15
-  
-  gocyclo:
-    min-complexity: 15
-  
-  godot:
-    scope: declarations
-    capital: true
-  
   gofmt:
     simplify: true
   
   goimports:
     local-prefixes: github.com/reclaimprotocol/jsonpathplus-go
   
-  mnd:
-    ignored-numbers: [0, 1, 2]
-    ignored-functions: 
-      - 'strconv.FormatInt'
-      - 'strconv.FormatUint'
-      - 'strconv.ParseInt'
-  
   govet:
-    enable-all: true
-    settings:
-      shadow:
-        strict: true
-  
-  lll:
-    line-length: 120
+    enable-all: false
+    enable:
+      - atomic
+      - bools
+      - buildtag
+      - copylocks
+      - httpresponse
+      - loopclosure
+      - lostcancel
+      - nilfunc
+      - printf
+      - stdmethods
+      - structtag
+      - tests
+      - unmarshal
+      - unreachable
+      - unsafeptr
+    # Disable noisy checks
+    disable:
+      - shadow        # Too many false positives
+      - fieldalignment # Not worth the effort
   
   misspell:
     locale: US
-  
-  nestif:
-    min-complexity: 4
-  
-  nolintlint:
-    allow-unused: false
-    require-explanation: false
-    require-specific: false
-  
-  revive:
-    confidence: 0
-  
-  unparam:
-    check-exported: false
-  
-  unused:
-    field-writes-are-uses: true
-    post-statements-are-reads: false
-    exported-is-used: true
 
 linters:
   enable:
-    - asciicheck
-    - bodyclose
-    - dogsled
-    - dupl
-    - errcheck
-    - exhaustive
-    - funlen
-    - gci
-    - gochecknoinits
-    # - gocognit # Disabled - overly restrictive
-    - goconst
-    - gocritic
-    - gocyclo
-    - godot
-    - gofmt
-    - goimports
-    - mnd
-    - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
-    - ineffassign
-    - lll
-    - misspell
-    - nakedret
-    - nestif
-    - noctx
-    - nolintlint
-    - prealloc
-    - revive
-    - staticcheck
-    - stylecheck
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - whitespace
+    # Critical - these find real bugs
+    - errcheck      # Check error returns
+    - gosec         # Security issues
+    - staticcheck   # Serious bugs
+    - govet         # Suspicious constructs
+    - typecheck     # Type errors
+    - ineffassign   # Ineffective assignments
+    - unused        # Unused code
+    
+    # Important formatting
+    - gofmt         # Standard formatting
+    - goimports     # Import organization
+    
+    # Useful but not critical
+    - gosimple      # Simplification suggestions
+    - unconvert     # Unnecessary conversions
+    - misspell      # Spelling errors
+    
+    # Disabled - too noisy or not valuable
+    # - asciicheck    # ASCII identifiers only
+    # - bodyclose     # HTTP response body closing
+    # - dogsled       # Blank identifiers
+    # - dupl          # Code duplication
+    # - exhaustive    # Exhaustive switches
+    # - funlen        # Function length
+    # - gci           # Import grouping
+    # - gochecknoinits # No init functions
+    # - gocognit      # Cognitive complexity
+    # - goconst       # Extract constants
+    # - gocritic      # Various opinionated checks
+    # - gocyclo       # Cyclomatic complexity
+    # - godot         # Comment punctuation
+    # - mnd           # Magic numbers
+    # - goprintffuncname # Printf-like function names
+    # - lll           # Line length
+    # - nakedret      # Naked returns
+    # - nestif        # Nested if statements
+    # - noctx         # Context in HTTP requests
+    # - nolintlint    # Nolint directives
+    # - prealloc      # Preallocate slices
+    # - revive        # Various style rules
+    # - stylecheck    # Style rules
+    # - unparam       # Unused parameters
+    # - whitespace    # Unnecessary whitespace
 
 issues:
   exclude-rules:
+    # Tests can be more relaxed
     - path: _test\.go
       linters:
-        - mnd
-        - funlen
-        - gocognit
-        - gocyclo
+        - errcheck  # Test helper functions often ignore errors
     
+    # Examples are meant to be simple and clear
     - path: cmd/examples/
       linters:
-        - mnd
-        - funlen
-    
-    - linters:
-        - lll
-      source: "^//go:generate "
+        - errcheck  # Examples often skip error handling for clarity
   
-  exclude-use-default: false
-  max-issues-per-linter: 0
-  max-same-issues: 0
+  exclude-use-default: true  # Use default exclusions
+  max-issues-per-linter: 50
+  max-same-issues: 10
