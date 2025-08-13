@@ -21,7 +21,8 @@ help:
 .PHONY: build
 build:
 	@echo "Building ${BINARY_NAME}..."
-	cd cmd/examples/basic && go build ${LDFLAGS} -o ../../../bin/${BINARY_NAME} .
+	@mkdir -p bin
+	go build ${LDFLAGS} -o bin/${BINARY_NAME} ./cmd/examples/basic
 	@echo "Binary built: bin/${BINARY_NAME}"
 
 ## build-all: Build for multiple platforms
@@ -29,10 +30,10 @@ build:
 build-all:
 	@echo "Building for multiple platforms..."
 	@mkdir -p bin
-	cd cmd/examples/basic && GOOS=linux GOARCH=amd64 go build ${LDFLAGS} -o ../../../bin/${BINARY_NAME}-linux-amd64 .
-	cd cmd/examples/basic && GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -o ../../../bin/${BINARY_NAME}-darwin-amd64 .
-	cd cmd/examples/basic && GOOS=darwin GOARCH=arm64 go build ${LDFLAGS} -o ../../../bin/${BINARY_NAME}-darwin-arm64 .
-	cd cmd/examples/basic && GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -o ../../../bin/${BINARY_NAME}-windows-amd64.exe .
+	GOOS=linux GOARCH=amd64 go build ${LDFLAGS} -o bin/${BINARY_NAME}-linux-amd64 ./cmd/examples/basic
+	GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -o bin/${BINARY_NAME}-darwin-amd64 ./cmd/examples/basic
+	GOOS=darwin GOARCH=arm64 go build ${LDFLAGS} -o bin/${BINARY_NAME}-darwin-arm64 ./cmd/examples/basic
+	GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -o bin/${BINARY_NAME}-windows-amd64.exe ./cmd/examples/basic
 	@echo "All binaries built in bin/"
 
 ## test: Run all tests
@@ -111,19 +112,19 @@ update-deps:
 .PHONY: install
 install:
 	@echo "Installing package..."
-	cd cmd/examples/basic && go install ${LDFLAGS} .
+	go install ${LDFLAGS} ./cmd/examples/basic
 
 ## run: Run the example
 .PHONY: run
 run:
 	@echo "Running example..."
-	cd cmd/examples/basic && go run . 2>/dev/null
+	go run ./cmd/examples/basic 2>/dev/null
 
 ## run-production: Run the production example
 .PHONY: run-production
 run-production:
 	@echo "Running production example..."
-	cd cmd/examples/production && go run production.go
+	go run ./cmd/examples/production
 
 ## docker-build: Build Docker image
 .PHONY: docker-build
@@ -177,12 +178,12 @@ serve-docs:
 .PHONY: profile
 profile:
 	@echo "Running CPU profiling..."
-	cd cmd/examples/production && go run -cpuprofile=cpu.prof production.go
-	@echo "Profile saved to cmd/examples/production/cpu.prof"
+	go run -cpuprofile=cpu.prof ./cmd/examples/production
+	@echo "Profile saved to cpu.prof"
 
 ## memory-profile: Run memory profiling
 .PHONY: memory-profile
 memory-profile:
 	@echo "Running memory profiling..."
-	cd cmd/examples/production && go run -memprofile=mem.prof production.go
-	@echo "Profile saved to cmd/examples/production/mem.prof"
+	go run -memprofile=mem.prof ./cmd/examples/production
+	@echo "Profile saved to mem.prof"
