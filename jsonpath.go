@@ -440,7 +440,7 @@ func evaluateProperty(node *astNode, ctx Result) []Result {
 	if !exists {
 		return results
 	}
-	
+
 	results = append(results, Result{
 		Value:          val,
 		Path:           ctx.Path + "." + node.Value,
@@ -540,49 +540,71 @@ func evaluateFilter(filter string, ctx Result, _ *Options) []Result {
 }
 
 func evaluateFilterExpression(expr string, current, root interface{}) bool {
+	expr = cleanFilterExpression(expr)
+	
+	// Try comparison expression first
+	if result, ok := tryComparisonFilter(expr, current); ok {
+		return result
+	}
+	
+	// Try existence check
+	if result, ok := tryExistenceFilter(expr, current); ok {
+		return result
+	}
+	
+	return false
+}
+
+func cleanFilterExpression(expr string) string {
 	expr = strings.TrimSpace(expr)
 	expr = strings.TrimPrefix(expr, "@")
-	expr = strings.TrimSpace(expr)
+	return strings.TrimSpace(expr)
+}
 
-	// Handle comparison operators
+func tryComparisonFilter(expr string, current interface{}) (bool, bool) {
 	re := regexp.MustCompile(`\.(\w+)\s*(<=|>=|==|!=|<|>)\s*(.+)`)
 	matches := re.FindStringSubmatch(expr)
-	// fmt.Printf("DEBUG: expr=%q, matches=%v\n", expr, matches)
-	if len(matches) == 4 {
-		property := matches[1]
-		operator := matches[2]
-		valueStr := strings.TrimSpace(matches[3])
-
-		if obj, ok := current.(map[string]interface{}); ok {
-			if propValue, exists := obj[property]; exists {
-				parsedValue := parseValue(valueStr)
-				result := compareValues(propValue, operator, parsedValue)
-				// fmt.Printf("DEBUG: prop=%s, propValue=%v(%T), operator=%s, parsedValue=%v(%T), result=%v\n",
-				//	property, propValue, propValue, operator, parsedValue, parsedValue, result)
-				return result
-			} else if operator == "!=" {
-				return true
-			}
-		}
+	if len(matches) != 4 { // Full match + 3 captured groups
+		return false, false
 	}
+	
+	property := matches[1]
+	operator := matches[2]
+	valueStr := strings.TrimSpace(matches[3])
+	
+	obj, ok := current.(map[string]interface{})
+	if !ok {
+		return false, true
+	}
+	
+	propValue, exists := obj[property]
+	if !exists {
+		return operator == "!=", true
+	}
+	
+	parsedValue := parseValue(valueStr)
+	return compareValues(propValue, operator, parsedValue), true
+}
 
-	// Handle existence check
+func tryExistenceFilter(expr string, current interface{}) (bool, bool) {
 	reExists := regexp.MustCompile(`^\.(\w+)$`)
-	if matches := reExists.FindStringSubmatch(expr); len(matches) == 2 {
-		property := matches[1]
-		if obj, ok := current.(map[string]interface{}); ok {
-			propValue, exists := obj[property]
-			if !exists {
-				return false
-			}
-			if propValue == nil || propValue == false {
-				return false
-			}
-			return true
-		}
+	matches := reExists.FindStringSubmatch(expr)
+	if len(matches) != 2 {
+		return false, false
 	}
-
-	return false
+	
+	property := matches[1]
+	obj, ok := current.(map[string]interface{})
+	if !ok {
+		return false, true
+	}
+	
+	propValue, exists := obj[property]
+	if !exists {
+		return false, true
+	}
+	
+	return propValue != nil && propValue != false, true
 }
 
 func compareValues(left interface{}, operator string, right interface{}) bool {
@@ -663,7 +685,7 @@ func parseValue(s string) interface{} {
 	return s
 }
 
-func evaluateSlice(slice string, ctx Result, options *Options) []Result {
+func evaluateSlice(slice string, ctx Result, _ *Options) []Result {
 	var results []Result
 	
 	arr, ok := ctx.Value.([]interface{})

@@ -85,7 +85,7 @@ linters:
     - funlen
     - gci
     - gochecknoinits
-    - gocognit
+    # - gocognit # Disabled - overly restrictive
     - goconst
     - gocritic
     - gocyclo

@@ -4,6 +4,23 @@ import (
 	"time"
 )
 
+// Configuration constants
+const (
+	// Default limits
+	DefaultMaxPathLength     = 1000
+	DefaultMaxRecursionDepth = 100
+	DefaultMaxResultCount    = 10000
+	DefaultTimeout           = 30 * time.Second
+	DefaultMaxMemoryUsage    = 100 * 1024 * 1024 // 100MB
+
+	// Production limits
+	ProductionMaxPathLength     = 500
+	ProductionMaxRecursionDepth = 50
+	ProductionMaxResultCount    = 1000
+	ProductionTimeout           = 5 * time.Second
+	ProductionMaxMemoryUsage    = 50 * 1024 * 1024 // 50MB
+)
+
 // Config holds configuration options for JSONPath operations.
 type Config struct {
 	// MaxPathLength limits the maximum length of JSONPath expressions
@@ -37,14 +54,14 @@ type Config struct {
 // DefaultConfig returns the default configuration.
 func DefaultConfig() *Config {
 	return &Config{
-		MaxPathLength:         1000,
-		MaxRecursionDepth:     100,
-		MaxResultCount:        10000,
-		Timeout:               30 * time.Second,
+		MaxPathLength:         DefaultMaxPathLength,
+		MaxRecursionDepth:     DefaultMaxRecursionDepth,
+		MaxResultCount:        DefaultMaxResultCount,
+		Timeout:               DefaultTimeout,
 		EnableLogging:         false,
 		StrictMode:            false,
 		AllowUnsafeOperations: false,
-		MaxMemoryUsage:        100 * 1024 * 1024, // 100MB
+		MaxMemoryUsage:        DefaultMaxMemoryUsage,
 		EnableMetrics:         false,
 	}
 }
@@ -52,13 +69,13 @@ func DefaultConfig() *Config {
 // ProductionConfig returns a configuration suitable for production use.
 func ProductionConfig() *Config {
 	config := DefaultConfig()
-	config.MaxPathLength = 500
-	config.MaxRecursionDepth = 50
-	config.MaxResultCount = 1000
-	config.Timeout = 5 * time.Second
+	config.MaxPathLength = ProductionMaxPathLength
+	config.MaxRecursionDepth = ProductionMaxRecursionDepth
+	config.MaxResultCount = ProductionMaxResultCount
+	config.Timeout = ProductionTimeout
 	config.StrictMode = true
 	config.AllowUnsafeOperations = false
-	config.MaxMemoryUsage = 50 * 1024 * 1024 // 50MB
+	config.MaxMemoryUsage = ProductionMaxMemoryUsage
 	config.EnableMetrics = true
 	return config
 }

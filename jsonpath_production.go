@@ -253,7 +253,7 @@ func (e *JSONPathEngine) validateAST(ast *astNode, path string) error {
 	validateNode = func(node *astNode) error {
 		if node.Type == "recursive" {
 			recursiveCount++
-			if recursiveCount > 10 { // Arbitrary limit
+			if recursiveCount > MaxRecursionDepthLimit {
 				return NewError(ErrRecursionLimit, "too many recursive operators", path, -1)
 			}
 		}

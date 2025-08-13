@@ -8,6 +8,16 @@ import (
 	"time"
 )
 
+// Security constants
+const (
+	DefaultMaxPathComplexity = 50
+	DefaultMaxExecutionTime  = 5 * time.Second
+	ComplexityPerChar        = 10
+	ComplexityRecursive      = 3
+	ComplexityFilter         = 4
+	MaxRecursionDepthLimit   = 10
+)
+
 // SecurityConfig defines security-related configuration.
 type SecurityConfig struct {
 	// MaxPathComplexity limits the complexity of JSONPath expressions
@@ -51,10 +61,10 @@ func DefaultSecurityConfig() *SecurityConfig {
 	}
 
 	return &SecurityConfig{
-		MaxPathComplexity:  50,
+		MaxPathComplexity:  DefaultMaxPathComplexity,
 		AllowedFunctions:   []string{"length", "size", "keys", "values", "type"},
 		BlockedPatterns:    blockedPatterns,
-		MaxExecutionTime:   5 * time.Second,
+		MaxExecutionTime:   DefaultMaxExecutionTime,
 		EnableSandbox:      true,
 		AllowNetworkAccess: false,
 		AllowFileAccess:    false,
@@ -109,12 +119,12 @@ func (v *SecurityValidator) calculateComplexity(path string) int {
 	complexity := 0
 
 	// Base complexity
-	complexity += len(path) / 10
+	complexity += len(path) / ComplexityPerChar
 
 	// Operators add complexity
-	complexity += strings.Count(path, "..") * 3 // Recursive descent
-	complexity += strings.Count(path, "*") * 2  // Wildcards
-	complexity += strings.Count(path, "?") * 4  // Filters
+	complexity += strings.Count(path, "..") * ComplexityRecursive // Recursive descent
+	complexity += strings.Count(path, "*") * 2                    // Wildcards
+	complexity += strings.Count(path, "?") * ComplexityFilter     // Filters
 	complexity += strings.Count(path, "[") * 1  // Brackets
 	complexity += strings.Count(path, ",") * 1  // Union
 
