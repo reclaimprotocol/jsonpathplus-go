@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	jp "jsonpathplus-go"
+	jp "github.com/reclaimprotocol/jsonpathplus-go"
 	"strings"
 )
 
