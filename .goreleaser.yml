@@ -1,0 +1,147 @@
+project_name: jsonpathplus-go
+
+# Build configuration
+builds:
+  - id: jsonpath-example
+    dir: examples
+    main: ./production.go
+    binary: jsonpath-example
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+      - -X main.Version={{.Version}}
+      - -X main.GitCommit={{.ShortCommit}}
+      - -X main.BuildTime={{.Date}}
+
+# Archive configuration
+archives:
+  - id: default
+    builds:
+      - jsonpath-example
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+      - examples/**
+      - "*.go"
+
+# Checksum configuration
+checksum:
+  name_template: "checksums.txt"
+
+# Snapshot configuration
+snapshot:
+  name_template: "{{ incpatch .Version }}-snapshot"
+
+# Release configuration
+release:
+  github:
+    owner: user
+    name: jsonpathplus-go
+  draft: false
+  prerelease: auto
+  name_template: "v{{.Version}}"
+  header: |
+    ## JSONPath Plus Go v{{.Version}}
+    
+    This release includes performance improvements, bug fixes, and new features.
+    
+    ### What's Changed
+  footer: |
+    **Full Changelog**: https://github.com/user/jsonpathplus-go/compare/{{.PreviousTag}}...{{.Tag}}
+
+# Changelog configuration
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+      - "^style:"
+      - "^refactor:"
+  groups:
+    - title: "New Features"
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug Fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: "Performance Improvements"
+      regexp: "^.*perf[(\\w)]*:+.*$"
+      order: 2
+    - title: "Other Changes"
+      order: 999
+
+# Docker images
+dockers:
+  - image_templates:
+      - "ghcr.io/user/jsonpathplus-go:{{ .Tag }}"
+      - "ghcr.io/user/jsonpathplus-go:v{{ .Major }}"
+      - "ghcr.io/user/jsonpathplus-go:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/user/jsonpathplus-go:latest"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source=https://github.com/user/jsonpathplus-go"
+
+# Source archives
+source:
+  enabled: true
+  name_template: "{{ .ProjectName }}-{{ .Version }}-source"
+  format: tar.gz
+
+# Git configuration
+git:
+  ignore_tags:
+    - "{{ .Env.IGNORE_TAG }}"
+
+# Before hooks
+before:
+  hooks:
+    - go mod tidy
+    - go mod verify
+    - go test -short ./...
+
+# Publisher configuration for Go modules
+publishers:
+  - name: go-proxy
+    env:
+      - GOPROXY_KEY={{ .Env.GOPROXY_KEY }}
+    cmd: curl -f -X POST -H "Authorization: Bearer {{ .Env.GOPROXY_KEY }}" https://proxy.golang.org/sumdb/sum.golang.org/supported
+
+# Homebrew tap (if desired)
+brews:
+  - name: jsonpathplus-go
+    repository:
+      owner: user
+      name: homebrew-tap
+    directory: Formula
+    homepage: https://github.com/user/jsonpathplus-go
+    description: "Production-ready JSONPath library for Go"
+    license: MIT
+    install: |
+      bin.install "jsonpath-example"
+    test: |
+      system "#{bin}/jsonpath-example", "--version"
+
+# SBOMs (Software Bill of Materials)
+sboms:
+  - artifacts: archive
