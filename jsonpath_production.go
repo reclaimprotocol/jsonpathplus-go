@@ -221,7 +221,7 @@ func (e *JSONPathEngine) validateTokens(tokens []token, path string) error {
 	return nil
 }
 
-// parseWithValidation parses with enhanced validation
+// parseWithValidation parses with enhanced validation.
 func (e *JSONPathEngine) parseWithValidation(tokens []token, path string) (*astNode, error) {
 	ast, err := parse(tokens)
 	if err != nil {
@@ -236,7 +236,7 @@ func (e *JSONPathEngine) parseWithValidation(tokens []token, path string) (*astN
 	return ast, nil
 }
 
-// validateAST validates the AST structure
+// validateAST validates the AST structure.
 func (e *JSONPathEngine) validateAST(ast *astNode, path string) error {
 	if ast == nil {
 		return NewError(ErrParseError, "nil AST", path, -1)
@@ -264,7 +264,7 @@ func (e *JSONPathEngine) validateAST(ast *astNode, path string) error {
 	return validateNode(ast)
 }
 
-// executeWithLimits executes the query with resource monitoring
+// executeWithLimits executes the query with resource monitoring.
 func (e *JSONPathEngine) executeWithLimits(
 	execCtx *executionContext, ast *astNode, data interface{},
 ) ([]Result, error) {
@@ -300,7 +300,7 @@ func (e *JSONPathEngine) executeWithLimits(
 	return results, nil
 }
 
-// evaluateWithContext is a wrapper around the original evaluate function with context
+// evaluateWithContext is a wrapper around the original evaluate function with context.
 func (e *JSONPathEngine) evaluateWithContext(
 	execCtx *executionContext, ast *astNode, data interface{},
 ) ([]Result, error) {
@@ -314,7 +314,7 @@ func (e *JSONPathEngine) evaluateWithContext(
 	return e.evaluateWithResourceLimits(execCtx, ast, data, options)
 }
 
-// evaluateWithResourceLimits performs evaluation with resource limits
+// evaluateWithResourceLimits performs evaluation with resource limits.
 func (e *JSONPathEngine) evaluateWithResourceLimits(
 	execCtx *executionContext, ast *astNode, data interface{}, options *Options,
 ) ([]Result, error) {
@@ -354,7 +354,7 @@ func (e *JSONPathEngine) evaluateWithResourceLimits(
 	return results, nil
 }
 
-// evaluateNodeWithLimits evaluates a single node with resource limits
+// evaluateNodeWithLimits evaluates a single node with resource limits.
 func (e *JSONPathEngine) evaluateNodeWithLimits(
 	execCtx *executionContext, node *astNode, contexts []Result, options *Options,
 ) ([]Result, error) {
@@ -374,19 +374,19 @@ func (e *JSONPathEngine) evaluateNodeWithLimits(
 	return evaluateNode(node, contexts, options), nil
 }
 
-// GetMetrics returns current performance metrics
+// GetMetrics returns current performance metrics.
 func (e *JSONPathEngine) GetMetrics() Metrics {
 	return e.metrics.GetMetrics()
 }
 
-// GetConfig returns a copy of the current configuration
+// GetConfig returns a copy of the current configuration.
 func (e *JSONPathEngine) GetConfig() *Config {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 	return e.config.Clone()
 }
 
-// UpdateConfig updates the engine configuration
+// UpdateConfig updates the engine configuration.
 func (e *JSONPathEngine) UpdateConfig(newConfig *Config) error {
 	if err := newConfig.Validate(); err != nil {
 		return fmt.Errorf("invalid configuration: %w", err)
@@ -400,7 +400,7 @@ func (e *JSONPathEngine) UpdateConfig(newConfig *Config) error {
 	return nil
 }
 
-// Close performs cleanup and releases resources
+// Close performs cleanup and releases resources.
 func (e *JSONPathEngine) Close() error {
 	e.mu.Lock()
 	defer e.mu.Unlock()

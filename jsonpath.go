@@ -24,17 +24,20 @@ type Result struct {
 	Length         int         // Length of the element in the JSON string
 }
 
+// Options configures JSONPath evaluation behavior.
 type Options struct {
 	ResultType string
 	Flatten    bool
 	Wrap       bool
 }
 
+// JSONPath represents a compiled JSONPath expression.
 type JSONPath struct {
 	path    string
 	options *Options
 }
 
+// New creates a new JSONPath instance with the given path and options.
 func New(path string, options *Options) *JSONPath {
 	if options == nil {
 		options = &Options{
@@ -60,6 +63,7 @@ func QueryData(path string, data interface{}) ([]Result, error) {
 	return jp.Execute(data)
 }
 
+// Execute evaluates the JSONPath against the provided data.
 func (jp *JSONPath) Execute(data interface{}) ([]Result, error) {
 	tokens, err := tokenize(jp.path)
 	if err != nil {
@@ -766,6 +770,7 @@ func getOriginalIndex(data interface{}, key string) int {
 	return 0
 }
 
+// JSONParse parses a JSON string into a Go data structure.
 func JSONParse(jsonStr string) (interface{}, error) {
 	decoder := json.NewDecoder(strings.NewReader(jsonStr))
 	decoder.UseNumber()

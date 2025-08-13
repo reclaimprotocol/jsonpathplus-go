@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// SecurityConfig defines security-related configuration
+// SecurityConfig defines security-related configuration.
 type SecurityConfig struct {
 	// MaxPathComplexity limits the complexity of JSONPath expressions
 	MaxPathComplexity int
@@ -32,7 +32,7 @@ type SecurityConfig struct {
 	AllowFileAccess bool
 }
 
-// DefaultSecurityConfig returns secure default configuration
+// DefaultSecurityConfig returns secure default configuration.
 func DefaultSecurityConfig() *SecurityConfig {
 	// Common dangerous patterns to block
 	blockedPatterns := []*regexp.Regexp{
@@ -61,12 +61,12 @@ func DefaultSecurityConfig() *SecurityConfig {
 	}
 }
 
-// SecurityValidator validates JSONPath expressions for security issues
+// SecurityValidator validates JSONPath expressions for security issues.
 type SecurityValidator struct {
 	config *SecurityConfig
 }
 
-// NewSecurityValidator creates a new security validator
+// NewSecurityValidator creates a new security validator.
 func NewSecurityValidator(config *SecurityConfig) *SecurityValidator {
 	if config == nil {
 		config = DefaultSecurityConfig()
@@ -77,7 +77,7 @@ func NewSecurityValidator(config *SecurityConfig) *SecurityValidator {
 	}
 }
 
-// ValidatePath validates a JSONPath expression for security issues
+// ValidatePath validates a JSONPath expression for security issues.
 func (v *SecurityValidator) ValidatePath(path string) error {
 	// Check path complexity
 	complexity := v.calculateComplexity(path)
@@ -104,7 +104,7 @@ func (v *SecurityValidator) ValidatePath(path string) error {
 	return nil
 }
 
-// calculateComplexity calculates the complexity score of a JSONPath expression
+// calculateComplexity calculates the complexity score of a JSONPath expression.
 func (v *SecurityValidator) calculateComplexity(path string) int {
 	complexity := 0
 
@@ -137,7 +137,7 @@ func (v *SecurityValidator) calculateComplexity(path string) int {
 	return complexity
 }
 
-// validateFilterExpressions validates filter expressions in the path
+// validateFilterExpressions validates filter expressions in the path.
 func (v *SecurityValidator) validateFilterExpressions(path string) error {
 	// Find all filter expressions
 	filterPattern := regexp.MustCompile(`\?\([^)]+\)`)
@@ -152,7 +152,7 @@ func (v *SecurityValidator) validateFilterExpressions(path string) error {
 	return nil
 }
 
-// validateSingleFilter validates a single filter expression
+// validateSingleFilter validates a single filter expression.
 func (v *SecurityValidator) validateSingleFilter(filter, path string) error {
 	// Remove the wrapper
 	filter = strings.TrimPrefix(filter, "?(")
@@ -199,7 +199,7 @@ func (v *SecurityValidator) validateSingleFilter(filter, path string) error {
 	return nil
 }
 
-// isFunctionAllowed checks if a function is in the allowed list
+// isFunctionAllowed checks if a function is in the allowed list.
 func (v *SecurityValidator) isFunctionAllowed(funcName string) bool {
 	for _, allowed := range v.config.AllowedFunctions {
 		if strings.EqualFold(funcName, allowed) {
@@ -209,7 +209,7 @@ func (v *SecurityValidator) isFunctionAllowed(funcName string) bool {
 	return false
 }
 
-// SanitizePath sanitizes a JSONPath expression by removing dangerous elements
+// SanitizePath sanitizes a JSONPath expression by removing dangerous elements.
 func (v *SecurityValidator) SanitizePath(path string) string {
 	// Remove blocked patterns
 	for _, pattern := range v.config.BlockedPatterns {
@@ -223,7 +223,7 @@ func (v *SecurityValidator) SanitizePath(path string) string {
 	return path
 }
 
-// RateLimiter implements a simple rate limiter for queries
+// RateLimiter implements a simple rate limiter for queries.
 type RateLimiter struct {
 	requests    map[string]*requestTracker
 	maxRequests int
@@ -236,7 +236,7 @@ type requestTracker struct {
 	window time.Time
 }
 
-// NewRateLimiter creates a new rate limiter
+// NewRateLimiter creates a new rate limiter.
 func NewRateLimiter(maxRequests int, window time.Duration) *RateLimiter {
 	return &RateLimiter{
 		requests:    make(map[string]*requestTracker),
@@ -245,7 +245,7 @@ func NewRateLimiter(maxRequests int, window time.Duration) *RateLimiter {
 	}
 }
 
-// Allow checks if a request is allowed for the given identifier
+// Allow checks if a request is allowed for the given identifier.
 func (rl *RateLimiter) Allow(identifier string) bool {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
@@ -277,7 +277,7 @@ func (rl *RateLimiter) Allow(identifier string) bool {
 	return false
 }
 
-// Cleanup removes old entries from the rate limiter
+// Cleanup removes old entries from the rate limiter.
 func (rl *RateLimiter) Cleanup() {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()

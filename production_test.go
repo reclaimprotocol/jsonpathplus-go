@@ -261,10 +261,10 @@ func TestSecurityValidator(t *testing.T) {
 	t.Run("ComplexPath", func(t *testing.T) {
 		secConfig := DefaultSecurityConfig()
 		secConfig.MaxPathComplexity = 5
-		validator := NewSecurityValidator(secConfig)
+		complexValidator := NewSecurityValidator(secConfig)
 
 		complexPath := "$..[*]..[*]..[*]..[*]" // Very complex path
-		err := validator.ValidatePath(complexPath)
+		err := complexValidator.ValidatePath(complexPath)
 		if err == nil {
 			t.Fatal("Expected error for overly complex path")
 		}

@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// QueryWithStringIndex executes a JSONPath query and returns results with string indices
+// QueryWithStringIndex executes a JSONPath query and returns results with string indices.
 func QueryWithStringIndex(path string, jsonStr string) ([]Result, error) {
 	// Parse JSON with string index tracking
 	indexedData, err := JSONParseWithIndex(jsonStr)
@@ -41,7 +41,7 @@ func QueryWithStringIndex(path string, jsonStr string) ([]Result, error) {
 	return results, nil
 }
 
-// findStringPositionForValue finds the character position of a value in the JSON string
+// findStringPositionForValue finds the character position of a value in the JSON string.
 func findStringPositionForValue(result Result, jsonStr string, tracker *StringIndexTracker) StringPosition {
 	// Handle property access in different contexts
 	if result.Path != "$" && result.ParentProperty != "" {
@@ -71,7 +71,7 @@ func findStringPositionForValue(result Result, jsonStr string, tracker *StringIn
 
 	// Try to get position from tracker using path as fallback
 	if tracker != nil {
-		if pos, exists := tracker.GetPositionByPath(result.Path); exists {
+		if pos, exists := tracker.GetStringPositionByPath(result.Path); exists {
 			return pos
 		}
 	}
@@ -79,7 +79,7 @@ func findStringPositionForValue(result Result, jsonStr string, tracker *StringIn
 	return StringPosition{Start: 0, End: 0, Length: 0}
 }
 
-// findPropertyInArrayElement finds a property within a specific array element
+// findPropertyInArrayElement finds a property within a specific array element.
 func findPropertyInArrayElement(result Result, jsonStr string) StringPosition {
 	// Parse the path to extract array index and property name
 	// Example: $[0].id -> array index 0, property "id"
@@ -135,7 +135,7 @@ func findPropertyInArrayElement(result Result, jsonStr string) StringPosition {
 	}
 }
 
-// findArrayElementStart finds the start position of the nth array element
+// findArrayElementStart finds the start position of the nth array element.
 func findArrayElementStart(jsonStr string, index int) int {
 	// Find the array start
 	arrayStart := strings.Index(jsonStr, "[")
@@ -169,12 +169,12 @@ func findArrayElementStart(jsonStr string, index int) int {
 	return pos
 }
 
-// findArrayElementEnd finds the end position of an array element starting at the given position
+// findArrayElementEnd finds the end position of an array element starting at the given position.
 func findArrayElementEnd(jsonStr string, start int) int {
 	return skipJSONElement(jsonStr, start)
 }
 
-// findPropertyKeyPosition finds the position of a property key in JSON string
+// findPropertyKeyPosition finds the position of a property key in JSON string.
 func findPropertyKeyPosition(propName string, jsonStr string) StringPosition {
 	searchStr := fmt.Sprintf(`"%s"`, propName)
 
@@ -207,7 +207,7 @@ func findPropertyKeyPosition(propName string, jsonStr string) StringPosition {
 	return StringPosition{Start: 0, End: 0, Length: 0}
 }
 
-// findArrayElementPosition finds the position of an array element
+// findArrayElementPosition finds the position of an array element.
 func findArrayElementPosition(index int, _ string, jsonStr string) StringPosition {
 	// Find the array in the JSON string
 	arrayStart := strings.Index(jsonStr, "[")
@@ -251,7 +251,7 @@ func findArrayElementPosition(index int, _ string, jsonStr string) StringPositio
 	return StringPosition{Start: pos, End: pos + elementLength, Length: elementLength}
 }
 
-// skipJSONElement skips over a complete JSON element
+// skipJSONElement skips over a complete JSON element.
 func skipJSONElement(jsonStr string, start int) int {
 	pos := start
 	if pos >= len(jsonStr) {
@@ -287,7 +287,7 @@ func skipJSONElement(jsonStr string, start int) int {
 	return pos
 }
 
-// skipBracedElement skips over a complete braced element (object or array)
+// skipBracedElement skips over a complete braced element (object or array).
 func skipBracedElement(jsonStr string, start int, openBrace, closeBrace byte) int {
 	pos := start + 1 // Skip opening brace
 	depth := 1
@@ -311,7 +311,7 @@ func skipBracedElement(jsonStr string, start int, openBrace, closeBrace byte) in
 	return pos
 }
 
-// calculateElementLength calculates the length of a JSON element starting at the given position
+// calculateElementLength calculates the length of a JSON element starting at the given position.
 func calculateElementLength(jsonStr string, start int) int {
 	if start >= len(jsonStr) {
 		return 0

@@ -298,38 +298,3 @@ func BenchmarkStringIndexPreservation(b *testing.B) {
 	}
 }
 
-// Helper function to validate that string index points to expected character.
-func validateStringIndex(t *testing.T, jsonStr string, index int, expectedChar byte, description string) {
-	if index < 0 || index >= len(jsonStr) {
-		t.Errorf("%s: index %d out of bounds for string length %d", description, index, len(jsonStr))
-		return
-	}
-
-	actualChar := jsonStr[index]
-	if actualChar != expectedChar {
-		t.Errorf("%s: expected char '%c' at index %d, got '%c'",
-			description, expectedChar, index, actualChar)
-
-		// Show context
-		start := maxInt(0, index-10)
-		end := minInt(len(jsonStr), index+10)
-		context := jsonStr[start:end]
-		pointer := strings.Repeat(" ", index-start) + "^"
-		t.Errorf("Context: %s", context)
-		t.Errorf("         %s", pointer)
-	}
-}
-
-func maxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func minInt(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// LogLevel represents different logging levels
+// LogLevel represents different logging levels.
 type LogLevel int
 
 const (
@@ -21,7 +21,7 @@ const (
 	LogLevelError
 )
 
-// Logger interface for pluggable logging
+// Logger interface for pluggable logging.
 type Logger interface {
 	Debug(msg string, fields ...Field)
 	Info(msg string, fields ...Field)
@@ -29,19 +29,19 @@ type Logger interface {
 	Error(msg string, fields ...Field)
 }
 
-// Field represents a structured logging field
+// Field represents a structured logging field.
 type Field struct {
 	Key   string
 	Value interface{}
 }
 
-// DefaultLogger implements a simple logger
+// DefaultLogger implements a simple logger.
 type DefaultLogger struct {
 	level  LogLevel
 	logger *log.Logger
 }
 
-// NewDefaultLogger creates a new default logger
+// NewDefaultLogger creates a new default logger.
 func NewDefaultLogger(level LogLevel) *DefaultLogger {
 	return &DefaultLogger{
 		level:  level,
@@ -84,7 +84,7 @@ func (l *DefaultLogger) Error(msg string, fields ...Field) {
 	l.log(LogLevelError, "ERROR", msg, fields...)
 }
 
-// NoOpLogger implements a logger that does nothing
+// NoOpLogger implements a logger that does nothing.
 type NoOpLogger struct{}
 
 // Debug does nothing (no-op implementation).
@@ -96,7 +96,7 @@ func (l *NoOpLogger) Warn(_ string, _ ...Field)  {}
 // Error does nothing (no-op implementation).
 func (l *NoOpLogger) Error(_ string, _ ...Field) {}
 
-// Metrics collects performance metrics
+// Metrics collects performance metrics.
 type Metrics struct {
 	QueriesExecuted      int64
 	TotalExecutionTime   time.Duration
@@ -105,20 +105,20 @@ type Metrics struct {
 	MemoryUsage          int64
 }
 
-// MetricsCollector collects and tracks metrics
+// MetricsCollector collects and tracks metrics.
 type MetricsCollector struct {
 	metrics Metrics
 	enabled bool
 }
 
-// NewMetricsCollector creates a new metrics collector
+// NewMetricsCollector creates a new metrics collector.
 func NewMetricsCollector(enabled bool) *MetricsCollector {
 	return &MetricsCollector{
 		enabled: enabled,
 	}
 }
 
-// RecordQuery records a query execution
+// RecordQuery records a query execution.
 func (m *MetricsCollector) RecordQuery(duration time.Duration, err error) {
 	if !m.enabled {
 		return
@@ -133,7 +133,7 @@ func (m *MetricsCollector) RecordQuery(duration time.Duration, err error) {
 	}
 }
 
-// UpdateMemoryUsage updates the current memory usage
+// UpdateMemoryUsage updates the current memory usage.
 func (m *MetricsCollector) UpdateMemoryUsage(usage int64) {
 	if !m.enabled {
 		return
@@ -141,12 +141,12 @@ func (m *MetricsCollector) UpdateMemoryUsage(usage int64) {
 	m.metrics.MemoryUsage = usage
 }
 
-// GetMetrics returns a copy of the current metrics
+// GetMetrics returns a copy of the current metrics.
 func (m *MetricsCollector) GetMetrics() Metrics {
 	return m.metrics
 }
 
-// Reset resets all metrics
+// Reset resets all metrics.
 func (m *MetricsCollector) Reset() {
 	m.metrics = Metrics{}
 }
