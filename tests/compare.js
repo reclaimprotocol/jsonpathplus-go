@@ -6,10 +6,11 @@ const path = require('path');
 
 // Load shared test cases
 const testData = JSON.parse(fs.readFileSync('./shared/testcases.json', 'utf8'));
+const registryData = JSON.parse(fs.readFileSync('./shared/test_data_registry.json', 'utf8'));
 
 function runGoTest(jsonpath, data) {
   try {
-    const dataJson = JSON.stringify(testData.testData[data]);
+    const dataJson = JSON.stringify(testData.testData[data] || registryData[data]);
     const result = execSync(`cd go && go run main.go "${jsonpath}" '${dataJson}'`, 
       { encoding: 'utf8', timeout: 10000 });
     return JSON.parse(result.trim());
@@ -25,7 +26,7 @@ function runGoTest(jsonpath, data) {
 
 function runJsTest(jsonpath, data) {
   try {
-    const dataJson = JSON.stringify(testData.testData[data]);
+    const dataJson = JSON.stringify(testData.testData[data] || registryData[data]);
     const result = execSync(`node js/test.js "${jsonpath}" '${dataJson}'`, 
       { encoding: 'utf8', timeout: 10000 });
     return JSON.parse(result.trim());

@@ -41,6 +41,19 @@ Thumbs.db
 /bin/
 /dist/
 
+# Archive and legacy files
+/archive/
+
+# Generated reports and outputs
+*.out
+/reports/generated_*
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
 # Example binaries (only in root directory)
 /basic
 /production  
