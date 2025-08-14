@@ -8,7 +8,29 @@ import (
 	"github.com/reclaimprotocol/jsonpathplus-go/internal/filters"
 	"github.com/reclaimprotocol/jsonpathplus-go/internal/operators"
 	"github.com/reclaimprotocol/jsonpathplus-go/pkg/types"
+	"github.com/reclaimprotocol/jsonpathplus-go/pkg/utils"
 )
+
+// formatPath creates a consistent path format matching JavaScript JSONPath-Plus bracket notation
+func formatPath(basePath, key string, isArrayIndex bool) string {
+	if isArrayIndex {
+		// Array indices are numeric without quotes: $['arr'][0]
+		if idx, err := strconv.Atoi(key); err == nil {
+			return fmt.Sprintf("%s[%d]", basePath, idx)
+		}
+	}
+	
+	// JavaScript JSONPath-Plus converts numeric string keys to numeric format in paths
+	// e.g., $['users']['1'] becomes $['users'][1] to match JS behavior
+	if _, err := strconv.Atoi(key); err == nil {
+		if idx, err := strconv.Atoi(key); err == nil {
+			return fmt.Sprintf("%s[%d]", basePath, idx)
+		}
+	}
+	
+	// Non-numeric object keys use quoted strings: $['users']['name']
+	return fmt.Sprintf("%s['%s']", basePath, key)
+}
 
 // Evaluator handles JSONPath expression evaluation
 type Evaluator struct {
@@ -149,11 +171,27 @@ func (e *Evaluator) evaluateProperty(node *types.AstNode, ctx types.Result, opti
 	property := node.Value
 
 	switch v := ctx.Value.(type) {
+	case *utils.OrderedMap:
+		if value, exists := v.Get(property); exists {
+			result := types.Result{
+				Value:          value,
+				Path:           formatPath(ctx.Path, property, false),
+				Parent:         ctx.Value,
+				ParentProperty: property,
+				Index:          0,
+				OriginalIndex:  0,
+			}
+
+			if len(node.Children) > 0 {
+				return e.evaluateNode(node.Children[0], []types.Result{result}, options)
+			}
+			results = append(results, result)
+		}
 	case map[string]interface{}:
 		if value, exists := v[property]; exists {
 			result := types.Result{
 				Value:          value,
-				Path:           fmt.Sprintf("%s.%s", ctx.Path, property),
+				Path:           formatPath(ctx.Path, property, false),
 				Parent:         ctx.Value,
 				ParentProperty: property,
 				Index:          0,
@@ -170,7 +208,7 @@ func (e *Evaluator) evaluateProperty(node *types.AstNode, ctx types.Result, opti
 		if idx, err := strconv.Atoi(property); err == nil && idx >= 0 && idx < len(v) {
 			result := types.Result{
 				Value:          v[idx],
-				Path:           fmt.Sprintf("%s[%d]", ctx.Path, idx),
+				Path:           formatPath(ctx.Path, strconv.Itoa(idx), true),
 				Parent:         ctx.Value,
 				ParentProperty: strconv.Itoa(idx),
 				Index:          idx,
@@ -191,12 +229,27 @@ func (e *Evaluator) evaluateWildcard(node *types.AstNode, ctx types.Result, opti
 	var results []types.Result
 
 	switch v := ctx.Value.(type) {
+	case *utils.OrderedMap:
+		index := 0
+		v.Range(func(key string, value interface{}) bool {
+			result := types.Result{
+				Value:          value,
+				Path:           formatPath(ctx.Path, key, false),
+				Parent:         ctx.Value,
+				ParentProperty: key, // Use the property name itself
+				Index:          index,
+				OriginalIndex:  index,
+			}
+			results = append(results, result)
+			index++
+			return true
+		})
 	case map[string]interface{}:
 		index := 0
 		for key, value := range v {
 			result := types.Result{
 				Value:          value,
-				Path:           fmt.Sprintf("%s.%s", ctx.Path, key),
+				Path:           formatPath(ctx.Path, key, false),
 				Parent:         ctx.Value,
 				ParentProperty: key, // Use the property name itself
 				Index:          index,
@@ -214,7 +267,23 @@ func (e *Evaluator) evaluateWildcard(node *types.AstNode, ctx types.Result, opti
 		if isPropertyWildcard {
 			// Property wildcard: $.store.book.* should return all properties of all books
 			for i, value := range v {
-				if valueMap, ok := value.(map[string]interface{}); ok {
+				if orderedMap, ok := value.(*utils.OrderedMap); ok {
+					// For each OrderedMap in the array, add all its properties in order
+					propIndex := 0
+					orderedMap.Range(func(key string, propValue interface{}) bool {
+						result := types.Result{
+							Value:          propValue,
+							Path:           fmt.Sprintf("%s[%d].%s", ctx.Path, i, key),
+							Parent:         value,
+							ParentProperty: strconv.Itoa(i), // Array index of this book
+							Index:          propIndex,
+							OriginalIndex:  propIndex,
+						}
+						results = append(results, result)
+						propIndex++
+						return true
+					})
+				} else if valueMap, ok := value.(map[string]interface{}); ok {
 					// For each object in the array, add all its properties
 					propIndex := 0
 					for key, propValue := range valueMap {
@@ -274,13 +343,29 @@ func (e *Evaluator) evaluateIndexWildcard(node *types.AstNode, ctx types.Result,
 	var results []types.Result
 
 	switch v := ctx.Value.(type) {
+	case *utils.OrderedMap:
+		// For OrderedMap, index wildcard behaves like property wildcard
+		index := 0
+		v.Range(func(key string, value interface{}) bool {
+			result := types.Result{
+				Value:          value,
+				Path:           fmt.Sprintf("%s['%s']", ctx.Path, key),
+				Parent:         ctx.Value,
+				ParentProperty: key,
+				Index:          index,
+				OriginalIndex:  index,
+			}
+			results = append(results, result)
+			index++
+			return true
+		})
 	case map[string]interface{}:
 		// For objects, index wildcard behaves like property wildcard
 		index := 0
 		for key, value := range v {
 			result := types.Result{
 				Value:          value,
-				Path:           fmt.Sprintf("%s.%s", ctx.Path, key),
+				Path:           fmt.Sprintf("%s['%s']", ctx.Path, key),
 				Parent:         ctx.Value,
 				ParentProperty: key,
 				Index:          index,
@@ -325,9 +410,10 @@ func (e *Evaluator) evaluateIndex(node *types.AstNode, ctx types.Result, options
 		return results
 	}
 
-	// Handle negative indices
+	// JavaScript JSONPath-Plus doesn't support negative indices
+	// They return empty results for negative indices
 	if idx < 0 {
-		idx = len(arr) + idx
+		return results
 	}
 
 	if idx >= 0 && idx < len(arr) {
@@ -412,19 +498,22 @@ func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, option
 	if arr, ok := ctx.Value.([]interface{}); ok {
 		for i, item := range arr {
 			// For array elements:
-			// - @parent should refer to the container of the array (ctx.Parent)
-			// - @parentProperty should be the property name that led to the array (ctx.ParentProperty)
+			// - @parent should refer to the parent of the array (ctx.Parent) for @parent filters
+			// - But for @property to work, we need to know the parent is an array
 			// - @property should be the array index (i)
+			// - @parentProperty should be the property name that led to the array (ctx.ParentProperty)
 			itemResult := types.Result{
 				Value:          item,
 				Path:           fmt.Sprintf("%s[%d]", ctx.Path, i),
-				Parent:         ctx.Parent,         // Parent is the container of the array (for @parent)
-				ParentProperty: ctx.ParentProperty, // Property that led to the array (for @parentProperty)
+				Parent:         ctx.Parent,        // Parent is the parent of the array (for @parent)
+				ParentProperty: strconv.Itoa(i),   // Property is the array index (for @property)
 				Index:          i,
 				OriginalIndex:  i,
 			}
 
-			itemContext := e.contextualEval.CreateContext(itemResult, options.Root)
+			// Create context with special handling for array elements
+			// We need to track that this element came from an array for @property to work
+			itemContext := e.contextualEval.CreateArrayElementContext(itemResult, options.Root, ctx.Value)
 
 			if e.filterEval.EvaluateFilter(node.Value, itemContext) {
 				if len(node.Children) > 0 {
@@ -435,8 +524,91 @@ func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, option
 				}
 			}
 		}
+	} else if orderedMap, ok := ctx.Value.(*utils.OrderedMap); ok {
+		// Handle OrderedMap filtering
+		index := 0
+		orderedMap.Range(func(key string, value interface{}) bool {
+			// For object properties:
+			// - @parent should refer to the object itself (ctx.Value)
+			// - @property should be the object key (key)
+			// - @parentProperty should be the property name that led to the object (ctx.ParentProperty)
+			itemResult := types.Result{
+				Value:          value,
+				Path:           formatPath(ctx.Path, key, false),
+				Parent:         ctx.Value,         // Parent is the object itself (for @parent)
+				ParentProperty: key,               // Property is the object key (for @property)
+				Index:          index,
+				OriginalIndex:  index,
+			}
+
+			// Create context - for object filtering, @parentProperty should be 
+			// the property that led to the immediate parent (the object being filtered)
+			// For $.users.1['name'], the parent is the user object at "$.users.1"
+			// which was accessed via property "1", so @parentProperty should be "1"
+			itemContext := types.NewContextWithParentProperty(
+				options.Root,
+				itemResult.Value,
+				itemResult.Parent,
+				itemResult.ParentProperty,
+				itemResult.Path,
+				itemResult.Index,
+				ctx.ParentProperty, // This becomes ParentOfParentProperty (the "1" from "$.users.1")
+			)
+
+			if e.filterEval.EvaluateFilter(node.Value, itemContext) {
+				if len(node.Children) > 0 {
+					childResults := e.evaluateNode(node.Children[0], []types.Result{itemResult}, options)
+					results = append(results, childResults...)
+				} else {
+					results = append(results, itemResult)
+				}
+			}
+			index++
+			return true
+		})
+	} else if obj, ok := ctx.Value.(map[string]interface{}); ok {
+		// Handle object filtering
+		index := 0
+		for key, value := range obj {
+			// For object properties:
+			// - @parent should refer to the object itself (ctx.Value)
+			// - @property should be the object key (key)
+			// - @parentProperty should be the property name that led to the object (ctx.ParentProperty)
+			itemResult := types.Result{
+				Value:          value,
+				Path:           formatPath(ctx.Path, key, false),
+				Parent:         ctx.Value,         // Parent is the object itself (for @parent)
+				ParentProperty: key,               // Property is the object key (for @property)
+				Index:          index,
+				OriginalIndex:  index,
+			}
+
+			// Create context - for object filtering, @parentProperty should be 
+			// the property that led to the immediate parent (the object being filtered)
+			// For $.users.1['name'], the parent is the user object at "$.users.1"
+			// which was accessed via property "1", so @parentProperty should be "1"
+			itemContext := types.NewContextWithParentProperty(
+				options.Root,
+				itemResult.Value,
+				itemResult.Parent,
+				itemResult.ParentProperty,
+				itemResult.Path,
+				itemResult.Index,
+				ctx.ParentProperty, // This becomes ParentOfParentProperty (the "1" from "$.users.1")
+			)
+
+			if e.filterEval.EvaluateFilter(node.Value, itemContext) {
+				if len(node.Children) > 0 {
+					childResults := e.evaluateNode(node.Children[0], []types.Result{itemResult}, options)
+					results = append(results, childResults...)
+				} else {
+					results = append(results, itemResult)
+				}
+			}
+			index++
+		}
 	} else {
-		// Handle single item filtering (for chained operations)
+		// Handle single item filtering (for primitive values or other edge cases)
 		// Create context for the single item
 		itemContext := e.contextualEval.CreateContext(ctx, options.Root)
 
@@ -458,25 +630,28 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 	visited := make(map[string]bool)
 
 	// Special case: if we have exactly one child that is a wildcard, treat this as $..*
-	// which should return all descendants at all levels
+	// which should return all descendants at all levels using breadth-first traversal to match JavaScript
 	if len(node.Children) == 1 && node.Children[0].Type == "wildcard" {
-		var traverse func(current types.Result, includeRoot bool)
-		traverse = func(current types.Result, includeRoot bool) {
-			if visited[current.Path] {
-				return
+		// JavaScript JSONPath-Plus EXACT algorithm replication
+		// Based on: else if (loc === '..') in _trace method
+		
+		var processRecursiveDescent func(current types.Result)
+		processRecursiveDescent = func(current types.Result) {
+			// Phase 1: Process current expression (equivalent to this._trace(x, val, ...))
+			// where x is the remaining expression after '..', which is ['*']
+			if current.Path != "$" {
+				// Add current node to results
+				if !visited[current.Path] {
+					results = append(results, current)
+					visited[current.Path] = true
+				}
 			}
-			visited[current.Path] = true
-
-			// Include the current node if not the initial root
-			if includeRoot && current.Path != "$" {
-				results = append(results, current)
-			}
-
-			// Recursively traverse children
+			
+			// Process '*' on current value - add all direct children
 			switch v := current.Value.(type) {
-			case map[string]interface{}:
-				for key, val := range v {
-					childResult := types.Result{
+			case *utils.OrderedMap:
+				v.Range(func(key string, val interface{}) bool {
+					child := types.Result{
 						Value:          val,
 						Path:           fmt.Sprintf("%s['%s']", current.Path, key),
 						Parent:         current.Value,
@@ -484,24 +659,99 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 						Index:          0,
 						OriginalIndex:  0,
 					}
-					traverse(childResult, true)
+					if !visited[child.Path] {
+						results = append(results, child)
+						visited[child.Path] = true
+					}
+					return true
+				})
+			case map[string]interface{}:
+				for key, val := range v {
+					child := types.Result{
+						Value:          val,
+						Path:           fmt.Sprintf("%s['%s']", current.Path, key),
+						Parent:         current.Value,
+						ParentProperty: key,
+						Index:          0,
+						OriginalIndex:  0,
+					}
+					if !visited[child.Path] {
+						results = append(results, child)
+						visited[child.Path] = true
+					}
 				}
 			case []interface{}:
 				for i, val := range v {
-					childResult := types.Result{
-						Value:          val,
-						Path:           fmt.Sprintf("%s[%d]", current.Path, i),
-						Parent:         current.Value,
-						ParentProperty: strconv.Itoa(i),
-						Index:          i,
-						OriginalIndex:  i,
+					child := types.Result{
+						Value:         val,
+						Path:          fmt.Sprintf("%s[%d]", current.Path, i),
+						Parent:        current.Value,
+						Index:         i,
+						OriginalIndex: i,
 					}
-					traverse(childResult, true)
+					if !visited[child.Path] {
+						results = append(results, child)
+						visited[child.Path] = true
+					}
+				}
+			}
+			
+			// Phase 2: Walk through children and recursively apply full expression
+			// (equivalent to this._walk(val, (m) => { this._trace(expr.slice(), val[m], ...) }))
+			switch v := current.Value.(type) {
+			case *utils.OrderedMap:
+				v.Range(func(key string, val interface{}) bool {
+					// Only recurse into objects (matching JavaScript: if (typeof val[m] === 'object'))
+					if val != nil {
+						switch val.(type) {
+						case map[string]interface{}, *utils.OrderedMap, []interface{}:
+							child := types.Result{
+								Value:          val,
+								Path:           fmt.Sprintf("%s['%s']", current.Path, key),
+								Parent:         current.Value,
+								ParentProperty: key,
+								Index:          0,
+								OriginalIndex:  0,
+							}
+							processRecursiveDescent(child)
+						}
+					}
+					return true
+				})
+			case map[string]interface{}:
+				for key, val := range v {
+					if val != nil {
+						switch val.(type) {
+						case map[string]interface{}, *utils.OrderedMap, []interface{}:
+							child := types.Result{
+								Value:          val,
+								Path:           fmt.Sprintf("%s['%s']", current.Path, key),
+								Parent:         current.Value,
+								ParentProperty: key,
+								Index:          0,
+								OriginalIndex:  0,
+							}
+							processRecursiveDescent(child)
+						}
+					}
+				}
+			case []interface{}:
+				for i, val := range v {
+					child := types.Result{
+						Value:         val,
+						Path:          fmt.Sprintf("%s[%d]", current.Path, i),
+						Parent:        current.Value,
+						Index:         i,
+						OriginalIndex: i,
+					}
+					processRecursiveDescent(child)
 				}
 			}
 		}
-
-		traverse(ctx, false)
+		
+		// Start the recursive descent from root
+		processRecursiveDescent(ctx)
+		
 		return results
 	}
 
@@ -509,47 +759,170 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 	// which should apply the filter to all property values found via recursive descent
 	if len(node.Children) == 2 && node.Children[0].Type == "wildcard" && node.Children[1].Type == "filter" {
 		var allProperties []types.Result
-		var traverse func(current types.Result)
-		traverse = func(current types.Result) {
-			if visited[current.Path] {
-				return
-			}
-			visited[current.Path] = true
+		// Use the same level-by-level breadth-first traversal as $..*
+		currentLevel := []types.Result{ctx}
+		
+		for len(currentLevel) > 0 {
+			var nextLevel []types.Result
+			
+			// Process all nodes at the current level
+			for _, current := range currentLevel {
+				if visited[current.Path] {
+					continue
+				}
+				visited[current.Path] = true
 
-			// Recursively traverse children to collect all properties
-			switch v := current.Value.(type) {
-			case map[string]interface{}:
-				for key, val := range v {
-					// Add this property to the list
-					propertyResult := types.Result{
-						Value:          val,
-						Path:           fmt.Sprintf("%s['%s']", current.Path, key),
-						Parent:         current.Value,
-						ParentProperty: key,
-						Index:          0,
-						OriginalIndex:  0,
+				// Collect all children from this node (skip the root)
+				if current.Path != "$" {
+					switch v := current.Value.(type) {
+					case *utils.OrderedMap:
+						v.Range(func(key string, val interface{}) bool {
+							propertyResult := types.Result{
+								Value:          val,
+								Path:           fmt.Sprintf("%s['%s']", current.Path, key),
+								Parent:         current.Value,
+								ParentProperty: key,
+								Index:          0,
+								OriginalIndex:  0,
+							}
+							allProperties = append(allProperties, propertyResult)
+							nextLevel = append(nextLevel, propertyResult)
+							
+							// If this is an array, add its elements as well
+							if arr, isArray := val.([]interface{}); isArray {
+								for i, arrVal := range arr {
+									arrResult := types.Result{
+										Value:          arrVal,
+										Path:           fmt.Sprintf("%s[%d]", propertyResult.Path, i),
+										Parent:         val,
+										ParentProperty: strconv.Itoa(i),
+										Index:          i,
+										OriginalIndex:  i,
+									}
+									allProperties = append(allProperties, arrResult)
+									nextLevel = append(nextLevel, arrResult)
+								}
+							}
+							return true
+						})
+					case map[string]interface{}:
+						for key, val := range v {
+							propertyResult := types.Result{
+								Value:          val,
+								Path:           fmt.Sprintf("%s['%s']", current.Path, key),
+								Parent:         current.Value,
+								ParentProperty: key,
+								Index:          0,
+								OriginalIndex:  0,
+							}
+							allProperties = append(allProperties, propertyResult)
+							nextLevel = append(nextLevel, propertyResult)
+							
+							if arr, isArray := val.([]interface{}); isArray {
+								for i, arrVal := range arr {
+									arrResult := types.Result{
+										Value:          arrVal,
+										Path:           fmt.Sprintf("%s[%d]", propertyResult.Path, i),
+										Parent:         val,
+										ParentProperty: strconv.Itoa(i),
+										Index:          i,
+										OriginalIndex:  i,
+									}
+									allProperties = append(allProperties, arrResult)
+									nextLevel = append(nextLevel, arrResult)
+								}
+							}
+						}
+					case []interface{}:
+						for i, val := range v {
+							childResult := types.Result{
+								Value:          val,
+								Path:           fmt.Sprintf("%s[%d]", current.Path, i),
+								Parent:         current.Value,
+								ParentProperty: strconv.Itoa(i),
+								Index:          i,
+								OriginalIndex:  i,
+							}
+							allProperties = append(allProperties, childResult)
+							nextLevel = append(nextLevel, childResult)
+						}
 					}
-					allProperties = append(allProperties, propertyResult)
-					
-					// Continue traversing
-					traverse(propertyResult)
-				}
-			case []interface{}:
-				for i, val := range v {
-					childResult := types.Result{
-						Value:          val,
-						Path:           fmt.Sprintf("%s[%d]", current.Path, i),
-						Parent:         current.Value,
-						ParentProperty: strconv.Itoa(i),
-						Index:          i,
-						OriginalIndex:  i,
+				} else {
+					// For the root node, just collect its direct children
+					switch v := current.Value.(type) {
+					case *utils.OrderedMap:
+						v.Range(func(key string, val interface{}) bool {
+							childResult := types.Result{
+								Value:          val,
+								Path:           fmt.Sprintf("%s['%s']", current.Path, key),
+								Parent:         current.Value,
+								ParentProperty: key,
+								Index:          0,
+								OriginalIndex:  0,
+							}
+							nextLevel = append(nextLevel, childResult)
+							
+							// If this is an array, add its elements as well
+							if arr, isArray := val.([]interface{}); isArray {
+								for i, arrVal := range arr {
+									arrResult := types.Result{
+										Value:          arrVal,
+										Path:           fmt.Sprintf("%s[%d]", childResult.Path, i),
+										Parent:         val,
+										ParentProperty: strconv.Itoa(i),
+										Index:          i,
+										OriginalIndex:  i,
+									}
+									nextLevel = append(nextLevel, arrResult)
+								}
+							}
+							return true
+						})
+					case map[string]interface{}:
+						for key, val := range v {
+							childResult := types.Result{
+								Value:          val,
+								Path:           fmt.Sprintf("%s['%s']", current.Path, key),
+								Parent:         current.Value,
+								ParentProperty: key,
+								Index:          0,
+								OriginalIndex:  0,
+							}
+							nextLevel = append(nextLevel, childResult)
+							
+							if arr, isArray := val.([]interface{}); isArray {
+								for i, arrVal := range arr {
+									arrResult := types.Result{
+										Value:          arrVal,
+										Path:           fmt.Sprintf("%s[%d]", childResult.Path, i),
+										Parent:         val,
+										ParentProperty: strconv.Itoa(i),
+										Index:          i,
+										OriginalIndex:  i,
+									}
+									nextLevel = append(nextLevel, arrResult)
+								}
+							}
+						}
+					case []interface{}:
+						for i, val := range v {
+							childResult := types.Result{
+								Value:          val,
+								Path:           fmt.Sprintf("%s[%d]", current.Path, i),
+								Parent:         current.Value,
+								ParentProperty: strconv.Itoa(i),
+								Index:          i,
+								OriginalIndex:  i,
+							}
+							nextLevel = append(nextLevel, childResult)
+						}
 					}
-					traverse(childResult)
 				}
 			}
+			
+			// Move to the next level
+			currentLevel = nextLevel
 		}
-
-		traverse(ctx)
 		
 		// Apply the filter to all collected properties
 		filterNode := node.Children[1]
@@ -574,11 +947,24 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 
 			// Recursively traverse children
 			switch v := current.Value.(type) {
+			case *utils.OrderedMap:
+				v.Range(func(key string, val interface{}) bool {
+					childResult := types.Result{
+						Value:          val,
+						Path:           fmt.Sprintf("%s['%s']", current.Path, key),
+						Parent:         current.Value,
+						ParentProperty: key,
+						Index:          0,
+						OriginalIndex:  0,
+					}
+					traverse(childResult)
+					return true
+				})
 			case map[string]interface{}:
 				for key, val := range v {
 					childResult := types.Result{
 						Value:          val,
-						Path:           fmt.Sprintf("%s.%s", current.Path, key),
+						Path:           fmt.Sprintf("%s['%s']", current.Path, key),
 						Parent:         current.Value,
 						ParentProperty: key,
 						Index:          0,
@@ -642,11 +1028,24 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 			results = append(results, current)
 
 			switch v := current.Value.(type) {
+			case *utils.OrderedMap:
+				v.Range(func(key string, val interface{}) bool {
+					childResult := types.Result{
+						Value:          val,
+						Path:           fmt.Sprintf("%s['%s']", current.Path, key),
+						Parent:         current.Value,
+						ParentProperty: key,
+						Index:          0,
+						OriginalIndex:  0,
+					}
+					traverse(childResult)
+					return true
+				})
 			case map[string]interface{}:
 				for key, val := range v {
 					childResult := types.Result{
 						Value:          val,
-						Path:           fmt.Sprintf("%s.%s", current.Path, key),
+						Path:           fmt.Sprintf("%s['%s']", current.Path, key),
 						Parent:         current.Value,
 						ParentProperty: key,
 						Index:          0,

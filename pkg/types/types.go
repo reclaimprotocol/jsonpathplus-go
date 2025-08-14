@@ -53,6 +53,8 @@ type Context struct {
 	ParentProperty string      // Property name or index in parent
 	Path           string      // Current JSONPath
 	Index          int         // Current index (for arrays)
+	ParentOfParentProperty string // Property that led to the parent (for @parentProperty)
+	ActualParentArray interface{} // For array elements, the actual array (for @property type detection)
 }
 
 // NewContext creates a new evaluation context
@@ -64,6 +66,36 @@ func NewContext(root, current, parent interface{}, parentProperty, path string, 
 		ParentProperty: parentProperty,
 		Path:           path,
 		Index:          index,
+		ParentOfParentProperty: "", // Default empty
+		ActualParentArray: nil, // Default nil
+	}
+}
+
+// NewArrayElementContext creates a context for array elements with proper parent tracking
+func NewArrayElementContext(root, current, parent interface{}, parentProperty, path string, index int, actualArray interface{}) *Context {
+	return &Context{
+		Root:           root,
+		Current:        current,
+		Parent:         parent,
+		ParentProperty: parentProperty,
+		Path:           path,
+		Index:          index,
+		ParentOfParentProperty: "", // Default empty
+		ActualParentArray: actualArray, // The array that contains this element
+	}
+}
+
+// NewContextWithParentProperty creates a new evaluation context with parent property tracking
+func NewContextWithParentProperty(root, current, parent interface{}, parentProperty, path string, index int, parentOfParentProperty string) *Context {
+	return &Context{
+		Root:           root,
+		Current:        current,
+		Parent:         parent,
+		ParentProperty: parentProperty,
+		Path:           path,
+		Index:          index,
+		ParentOfParentProperty: parentOfParentProperty,
+		ActualParentArray: nil, // Default nil
 	}
 }
 
@@ -121,6 +153,49 @@ func (c *Context) GetPropertyName() string {
 	return c.ParentProperty
 }
 
+// GetParentPropertyName returns the property name that led to the parent (for @parentProperty)
+func (c *Context) GetParentPropertyName() string {
+	// If explicitly set, use it
+	if c.ParentOfParentProperty != "" {
+		return c.ParentOfParentProperty
+	}
+	
+	// Otherwise, derive from path
+	// For path like "$.users.1['name']", @parentProperty should be "users" 
+	// For path like "$.store.book[0]['title']", @parentProperty should be "book"
+	return extractParentPropertyFromPath(c.Path)
+}
+
+// extractParentPropertyFromPath extracts the parent property name from a JSONPath
+func extractParentPropertyFromPath(path string) string {
+	// For @parentProperty, we want the property that led to the parent of the current item
+	// Examples:
+	// "$.users.1['name']" -> "users" (parent of parent of 'name')
+	// "$.store.book[0]['title']" -> "store" (parent of parent of 'title')  
+	// "$.users['1']" -> "" (filtering users object directly)
+	
+	if strings.Contains(path, "['") {
+		// Path has bracket notation for current property like $.users.1['name']
+		// Remove the bracket part to get the parent path
+		lastBracket := strings.LastIndex(path, "['")
+		if lastBracket > 0 {
+			parentPath := path[:lastBracket] // "$.users.1"
+			
+			// Now get the parent of this parent
+			// Find the second-to-last property
+			if strings.Contains(parentPath, ".") {
+				parts := strings.Split(parentPath, ".")
+				if len(parts) >= 3 { // $, intermediate, property
+					// Get the second-to-last part (parent of parent)
+					return parts[len(parts)-2]
+				}
+			}
+		}
+	}
+	
+	return "" // Default for cases we can't parse
+}
+
 // GetParent returns the parent object
 func (c *Context) GetParent() interface{} {
 	return c.Parent
@@ -133,4 +208,32 @@ func (c *Context) IsArrayIndex() bool {
 	}
 	_, err := strconv.Atoi(c.ParentProperty)
 	return err == nil
+}
+
+// IsParentArray returns true if the parent is an array (not an object)
+func (c *Context) IsParentArray() bool {
+	// For array elements, we track the actual array separately
+	if c.ActualParentArray != nil {
+		_, isArray := c.ActualParentArray.([]interface{})
+		return isArray
+	}
+	
+	// Otherwise check the Parent field
+	if c.Parent == nil {
+		return false
+	}
+	_, isArray := c.Parent.([]interface{})
+	return isArray
+}
+
+// GetPropertyValue returns the property as the appropriate type (number for array indices, string for object keys)
+func (c *Context) GetPropertyValue() interface{} {
+	if c.IsParentArray() && c.IsArrayIndex() {
+		// For array indices, return as number
+		if idx, err := strconv.Atoi(c.ParentProperty); err == nil {
+			return idx
+		}
+	}
+	// For object keys, return as string
+	return c.ParentProperty
 }

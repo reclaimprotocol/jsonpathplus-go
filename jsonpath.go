@@ -1,7 +1,6 @@
 package jsonpathplus
 
 import (
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -9,6 +8,7 @@ import (
 	"github.com/reclaimprotocol/jsonpathplus-go/internal/evaluator"
 	"github.com/reclaimprotocol/jsonpathplus-go/internal/parser"
 	"github.com/reclaimprotocol/jsonpathplus-go/pkg/types"
+	"github.com/reclaimprotocol/jsonpathplus-go/pkg/utils"
 )
 
 // Result represents a JSONPath query result (alias for types.Result for backward compatibility)
@@ -55,9 +55,26 @@ func New(path string) (*JSONPath, error) {
 }
 
 // Execute executes the JSONPath against the given data
-func (jp *JSONPath) Execute(data interface{}) ([]Result, error) {
+func (jp *JSONPath) Execute(data interface{}) (results []Result, err error) {
 	options := &types.Options{}
-	return jp.engine.evaluator.Evaluate(jp.ast, data, options), nil
+	
+	// Catch panics from JavaScript compatibility errors (like null.length)
+	defer func() {
+		if r := recover(); r != nil {
+			if str, ok := r.(string); ok && strings.Contains(str, "Cannot read properties of null") {
+				// JavaScript compatibility: return empty results for null.length errors
+				results = []Result{}
+				err = nil
+				return
+			}
+			// Re-panic for other errors
+			panic(r)
+		}
+	}()
+	
+	results = jp.engine.evaluator.Evaluate(jp.ast, data, options)
+	err = nil
+	return
 }
 
 // ExecuteWithOptions executes the JSONPath with custom options
@@ -80,11 +97,9 @@ func (jp *JSONPath) AST() *types.AstNode {
 
 // Convenience functions for the refactored API
 
-// JSONParse parses a JSON string into an interface{}
+// JSONParse parses a JSON string into an interface{} with preserved property order
 func JSONParse(jsonStr string) (interface{}, error) {
-	var data interface{}
-	err := json.Unmarshal([]byte(jsonStr), &data)
-	return data, err
+	return utils.ParseOrderedJSON([]byte(jsonStr))
 }
 
 // Query executes a JSONPath query against JSON string or data
@@ -97,7 +112,9 @@ func Query(path string, input interface{}) ([]Result, error) {
 	if str, ok := input.(string); ok {
 		jsonStr = str
 		isStringInput = true
-		if err := json.Unmarshal([]byte(jsonStr), &data); err != nil {
+		var err error
+		data, err = utils.ParseOrderedJSON([]byte(jsonStr))
+		if err != nil {
 			return nil, err
 		}
 	} else {

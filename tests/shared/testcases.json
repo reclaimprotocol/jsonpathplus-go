@@ -100,6 +100,52 @@
           {"title": "Book2"}
         ]
       }
+    },
+    "mixed_types": {
+      "data": [
+        42,
+        "hello",
+        true,
+        null,
+        {"key": "value"},
+        [1, 2, 3]
+      ]
+    },
+    "nested_arrays": {
+      "matrix": [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9]
+      ],
+      "tags": ["red", "green", "blue"]
+    },
+    "complex_structure": {
+      "users": {
+        "1": {"name": "Alice", "age": 25, "active": true},
+        "2": {"name": "Bob", "age": 30, "active": false},
+        "10": {"name": "Charlie", "age": 35, "active": true}
+      },
+      "settings": {
+        "theme": "dark",
+        "notifications": {
+          "email": true,
+          "push": false
+        }
+      }
+    },
+    "edge_cases": {
+      "empty": {},
+      "emptyArray": [],
+      "nullValue": null,
+      "zeroValue": 0,
+      "falseValue": false,
+      "emptyString": "",
+      "specialChars": {
+        "hyphen-key": "value1",
+        "space key": "value2",
+        "123numeric": "value3",
+        "": "empty key value"
+      }
     }
   },
   "testCases": [
@@ -167,13 +213,6 @@
       "description": "Parent object property existence"
     },
     {
-      "name": "Orders with laptop products",
-      "jsonpath": "$.orders[?(@.items[*].product === 'laptop')]",
-      "data": "orders_data",
-      "category": "array_wildcards",
-      "description": "Array wildcard in filter expressions"
-    },
-    {
       "name": "Debug: Simple books all",
       "jsonpath": "$..book[*]",
       "data": "simple_books",
@@ -186,6 +225,279 @@
       "data": "simple_books",
       "category": "debug",
       "description": "Debug test for array index filtering"
+    },
+    {
+      "name": "Array first element",
+      "jsonpath": "$.matrix[0]",
+      "data": "nested_arrays",
+      "category": "array_access",
+      "description": "First element access"
+    },
+    {
+      "name": "Array last element",
+      "jsonpath": "$.matrix[-1]",
+      "data": "nested_arrays", 
+      "category": "array_access",
+      "description": "Last element with negative index"
+    },
+    {
+      "name": "Array slice",
+      "jsonpath": "$.matrix[0:2]",
+      "data": "nested_arrays",
+      "category": "array_slice",
+      "description": "Array slice notation"
+    },
+    {
+      "name": "Nested array access",
+      "jsonpath": "$.matrix[1][2]",
+      "data": "nested_arrays",
+      "category": "nested_access",
+      "description": "Deep array element access"
+    },
+    {
+      "name": "All nested array elements", 
+      "jsonpath": "$.matrix[*][*]",
+      "data": "nested_arrays",
+      "category": "nested_wildcard",
+      "description": "Nested wildcard access"
+    },
+    {
+      "name": "Property equals string",
+      "jsonpath": "$.users[?(@property === '1')]",
+      "data": "complex_structure",
+      "category": "property_filters",
+      "description": "String property comparison"
+    },
+    {
+      "name": "Property not equals string", 
+      "jsonpath": "$.users[?(@property !== '1')]",
+      "data": "complex_structure",
+      "category": "property_filters",
+      "description": "String property negation"
+    },
+    {
+      "name": "Property greater than",
+      "jsonpath": "$.users[?(@property > '5')]",
+      "data": "complex_structure", 
+      "category": "property_filters",
+      "description": "String property comparison"
+    },
+    {
+      "name": "Array property equals number",
+      "jsonpath": "$.data[?(@property === 0)]",
+      "data": "mixed_types",
+      "category": "property_filters", 
+      "description": "Numeric property for arrays"
+    },
+    {
+      "name": "Array property not equals number",
+      "jsonpath": "$.data[?(@property !== 0)]",
+      "data": "mixed_types",
+      "category": "property_filters",
+      "description": "Numeric property negation for arrays" 
+    },
+    {
+      "name": "Parent property access",
+      "jsonpath": "$.users.1[?(@parent.settings)]", 
+      "data": "complex_structure",
+      "category": "parent_filters",
+      "description": "Parent object property existence"
+    },
+    {
+      "name": "Parent property value",
+      "jsonpath": "$.notifications[?(@parent.theme === 'dark')]",
+      "data": "complex_structure",
+      "category": "parent_filters",
+      "description": "Parent property value comparison"
+    },
+    {
+      "name": "Path filter",
+      "jsonpath": "$.users[?(@path === \"$['users'][1]\")]",
+      "data": "complex_structure", 
+      "category": "path_filters",
+      "description": "Path-based filtering"
+    },
+    {
+      "name": "ParentProperty filter",
+      "jsonpath": "$.users.1[?(@parentProperty === '1')]",
+      "data": "complex_structure",
+      "category": "parent_property_filters", 
+      "description": "ParentProperty filtering"
+    },
+    {
+      "name": "Null value filter",
+      "jsonpath": "$.data[?(@ === null)]",
+      "data": "mixed_types",
+      "category": "value_filters",
+      "description": "Null value comparison"
+    },
+    {
+      "name": "Boolean true filter",
+      "jsonpath": "$.data[?(@ === true)]", 
+      "data": "mixed_types",
+      "category": "value_filters",
+      "description": "Boolean true comparison"
+    },
+    {
+      "name": "Boolean false filter",
+      "jsonpath": "$.data[?(@ === false)]",
+      "data": "mixed_types", 
+      "category": "value_filters",
+      "description": "Boolean false comparison"
+    },
+    {
+      "name": "Number filter",
+      "jsonpath": "$.data[?(@ === 42)]",
+      "data": "mixed_types",
+      "category": "value_filters",
+      "description": "Numeric value comparison"
+    },
+    {
+      "name": "String filter",
+      "jsonpath": "$.data[?(@ === 'hello')]",
+      "data": "mixed_types",
+      "category": "value_filters", 
+      "description": "String value comparison"
+    },
+    {
+      "name": "Logical AND filter",
+      "jsonpath": "$.users[?(@.age > 25 && @.active === true)]",
+      "data": "complex_structure",
+      "category": "logical_filters",
+      "description": "AND operator in filter"
+    },
+    {
+      "name": "Logical OR filter", 
+      "jsonpath": "$.users[?(@.age < 25 || @.active === false)]",
+      "data": "complex_structure",
+      "category": "logical_filters",
+      "description": "OR operator in filter"
+    },
+    {
+      "name": "Negation filter",
+      "jsonpath": "$.users[?(!@.active)]",
+      "data": "complex_structure",
+      "category": "logical_filters",
+      "description": "Negation operator in filter"
+    },
+    {
+      "name": "Empty object access",
+      "jsonpath": "$.empty[*]",
+      "data": "edge_cases",
+      "category": "edge_cases",
+      "description": "Wildcard on empty object"
+    },
+    {
+      "name": "Empty array access",
+      "jsonpath": "$.emptyArray[*]",
+      "data": "edge_cases",
+      "category": "edge_cases",
+      "description": "Wildcard on empty array"
+    },
+    {
+      "name": "Zero value access",
+      "jsonpath": "$.zeroValue",
+      "data": "edge_cases", 
+      "category": "edge_cases",
+      "description": "Access zero value"
+    },
+    {
+      "name": "False value access",
+      "jsonpath": "$.falseValue",
+      "data": "edge_cases",
+      "category": "edge_cases",
+      "description": "Access false value"  
+    },
+    {
+      "name": "Empty string access",
+      "jsonpath": "$.emptyString", 
+      "data": "edge_cases",
+      "category": "edge_cases",
+      "description": "Access empty string"
+    },
+    {
+      "name": "Special character keys",
+      "jsonpath": "$.specialChars['hyphen-key']",
+      "data": "edge_cases",
+      "category": "edge_cases", 
+      "description": "Key with special characters"
+    },
+    {
+      "name": "Space in key",
+      "jsonpath": "$['specialChars']['space key']",
+      "data": "edge_cases",
+      "category": "edge_cases",
+      "description": "Key with space"
+    },
+    {
+      "name": "Numeric key",
+      "jsonpath": "$.specialChars['123numeric']",
+      "data": "edge_cases", 
+      "category": "edge_cases",
+      "description": "Numeric string key"
+    },
+    {
+      "name": "Empty key",
+      "jsonpath": "$.specialChars['']",
+      "data": "edge_cases",
+      "category": "edge_cases",
+      "description": "Empty string key"
+    },
+    {
+      "name": "Deep recursive property",
+      "jsonpath": "$..email",
+      "data": "complex_structure",
+      "category": "recursive_descent",
+      "description": "Deep nested property search"
+    },
+    {
+      "name": "Recursive with filter",
+      "jsonpath": "$..[?(@.name)]",
+      "data": "complex_structure", 
+      "category": "recursive_filters",
+      "description": "Recursive descent with filter"
+    },
+    {
+      "name": "Recursive array access",
+      "jsonpath": "$..matrix[0]",
+      "data": "nested_arrays",
+      "category": "recursive_descent",
+      "description": "Recursive with array index"
+    },
+    {
+      "name": "Union operator",
+      "jsonpath": "$.data[0,2,4]",
+      "data": "mixed_types",
+      "category": "union",
+      "description": "Union operator for multiple indices"
+    },
+    {
+      "name": "Array slice with step", 
+      "jsonpath": "$.data[0:6:2]",
+      "data": "mixed_types",
+      "category": "array_slice",
+      "description": "Array slice with step"
+    },
+    {
+      "name": "Negative slice",
+      "jsonpath": "$.data[-3:-1]", 
+      "data": "mixed_types",
+      "category": "array_slice",
+      "description": "Negative indices in slice"
+    },
+    {
+      "name": "Length function",
+      "jsonpath": "$.data[?(@.length > 3)]",
+      "data": "mixed_types",
+      "category": "function_filters",
+      "description": "Length function in filter"
+    },
+    {
+      "name": "Match function",
+      "jsonpath": "$.users[?(@.name.match(/^A/))]",
+      "data": "complex_structure",
+      "category": "function_filters", 
+      "description": "Match function with regex"
     }
   ]
 }

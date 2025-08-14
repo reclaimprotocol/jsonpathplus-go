@@ -1,18 +1,345 @@
 {
-  "timestamp": "2025-08-14T12:43:44.168Z",
+  "timestamp": "2025-08-14T23:28:22.023Z",
   "summary": {
-    "total": 2,
-    "perfectMatches": 0,
-    "countMatches": 1,
-    "valueMatches": 1,
+    "total": 50,
+    "perfectMatches": 48,
+    "countMatches": 50,
+    "valueMatches": 49,
     "categories": {
+      "basic": {
+        "total": 1,
+        "matches": 1
+      },
+      "recursive_descent": {
+        "total": 4,
+        "matches": 4
+      },
+      "array_access": {
+        "total": 3,
+        "matches": 3
+      },
+      "filters": {
+        "total": 2,
+        "matches": 2
+      },
+      "property_filters": {
+        "total": 7,
+        "matches": 6
+      },
+      "parent_filters": {
+        "total": 3,
+        "matches": 3
+      },
       "debug": {
         "total": 2,
-        "matches": 0
+        "matches": 2
+      },
+      "array_slice": {
+        "total": 3,
+        "matches": 3
+      },
+      "nested_access": {
+        "total": 1,
+        "matches": 1
+      },
+      "nested_wildcard": {
+        "total": 1,
+        "matches": 1
+      },
+      "path_filters": {
+        "total": 1,
+        "matches": 1
+      },
+      "parent_property_filters": {
+        "total": 1,
+        "matches": 1
+      },
+      "value_filters": {
+        "total": 5,
+        "matches": 5
+      },
+      "logical_filters": {
+        "total": 3,
+        "matches": 3
+      },
+      "edge_cases": {
+        "total": 9,
+        "matches": 9
+      },
+      "recursive_filters": {
+        "total": 1,
+        "matches": 1
+      },
+      "union": {
+        "total": 1,
+        "matches": 1
+      },
+      "function_filters": {
+        "total": 2,
+        "matches": 1
       }
     }
   },
+  "analysis": {
+    "zeroResultIssues": 0,
+    "countMismatches": 0,
+    "valueMismatches": 1,
+    "errorMismatches": 1,
+    "workingCategories": [
+      "basic",
+      "recursive_descent",
+      "array_access",
+      "filters",
+      "parent_filters",
+      "debug",
+      "array_slice",
+      "nested_access",
+      "nested_wildcard",
+      "path_filters",
+      "parent_property_filters",
+      "value_filters",
+      "logical_filters",
+      "edge_cases",
+      "recursive_filters",
+      "union"
+    ],
+    "problematicCategories": []
+  },
   "results": [
+    {
+      "testCase": {
+        "name": "Authors of all books",
+        "jsonpath": "$.store.book[*].author",
+        "data": "goessner_spec_data",
+        "category": "basic",
+        "description": "Basic property access in arrays"
+      },
+      "goResult": {
+        "count": 4,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 4,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "All authors",
+        "jsonpath": "$..author",
+        "data": "goessner_spec_data",
+        "category": "recursive_descent",
+        "description": "Recursive descent for specific property"
+      },
+      "goResult": {
+        "count": 4,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 4,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "All elements beneath root",
+        "jsonpath": "$..*",
+        "data": "goessner_spec_data",
+        "category": "recursive_descent",
+        "description": "Complete recursive descent"
+      },
+      "goResult": {
+        "count": 27,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 27,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Third book",
+        "jsonpath": "$..book[2]",
+        "data": "goessner_spec_data",
+        "category": "array_access",
+        "description": "Array index access with recursive descent"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Books with ISBN",
+        "jsonpath": "$..book[?(@.isbn)]",
+        "data": "goessner_spec_data",
+        "category": "filters",
+        "description": "Filter by property existence"
+      },
+      "goResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Books cheaper than 10",
+        "jsonpath": "$..book[?(@.price<10)]",
+        "data": "goessner_spec_data",
+        "category": "filters",
+        "description": "Numeric comparison filter"
+      },
+      "goResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Price properties not equal to 8.95",
+        "jsonpath": "$..*[?(@property === 'price' && @ !== 8.95)]",
+        "data": "goessner_spec_data",
+        "category": "property_filters",
+        "description": "Property name filter with value condition"
+      },
+      "goResult": {
+        "count": 4,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 4,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Books not at index 0",
+        "jsonpath": "$..book[?(@property !== 0)]",
+        "data": "goessner_spec_data",
+        "category": "property_filters",
+        "description": "Array index filter"
+      },
+      "goResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Parent filter - simple",
+        "jsonpath": "$.store.book[?(@parent.bicycle)]",
+        "data": "goessner_spec_data",
+        "category": "parent_filters",
+        "description": "Parent object property existence"
+      },
+      "goResult": {
+        "count": 4,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 4,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
     {
       "testCase": {
         "name": "Debug: Simple books all",
@@ -32,11 +359,11 @@
       "comparison": {
         "countMatch": true,
         "valuesMatch": true,
-        "pathsMatch": false,
+        "pathsMatch": true,
         "goError": false,
         "jsError": false,
         "errorMatch": true,
-        "perfectMatch": false
+        "perfectMatch": true
       }
     },
     {
@@ -48,7 +375,7 @@
         "description": "Debug test for array index filtering"
       },
       "goResult": {
-        "count": 3,
+        "count": 2,
         "hasValues": true
       },
       "jsResult": {
@@ -56,13 +383,1028 @@
         "hasValues": true
       },
       "comparison": {
-        "countMatch": false,
-        "valuesMatch": false,
-        "pathsMatch": false,
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
         "goError": false,
         "jsError": false,
         "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Array first element",
+        "jsonpath": "$.matrix[0]",
+        "data": "nested_arrays",
+        "category": "array_access",
+        "description": "First element access"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Array last element",
+        "jsonpath": "$.matrix[-1]",
+        "data": "nested_arrays",
+        "category": "array_access",
+        "description": "Last element with negative index"
+      },
+      "goResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "jsResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Array slice",
+        "jsonpath": "$.matrix[0:2]",
+        "data": "nested_arrays",
+        "category": "array_slice",
+        "description": "Array slice notation"
+      },
+      "goResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Nested array access",
+        "jsonpath": "$.matrix[1][2]",
+        "data": "nested_arrays",
+        "category": "nested_access",
+        "description": "Deep array element access"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "All nested array elements",
+        "jsonpath": "$.matrix[*][*]",
+        "data": "nested_arrays",
+        "category": "nested_wildcard",
+        "description": "Nested wildcard access"
+      },
+      "goResult": {
+        "count": 9,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 9,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Property equals string",
+        "jsonpath": "$.users[?(@property === '1')]",
+        "data": "complex_structure",
+        "category": "property_filters",
+        "description": "String property comparison"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Property not equals string",
+        "jsonpath": "$.users[?(@property !== '1')]",
+        "data": "complex_structure",
+        "category": "property_filters",
+        "description": "String property negation"
+      },
+      "goResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Property greater than",
+        "jsonpath": "$.users[?(@property > '5')]",
+        "data": "complex_structure",
+        "category": "property_filters",
+        "description": "String property comparison"
+      },
+      "goResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "jsResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Array property equals number",
+        "jsonpath": "$.data[?(@property === 0)]",
+        "data": "mixed_types",
+        "category": "property_filters",
+        "description": "Numeric property for arrays"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Array property not equals number",
+        "jsonpath": "$.data[?(@property !== 0)]",
+        "data": "mixed_types",
+        "category": "property_filters",
+        "description": "Numeric property negation for arrays"
+      },
+      "goResult": {
+        "count": 5,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 5,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Parent property access",
+        "jsonpath": "$.users.1[?(@parent.settings)]",
+        "data": "complex_structure",
+        "category": "parent_filters",
+        "description": "Parent object property existence"
+      },
+      "goResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "jsResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Parent property value",
+        "jsonpath": "$.notifications[?(@parent.theme === 'dark')]",
+        "data": "complex_structure",
+        "category": "parent_filters",
+        "description": "Parent property value comparison"
+      },
+      "goResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "jsResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Path filter",
+        "jsonpath": "$.users[?(@path === \"$['users'][1]\")]",
+        "data": "complex_structure",
+        "category": "path_filters",
+        "description": "Path-based filtering"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "ParentProperty filter",
+        "jsonpath": "$.users.1[?(@parentProperty === '1')]",
+        "data": "complex_structure",
+        "category": "parent_property_filters",
+        "description": "ParentProperty filtering"
+      },
+      "goResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Null value filter",
+        "jsonpath": "$.data[?(@ === null)]",
+        "data": "mixed_types",
+        "category": "value_filters",
+        "description": "Null value comparison"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Boolean true filter",
+        "jsonpath": "$.data[?(@ === true)]",
+        "data": "mixed_types",
+        "category": "value_filters",
+        "description": "Boolean true comparison"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Boolean false filter",
+        "jsonpath": "$.data[?(@ === false)]",
+        "data": "mixed_types",
+        "category": "value_filters",
+        "description": "Boolean false comparison"
+      },
+      "goResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "jsResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Number filter",
+        "jsonpath": "$.data[?(@ === 42)]",
+        "data": "mixed_types",
+        "category": "value_filters",
+        "description": "Numeric value comparison"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "String filter",
+        "jsonpath": "$.data[?(@ === 'hello')]",
+        "data": "mixed_types",
+        "category": "value_filters",
+        "description": "String value comparison"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Logical AND filter",
+        "jsonpath": "$.users[?(@.age > 25 && @.active === true)]",
+        "data": "complex_structure",
+        "category": "logical_filters",
+        "description": "AND operator in filter"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Logical OR filter",
+        "jsonpath": "$.users[?(@.age < 25 || @.active === false)]",
+        "data": "complex_structure",
+        "category": "logical_filters",
+        "description": "OR operator in filter"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Negation filter",
+        "jsonpath": "$.users[?(!@.active)]",
+        "data": "complex_structure",
+        "category": "logical_filters",
+        "description": "Negation operator in filter"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Empty object access",
+        "jsonpath": "$.empty[*]",
+        "data": "edge_cases",
+        "category": "edge_cases",
+        "description": "Wildcard on empty object"
+      },
+      "goResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "jsResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Empty array access",
+        "jsonpath": "$.emptyArray[*]",
+        "data": "edge_cases",
+        "category": "edge_cases",
+        "description": "Wildcard on empty array"
+      },
+      "goResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "jsResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Zero value access",
+        "jsonpath": "$.zeroValue",
+        "data": "edge_cases",
+        "category": "edge_cases",
+        "description": "Access zero value"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "False value access",
+        "jsonpath": "$.falseValue",
+        "data": "edge_cases",
+        "category": "edge_cases",
+        "description": "Access false value"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Empty string access",
+        "jsonpath": "$.emptyString",
+        "data": "edge_cases",
+        "category": "edge_cases",
+        "description": "Access empty string"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Special character keys",
+        "jsonpath": "$.specialChars['hyphen-key']",
+        "data": "edge_cases",
+        "category": "edge_cases",
+        "description": "Key with special characters"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Space in key",
+        "jsonpath": "$['specialChars']['space key']",
+        "data": "edge_cases",
+        "category": "edge_cases",
+        "description": "Key with space"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Numeric key",
+        "jsonpath": "$.specialChars['123numeric']",
+        "data": "edge_cases",
+        "category": "edge_cases",
+        "description": "Numeric string key"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Empty key",
+        "jsonpath": "$.specialChars['']",
+        "data": "edge_cases",
+        "category": "edge_cases",
+        "description": "Empty string key"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Deep recursive property",
+        "jsonpath": "$..email",
+        "data": "complex_structure",
+        "category": "recursive_descent",
+        "description": "Deep nested property search"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Recursive with filter",
+        "jsonpath": "$..[?(@.name)]",
+        "data": "complex_structure",
+        "category": "recursive_filters",
+        "description": "Recursive descent with filter"
+      },
+      "goResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Recursive array access",
+        "jsonpath": "$..matrix[0]",
+        "data": "nested_arrays",
+        "category": "recursive_descent",
+        "description": "Recursive with array index"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Union operator",
+        "jsonpath": "$.data[0,2,4]",
+        "data": "mixed_types",
+        "category": "union",
+        "description": "Union operator for multiple indices"
+      },
+      "goResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Array slice with step",
+        "jsonpath": "$.data[0:6:2]",
+        "data": "mixed_types",
+        "category": "array_slice",
+        "description": "Array slice with step"
+      },
+      "goResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Negative slice",
+        "jsonpath": "$.data[-3:-1]",
+        "data": "mixed_types",
+        "category": "array_slice",
+        "description": "Negative indices in slice"
+      },
+      "goResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Length function",
+        "jsonpath": "$.data[?(@.length > 3)]",
+        "data": "mixed_types",
+        "category": "function_filters",
+        "description": "Length function in filter"
+      },
+      "goResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "jsResult": {
+        "count": 0,
+        "error": "jsonPath: Cannot read properties of null (reading 'length'): @.length > 3",
+        "hasValues": false
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": true,
+        "errorMatch": false,
         "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Match function",
+        "jsonpath": "$.users[?(@.name.match(/^A/))]",
+        "data": "complex_structure",
+        "category": "function_filters",
+        "description": "Match function with regex"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
       }
     }
   ]

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/reclaimprotocol/jsonpathplus-go/pkg/types"
+	"github.com/reclaimprotocol/jsonpathplus-go/pkg/utils"
 )
 
 // OperatorEvaluator handles special JSONPath-Plus operators
@@ -21,6 +22,20 @@ func (o *OperatorEvaluator) EvaluatePropertyNames(ctx types.Result, options *typ
 	var results []types.Result
 
 	switch v := ctx.Value.(type) {
+	case *utils.OrderedMap:
+		index := 0
+		v.Range(func(key string, value interface{}) bool {
+			results = append(results, types.Result{
+				Value:          key,
+				Path:           fmt.Sprintf("%s~[%d]", ctx.Path, index),
+				Parent:         ctx.Value,
+				ParentProperty: strconv.Itoa(index),
+				Index:          index,
+				OriginalIndex:  index,
+			})
+			index++
+			return true
+		})
 	case map[string]interface{}:
 		index := 0
 		for key := range v {
@@ -289,6 +304,19 @@ func (c *ContextualEvaluator) CreateContext(result types.Result, root interface{
 		result.ParentProperty,
 		result.Path,
 		result.Index,
+	)
+}
+
+// CreateArrayElementContext creates a context for array elements with proper parent tracking
+func (c *ContextualEvaluator) CreateArrayElementContext(result types.Result, root interface{}, actualArray interface{}) *types.Context {
+	return types.NewArrayElementContext(
+		root,
+		result.Value,
+		result.Parent,
+		result.ParentProperty,
+		result.Path,
+		result.Index,
+		actualArray, // The actual array containing this element
 	)
 }
 

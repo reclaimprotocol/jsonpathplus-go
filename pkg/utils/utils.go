@@ -115,6 +115,9 @@ func GetPropertyValue(obj interface{}, property string) interface{} {
 	}
 
 	switch v := obj.(type) {
+	case *OrderedMap:
+		value, _ := v.Get(property)
+		return value
 	case map[string]interface{}:
 		return v[property]
 	case map[interface{}]interface{}:
@@ -283,7 +286,12 @@ func TryContainsFunction(expr string, current interface{}) (bool, bool) {
 	case string:
 		return strings.Contains(v, searchTerm), true
 	case []interface{}:
+		// For arrays, check if any item contains the search term as a string
 		for _, item := range v {
+			if str, ok := item.(string); ok && strings.Contains(str, searchTerm) {
+				return true, true
+			}
+			// Also check string representation for exact match
 			if fmt.Sprintf("%v", item) == searchTerm {
 				return true, true
 			}
@@ -304,9 +312,16 @@ func TryStartsWithFunction(expr string, current interface{}) (bool, bool) {
 	}
 
 	prefix := matches[1]
-	str := getStringValue(expr, current)
-	if str == "" {
+	baseProperty := getBaseProperty(expr)
+	value := getPropertyValueForFunction(current, baseProperty)
+
+	if value == nil {
 		return false, true
+	}
+
+	str, ok := value.(string)
+	if !ok {
+		str = fmt.Sprintf("%v", value)
 	}
 
 	return strings.HasPrefix(str, prefix), true
@@ -321,9 +336,16 @@ func TryEndsWithFunction(expr string, current interface{}) (bool, bool) {
 	}
 
 	suffix := matches[1]
-	str := getStringValue(expr, current)
-	if str == "" {
+	baseProperty := getBaseProperty(expr)
+	value := getPropertyValueForFunction(current, baseProperty)
+
+	if value == nil {
 		return false, true
+	}
+
+	str, ok := value.(string)
+	if !ok {
+		str = fmt.Sprintf("%v", value)
 	}
 
 	return strings.HasSuffix(str, suffix), true
@@ -347,7 +369,9 @@ func TryLengthFunction(expr string, current interface{}) (bool, bool) {
 	value := getPropertyValueForFunction(current, baseProperty)
 
 	if value == nil {
-		return false, true
+		// JavaScript throws "Cannot read properties of null (reading 'length')"
+		// We return false, false to indicate this is an invalid operation that should fail the entire query
+		return false, false
 	}
 
 	var actualLength int
@@ -382,42 +406,56 @@ func TryLengthFunction(expr string, current interface{}) (bool, bool) {
 
 // TryCaseFunction handles case conversion functions
 func TryCaseFunction(expr string, current interface{}) (bool, bool) {
-	// Handle .toLowerCase() == 'value'
-	lowerRe := regexp.MustCompile(`\.toLowerCase\(\)\s*(==|!=)\s*['"](.+?)['"]`)
+	// Handle .toLowerCase() === 'value' or .toLowerCase() == 'value'
+	lowerRe := regexp.MustCompile(`\.toLowerCase\(\)\s*(===|!==|==|!=)\s*['"](.+?)['"]`)
 	if matches := lowerRe.FindStringSubmatch(expr); len(matches) == 3 {
 		operator := matches[1]
 		expectedValue := matches[2]
 
-		str := getStringValue(expr, current)
-		if str == "" {
+		baseProperty := getBaseProperty(expr)
+		value := getPropertyValueForFunction(current, baseProperty)
+
+		if value == nil {
 			return false, true
+		}
+
+		str, ok := value.(string)
+		if !ok {
+			str = fmt.Sprintf("%v", value)
 		}
 
 		lowerStr := strings.ToLower(str)
 		switch operator {
-		case "==":
+		case "===", "==":
 			return lowerStr == expectedValue, true
-		case "!=":
+		case "!==", "!=":
 			return lowerStr != expectedValue, true
 		}
 	}
 
-	// Handle .toUpperCase() == 'value'
-	upperRe := regexp.MustCompile(`\.toUpperCase\(\)\s*(==|!=)\s*['"](.+?)['"]`)
+	// Handle .toUpperCase() === 'value' or .toUpperCase() == 'value'
+	upperRe := regexp.MustCompile(`\.toUpperCase\(\)\s*(===|!==|==|!=)\s*['"](.+?)['"]`)
 	if matches := upperRe.FindStringSubmatch(expr); len(matches) == 3 {
 		operator := matches[1]
 		expectedValue := matches[2]
 
-		str := getStringValue(expr, current)
-		if str == "" {
+		baseProperty := getBaseProperty(expr)
+		value := getPropertyValueForFunction(current, baseProperty)
+
+		if value == nil {
 			return false, true
+		}
+
+		str, ok := value.(string)
+		if !ok {
+			str = fmt.Sprintf("%v", value)
 		}
 
 		upperStr := strings.ToUpper(str)
 		switch operator {
-		case "==":
+		case "===", "==":
 			return upperStr == expectedValue, true
-		case "!=":
+		case "!==", "!=":
 			return upperStr != expectedValue, true
 		}
 	}
@@ -516,24 +554,29 @@ func getStringValue(expr string, current interface{}) string {
 }
 
 func getBaseProperty(expr string) string {
-	// Extract the base property from expressions like ".title.contains()"
+	// Extract the base property from expressions like ".name.contains()" or ".name.startsWith()"
 	if strings.HasPrefix(expr, ".") {
+		// Find the function call first
+		for _, suffix := range []string{".contains(", ".startsWith(", ".endsWith(", ".match(", ".length", ".toLowerCase(", ".toUpperCase(", ".typeof(", ".floor(", ".round(", ".ceil("} {
+			if idx := strings.Index(expr, suffix); idx != -1 {
+				if idx == 0 {
+					// Expression like ".contains(...)" means current value (@)
+					return ""
+				}
+				// Extract property from ".property.function(" -> "property"
+				property := expr[1:idx]
+				return property
+			}
+		}
+		
+		// If no function found, look for nested property access
 		dotIndex := strings.Index(expr[1:], ".")
 		if dotIndex == -1 {
-			// No nested property, find the function call
-			for _, suffix := range []string{".contains(", ".startsWith(", ".endsWith(", ".match(", ".length", ".toLowerCase(", ".toUpperCase(", ".typeof(", ".floor(", ".round(", ".ceil("} {
-				if idx := strings.Index(expr, suffix); idx != -1 {
-					if idx == 0 {
-						// Expression like ".match(...)" means current value (@)
-						return ""
-					}
-					property := expr[1:idx]
-					return property
-				}
-			}
-			return ""
+			// Single property like ".name"
+			return strings.TrimPrefix(expr, ".")
 		}
-		return expr[1 : dotIndex+1]
+		// Nested property like ".user.name" -> "user.name"
+		return expr[1:]
 	}
 	return ""
 }

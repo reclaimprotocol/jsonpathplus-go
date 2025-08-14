@@ -13,15 +13,48 @@ import (
 // FilterEvaluator handles filter expression evaluation
 type FilterEvaluator struct{}
 
+// getObjectValue gets a value from either OrderedMap or regular map
+func getObjectValue(obj interface{}, key string) (interface{}, bool) {
+	if orderedMap, ok := obj.(*utils.OrderedMap); ok {
+		return orderedMap.Get(key)
+	} else if regularMap, ok := obj.(map[string]interface{}); ok {
+		val, exists := regularMap[key]
+		return val, exists
+	}
+	return nil, false
+}
+
+// isObjectType checks if the value is an object type (OrderedMap or regular map)
+func isObjectType(obj interface{}) bool {
+	_, isOrderedMap := obj.(*utils.OrderedMap)
+	_, isRegularMap := obj.(map[string]interface{})
+	return isOrderedMap || isRegularMap
+}
+
 // NewFilterEvaluator creates a new filter evaluator
 func NewFilterEvaluator() *FilterEvaluator {
 	return &FilterEvaluator{}
 }
 
-// EvaluateFilter evaluates a filter expression with enhanced context support
+// EvaluateFilter evaluates a filter expression with enhanced context support  
 func (f *FilterEvaluator) EvaluateFilter(filter string, ctx *types.Context) bool {
 	filter = strings.TrimPrefix(filter, "?(")
 	filter = strings.TrimSuffix(filter, ")")
+	
+	// JavaScript JSONPath-Plus doesn't support wildcards in filter expressions
+	// Return false to match JavaScript behavior (which would error)
+	if strings.Contains(filter, "[*]") {
+		return false
+	}
+
+	// Check for .length access on null values (JavaScript compatibility)
+	if strings.Contains(filter, ".length") {
+		if f.hasLengthOnNull(filter, ctx) {
+			// JavaScript would throw "Cannot read properties of null (reading 'length')"
+			// We panic to stop the entire query, which will be caught and return 0 results
+			panic("Cannot read properties of null (reading 'length')")
+		}
+	}
 
 	result := f.evaluateFilterExpression(filter, ctx)
 	return result
@@ -56,6 +89,11 @@ func (f *FilterEvaluator) evaluateFilterExpression(expr string, ctx *types.Conte
 		return result
 	}
 
+	// Handle nested filters (@.items[?(@.product === 'laptop')])
+	if result, ok := f.tryNestedFilter(expr, ctx); ok {
+		return result
+	}
+
 	// Handle function predicates (.match(), .contains(), .startsWith(), .endsWith())
 	if result, ok := f.tryFunctionPredicateFilter(expr, ctx.Current); ok {
 		return result
@@ -68,6 +106,11 @@ func (f *FilterEvaluator) evaluateFilterExpression(expr string, ctx *types.Conte
 
 	// Try array wildcard comparison first (e.g., @.items[*].product === 'laptop')
 	if result, ok := f.tryArrayWildcardFilter(expr, ctx.Current); ok {
+		return result
+	}
+
+	// Try array index comparison (e.g., @.items[0].product === 'laptop')
+	if result, ok := f.tryArrayIndexFilter(expr, ctx.Current); ok {
 		return result
 	}
 
@@ -111,19 +154,37 @@ func (f *FilterEvaluator) tryContextFilter(expr string, ctx *types.Context) (boo
 
 // handlePropertyFilter handles @property-based filters
 func (f *FilterEvaluator) handlePropertyFilter(expr string, ctx *types.Context) (bool, bool) {
+	// Get the property value in appropriate type (number for arrays, string for objects)
+	actualPropertyValue := ctx.GetPropertyValue()
+	
 	// Try string comparison first: @property === 'value' or @property !== 'value'
 	re := regexp.MustCompile(`@property\s*(===|!==|==|!=)\s*['"](.*?)['"]`)
 	matches := re.FindStringSubmatch(expr)
 	if len(matches) == 3 {
 		operator := matches[1]
 		expectedValue := matches[2]
-		actualValue := ctx.GetPropertyName()
 
 		switch operator {
-		case "===", "==":
-			return actualValue == expectedValue, true
-		case "!==", "!=":
-			return actualValue != expectedValue, true
+		case "===":
+			// Strict comparison - types must match
+			if str, ok := actualPropertyValue.(string); ok {
+				return str == expectedValue, true
+			}
+			return false, true
+		case "!==":
+			// Strict comparison - types must match
+			if str, ok := actualPropertyValue.(string); ok {
+				return str != expectedValue, true
+			}
+			return true, true // Different types are always !== 
+		case "==":
+			// Loose comparison - allow type coercion
+			actualStr := fmt.Sprintf("%v", actualPropertyValue)
+			return actualStr == expectedValue, true
+		case "!=":
+			// Loose comparison - allow type coercion
+			actualStr := fmt.Sprintf("%v", actualPropertyValue)
+			return actualStr != expectedValue, true
 		}
 
 		return false, true
@@ -134,31 +195,86 @@ func (f *FilterEvaluator) handlePropertyFilter(expr string, ctx *types.Context) 
 	numMatches := numRe.FindStringSubmatch(expr)
 	if len(numMatches) == 3 {
 		operator := numMatches[1]
-		expectedIndex, err := strconv.Atoi(numMatches[2])
+		expectedValue, err := strconv.Atoi(numMatches[2])
 		if err != nil {
 			return false, false
 		}
 
-		actualValue := ctx.GetPropertyName()
-		actualIndex, err := strconv.Atoi(actualValue)
-		if err != nil {
-			// If property name is not numeric, it can't equal a number
-			return operator == "!=" || operator == "!==", true
-		}
-
 		switch operator {
-		case "===", "==":
-			return actualIndex == expectedIndex, true
-		case "!==", "!=":
-			return actualIndex != expectedIndex, true
+		case "===":
+			// Strict comparison - types must match
+			if intVal, ok := actualPropertyValue.(int); ok {
+				return intVal == expectedValue, true
+			}
+			return false, true
+		case "!==":
+			// Strict comparison - types must match  
+			if intVal, ok := actualPropertyValue.(int); ok {
+				return intVal != expectedValue, true
+			}
+			return true, true // Different types are always !==
+		case "==":
+			// Loose comparison - convert to number if possible
+			if intVal, ok := actualPropertyValue.(int); ok {
+				return intVal == expectedValue, true
+			}
+			if strVal, ok := actualPropertyValue.(string); ok {
+				if intVal, err := strconv.Atoi(strVal); err == nil {
+					return intVal == expectedValue, true
+				}
+			}
+			return false, true
+		case "!=":
+			// Loose comparison - convert to number if possible
+			if intVal, ok := actualPropertyValue.(int); ok {
+				return intVal != expectedValue, true
+			}
+			if strVal, ok := actualPropertyValue.(string); ok {
+				if intVal, err := strconv.Atoi(strVal); err == nil {
+					return intVal != expectedValue, true
+				}
+			}
+			return true, true // Can't convert, so not equal
 		case "<":
-			return actualIndex < expectedIndex, true
+			if intVal, ok := actualPropertyValue.(int); ok {
+				return intVal < expectedValue, true
+			}
+			if strVal, ok := actualPropertyValue.(string); ok {
+				if intVal, err := strconv.Atoi(strVal); err == nil {
+					return intVal < expectedValue, true
+				}
+			}
+			return false, true
 		case "<=":
-			return actualIndex <= expectedIndex, true
+			if intVal, ok := actualPropertyValue.(int); ok {
+				return intVal <= expectedValue, true
+			}
+			if strVal, ok := actualPropertyValue.(string); ok {
+				if intVal, err := strconv.Atoi(strVal); err == nil {
+					return intVal <= expectedValue, true
+				}
+			}
+			return false, true
 		case ">":
-			return actualIndex > expectedIndex, true
+			if intVal, ok := actualPropertyValue.(int); ok {
+				return intVal > expectedValue, true
+			}
+			if strVal, ok := actualPropertyValue.(string); ok {
+				if intVal, err := strconv.Atoi(strVal); err == nil {
+					return intVal > expectedValue, true
+				}
+			}
+			return false, true
 		case ">=":
-			return actualIndex >= expectedIndex, true
+			if intVal, ok := actualPropertyValue.(int); ok {
+				return intVal >= expectedValue, true
+			}
+			if strVal, ok := actualPropertyValue.(string); ok {
+				if intVal, err := strconv.Atoi(strVal); err == nil {
+					return intVal >= expectedValue, true
+				}
+			}
+			return false, true
 		}
 
 		return false, true
@@ -264,7 +380,7 @@ func (f *FilterEvaluator) handleParentPropertyFilter(expr string, ctx *types.Con
 			return false, false
 		}
 
-		actualIndex, err := strconv.Atoi(ctx.GetPropertyName())
+		actualIndex, err := strconv.Atoi(ctx.GetParentPropertyName())
 		if err != nil {
 			return false, true // Not a numeric property
 		}
@@ -289,7 +405,7 @@ func (f *FilterEvaluator) handleParentPropertyFilter(expr string, ctx *types.Con
 
 	operator := matches[1]
 	expectedValue := matches[2]
-	actualValue := ctx.GetPropertyName()
+	actualValue := ctx.GetParentPropertyName()
 
 	switch operator {
 	case "===", "==":
@@ -388,12 +504,11 @@ func (f *FilterEvaluator) tryRootComparisonFilter(expr string, ctx *types.Contex
 	operator := matches[2]
 	rootProperty := matches[3]
 
-	obj, ok := ctx.Current.(map[string]interface{})
-	if !ok {
+	if !isObjectType(ctx.Current) {
 		return false, true
 	}
 
-	propValue, exists := obj[property]
+	propValue, exists := getObjectValue(ctx.Current, property)
 	if !exists {
 		return operator == "!=" || operator == "!==", true
 	}
@@ -431,12 +546,11 @@ func (f *FilterEvaluator) tryArrayWildcardFilter(expr string, current interface{
 	valueStr := strings.TrimSpace(matches[4]) // e.g., "'laptop'"
 
 	// Get the array from current object
-	obj, ok := current.(map[string]interface{})
-	if !ok {
+	if !isObjectType(current) {
 		return false, true
 	}
 
-	arrayValue, exists := obj[arrayProperty]
+	arrayValue, exists := getObjectValue(current, arrayProperty)
 	if !exists {
 		return operator == "!=" || operator == "!==", true
 	}
@@ -464,8 +578,64 @@ func (f *FilterEvaluator) tryArrayWildcardFilter(expr string, current interface{
 	return false, true
 }
 
+func (f *FilterEvaluator) tryArrayIndexFilter(expr string, current interface{}) (bool, bool) {
+	// Pattern: .property[index].subproperty === 'value'
+	// This handles expressions like @.items[0].product === 'laptop'
+	re := regexp.MustCompile(`\.([a-zA-Z_]\w*)\[(\d+)\]\.([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*)\s*(===|!==|<=|>=|==|!=|<|>)\s*(.+)`)
+	matches := re.FindStringSubmatch(expr)
+	if len(matches) != 6 {
+		return false, false
+	}
+
+	arrayProperty := matches[1]     // e.g., "items"
+	indexStr := matches[2]          // e.g., "0"
+	subProperty := matches[3]       // e.g., "product"
+	operator := matches[4]          // e.g., "==="
+	valueStr := strings.TrimSpace(matches[5]) // e.g., "'laptop'"
+
+	// Parse the index
+	index := 0
+	if i, err := strconv.Atoi(indexStr); err == nil {
+		index = i
+	} else {
+		return false, false
+	}
+
+	// Get the array from current object
+	if !isObjectType(current) {
+		return false, true
+	}
+
+	arrayValue, exists := getObjectValue(current, arrayProperty)
+	if !exists {
+		return operator == "!=" || operator == "!==", true
+	}
+
+	arr, ok := arrayValue.([]interface{})
+	if !ok {
+		return false, true
+	}
+
+	// Check if index is valid
+	if index < 0 || index >= len(arr) {
+		return operator == "!=" || operator == "!==", true
+	}
+
+	item := arr[index]
+	parsedValue := utils.ParseValue(valueStr)
+
+	// Get the property value from the array item
+	subValue := utils.GetPropertyValue(item, subProperty)
+	return utils.CompareValues(subValue, operator, parsedValue), true
+}
+
 func (f *FilterEvaluator) tryComparisonFilter(expr string, current interface{}) (bool, bool) {
 	// Support nested property access like .customer.type
+	// Exclude expressions with array access patterns (handled by other filters)
+	if strings.Contains(expr, "[") {
+		return false, false
+	}
+	
 	re := regexp.MustCompile(`\.([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*)\s*(===|!==|<=|>=|==|!=|<|>)\s*(.+)`)
 	matches := re.FindStringSubmatch(expr)
 	if len(matches) != 4 {
@@ -494,12 +664,11 @@ func (f *FilterEvaluator) tryExistenceFilter(expr string, current interface{}) (
 	}
 
 	property := matches[1]
-	obj, ok := current.(map[string]interface{})
-	if !ok {
+	if !isObjectType(current) {
 		return false, true
 	}
 
-	propValue, exists := obj[property]
+	propValue, exists := getObjectValue(current, property)
 	if !exists {
 		return false, true
 	}
@@ -512,6 +681,8 @@ func (f *FilterEvaluator) tryExistenceFilter(expr string, current interface{}) (
 	switch v := propValue.(type) {
 	case []interface{}:
 		return len(v) > 0, true
+	case *utils.OrderedMap:
+		return v.Len() > 0, true
 	case map[string]interface{}:
 		return len(v) > 0, true
 	case string:
@@ -625,6 +796,74 @@ func (f *FilterEvaluator) tryMathFunctions(expr string, current interface{}) (bo
 	return false, false
 }
 
+// tryNestedFilter handles nested filter expressions like @.items[?(@.product === 'laptop')]
+func (f *FilterEvaluator) tryNestedFilter(expr string, ctx *types.Context) (bool, bool) {
+	// Pattern: .property[?(...)] - property access followed by nested filter (@ is cleaned)
+	re := regexp.MustCompile(`\.(\w+)\[\?\(([^)]+)\)\]`)
+	matches := re.FindStringSubmatch(expr)
+	if len(matches) < 3 {
+		return false, false
+	}
+	
+	propertyName := matches[1]      // e.g., "items"
+	nestedFilter := matches[2]      // e.g., "@.product === 'laptop'"
+	
+	// Get the array property from current context
+	if !isObjectType(ctx.Current) {
+		return false, true
+	}
+	
+	arrayValue, exists := getObjectValue(ctx.Current, propertyName)
+	if !exists {
+		return false, true
+	}
+	
+	arr, ok := arrayValue.([]interface{})
+	if !ok {
+		return false, true // Not an array
+	}
+	
+	// Apply the nested filter to each array element
+	for _, item := range arr {
+		// Create context for the array item
+		itemContext := types.NewContext(ctx.Root, item, arrayValue, "", "", 0)
+		
+		// Evaluate the nested filter expression
+		if f.evaluateFilterExpression(nestedFilter, itemContext) {
+			return true, true // Found at least one match
+		}
+	}
+	
+	return false, true // No matches found
+}
+
+// hasLengthOnNull checks if a length operation will encounter null
+func (f *FilterEvaluator) hasLengthOnNull(filter string, ctx *types.Context) bool {
+	// Check for patterns like @.length or @.property.length
+	re := regexp.MustCompile(`@(?:\.(\w+))?\.length`)
+	matches := re.FindStringSubmatch(filter)
+	if len(matches) == 0 {
+		return false
+	}
+	
+	// If it's just @.length, check if current value is null
+	if matches[1] == "" {
+		return ctx.Current == nil
+	}
+	
+	// If it's @.property.length, check if that property is null
+	property := matches[1]
+	if isObjectType(ctx.Current) {
+		value, exists := getObjectValue(ctx.Current, property)
+		if !exists {
+			return false
+		}
+		return value == nil
+	}
+	
+	return false
+}
+
 // Helper functions
 
 func (f *FilterEvaluator) findLogicalOperator(expr string, op string) int {
@@ -726,6 +965,8 @@ func isTruthy(v interface{}) bool {
 		return t != 0
 	case []interface{}:
 		return len(t) > 0
+	case *utils.OrderedMap:
+		return t.Len() > 0
 	case map[string]interface{}:
 		return len(t) > 0
 	default:
