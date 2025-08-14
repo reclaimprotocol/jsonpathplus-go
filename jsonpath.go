@@ -62,9 +62,9 @@ func (jp *JSONPath) Execute(data interface{}) (results []Result, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			if str, ok := r.(string); ok && strings.Contains(str, "Cannot read properties of null") {
-				// JavaScript compatibility: return empty results for null.length errors
+				// JavaScript compatibility: propagate the error instead of returning empty results
 				results = []Result{}
-				err = nil
+				err = fmt.Errorf("jsonPath: %s", str)
 				return
 			}
 			// Re-panic for other errors

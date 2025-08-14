@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-08-14T23:49:36.611Z",
+  "timestamp": "2025-08-14T23:57:33.815Z",
   "summary": {
     "total": 50,
-    "perfectMatches": 49,
+    "perfectMatches": 50,
     "countMatches": 50,
     "valueMatches": 50,
     "categories": {
@@ -76,7 +76,7 @@
       },
       "function_filters": {
         "total": 2,
-        "matches": 1
+        "matches": 2
       }
     }
   },
@@ -84,7 +84,7 @@
     "zeroResultIssues": 0,
     "countMismatches": 0,
     "valueMismatches": 0,
-    "errorMismatches": 1,
+    "errorMismatches": 0,
     "workingCategories": [
       "basic",
       "recursive_descent",
@@ -102,7 +102,8 @@
       "logical_filters",
       "edge_cases",
       "recursive_filters",
-      "union"
+      "union",
+      "function_filters"
     ],
     "problematicCategories": []
   },
@@ -1365,6 +1366,7 @@
       },
       "goResult": {
         "count": 0,
+        "error": "jsonPath: Cannot read properties of null (reading 'length')",
         "hasValues": false
       },
       "jsResult": {
@@ -1376,10 +1378,10 @@
         "countMatch": true,
         "valuesMatch": true,
         "pathsMatch": true,
-        "goError": false,
+        "goError": true,
         "jsError": true,
-        "errorMatch": false,
-        "perfectMatch": false
+        "errorMatch": true,
+        "perfectMatch": true
       }
     },
     {
