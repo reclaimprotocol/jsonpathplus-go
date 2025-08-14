@@ -1,3 +1,4 @@
+//nolint:misspell // Allow British English in test data (e.g., "Honour")
 package compatibility_tests
 
 import (

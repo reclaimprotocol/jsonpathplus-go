@@ -265,9 +265,8 @@ func (f *FilterEvaluator) cleanFilterExpression(expr string) string {
 		expr = strings.TrimPrefix(expr, "@")
 	}
 	// Handle direct @ comparisons by replacing @ with empty to indicate current value
-	if strings.HasPrefix(expr, "@ ") {
-		expr = strings.TrimPrefix(expr, "@ ")
-	}
+	// Simplify by unconditionally trimming the "@ " prefix if present
+	expr = strings.TrimPrefix(expr, "@ ")
 	return strings.TrimSpace(expr)
 }
 
