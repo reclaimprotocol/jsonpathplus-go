@@ -16,10 +16,10 @@ func main() {
 			]
 		}
 	}`
-	
+
 	// Test individual operations first
 	fmt.Println("=== Testing individual operations ===")
-	
+
 	// Test slice
 	results1, err := jp.Query("$.store.book[0:3]", jsonData)
 	if err != nil {
@@ -31,7 +31,7 @@ func main() {
 		book := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s (%s)\n", i, book["title"], book["category"])
 	}
-	
+
 	// Test filter
 	results2, err := jp.Query("$.store.book[?(@.category === 'fiction')]", jsonData)
 	if err != nil {
@@ -43,7 +43,7 @@ func main() {
 		book := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s (%s)\n", i, book["title"], book["category"])
 	}
-	
+
 	// Test slice then filter
 	fmt.Println("\n=== Testing slice then filter ===")
 	results3, err := jp.Query("$.store.book[0:3][?(@.category === 'fiction')]", jsonData)
@@ -56,7 +56,7 @@ func main() {
 		book := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s (%s)\n", i, book["title"], book["category"])
 	}
-	
+
 	// Test filter then slice
 	fmt.Println("\n=== Testing filter then slice ===")
 	results4, err := jp.Query("$.store.book[?(@.category === 'fiction')][0:2]", jsonData)

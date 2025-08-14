@@ -16,7 +16,7 @@ func main() {
 	}`
 
 	fmt.Println("=== Testing String Functions ===")
-	
+
 	// Test each function individually
 	tests := []struct {
 		name     string
@@ -32,7 +32,7 @@ func main() {
 	for _, test := range tests {
 		fmt.Printf("\n=== %s ===\n", test.name)
 		fmt.Printf("JSONPath: %s\n", test.jsonpath)
-		
+
 		results, err := jp.Query(test.jsonpath, jsonData)
 		if err != nil {
 			fmt.Printf("❌ Error: %v\n", err)
@@ -45,7 +45,7 @@ func main() {
 		} else {
 			fmt.Printf("❌ Test failed\n")
 		}
-		
+
 		for i, result := range results {
 			fmt.Printf("  [%d] %v\n", i, result.Value)
 		}

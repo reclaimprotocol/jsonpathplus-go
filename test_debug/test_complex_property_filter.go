@@ -40,7 +40,7 @@ func main() {
 			]
 		}
 	}`
-	
+
 	fmt.Println("=== Test Data Categories ===")
 	// First, let's see all categories
 	results, err := jp.Query("$..book[*].category", jsonData)
@@ -48,29 +48,29 @@ func main() {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	
+
 	for i, r := range results {
 		fmt.Printf("Category %d: '%s'\n", i, r.Value)
 	}
-	
+
 	fmt.Println("\n=== Testing complex property filter ===")
 	fmt.Println("Query: $..book.*[?(@property === \"category\" && @.match(/TION$/i))]")
 	fmt.Println("Should find: 'reference', 'fiction', 'action' (all ending with 'tion')")
-	
+
 	// Test the complex expression
 	results2, err := jp.Query("$..book.*[?(@property === \"category\" && @.match(/TION$/i))]", jsonData)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	
+
 	fmt.Printf("Results: %d\n", len(results2))
 	for i, r := range results2 {
 		fmt.Printf("  [%d] '%s' (path: %s)\n", i, r.Value, r.Path)
 	}
-	
+
 	fmt.Println("\n=== Testing individual components ===")
-	
+
 	// Test @property filter alone
 	fmt.Println("1. Testing @property === \"category\":")
 	results3, err := jp.Query("$..book.*[?(@property === \"category\")]", jsonData)
@@ -82,7 +82,7 @@ func main() {
 			fmt.Printf("   [%d] '%s'\n", i, r.Value)
 		}
 	}
-	
+
 	// Test regex match alone on categories
 	fmt.Println("\n2. Testing @.match(/TION$/i) on categories:")
 	results4, err := jp.Query("$..book[*].category[?(@.match(/TION$/i))]", jsonData)

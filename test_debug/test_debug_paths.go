@@ -14,11 +14,11 @@ func main() {
 			]
 		}
 	}`
-	
+
 	// Create a debug version to understand paths during evaluation
 	fmt.Println("=== Path Analysis ===")
 	fmt.Println("We need to understand what paths look like during wildcard evaluation")
-	
+
 	// Test simple cases first
 	fmt.Println()
 	fmt.Println("1. $.store.book (should end with 'book')")
@@ -30,7 +30,7 @@ func main() {
 			fmt.Printf("   Path: '%s' (ends with ']': %t)\n", r.Path, len(r.Path) > 0 && r.Path[len(r.Path)-1] == ']')
 		}
 	}
-	
+
 	fmt.Println()
 	fmt.Println("2. $.store.book[0] (should end with ']')")
 	results2, err := jp.Query("$.store.book[0]", jsonData)
@@ -41,7 +41,7 @@ func main() {
 			fmt.Printf("   Path: '%s' (ends with ']': %t)\n", r.Path, len(r.Path) > 0 && r.Path[len(r.Path)-1] == ']')
 		}
 	}
-	
+
 	fmt.Println()
 	fmt.Println("The issue might be that by the time we reach the wildcard evaluation,")
 	fmt.Println("we've already lost the context of whether it came from .* or [*]")

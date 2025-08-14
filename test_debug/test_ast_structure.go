@@ -9,12 +9,12 @@ func main() {
 	// Let's check what AST structure is created for different queries
 	queries := []string{
 		"$..book",
-		"$..book.*", 
+		"$..book.*",
 		"$.store.book",
 		"$.store.book.*",
 		"$.store.book[*].*",
 	}
-	
+
 	jsonData := `{
 		"store": {
 			"book": [
@@ -23,10 +23,10 @@ func main() {
 			]
 		}
 	}`
-	
+
 	for _, query := range queries {
 		fmt.Printf("=== Query: %s ===\n", query)
-		
+
 		results, err := jp.Query(query, jsonData)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
@@ -38,7 +38,7 @@ func main() {
 		}
 		fmt.Println()
 	}
-	
+
 	fmt.Println("=== Analysis ===")
 	fmt.Println("$..book should find the book array")
 	fmt.Println("$..book.* should find all properties of all books (individual values)")

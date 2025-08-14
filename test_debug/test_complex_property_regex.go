@@ -8,9 +8,9 @@ import (
 func main() {
 	// Test for: $..book.*[?(@property === "category" && @.match(/TION$/i))]
 	// This should find all book properties where:
-	// 1. The property name is "category" 
+	// 1. The property name is "category"
 	// 2. The property value matches the regex /TION$/i (ends with "tion", case-insensitive)
-	
+
 	jsonData := `{
 		"store": {
 			"book": [
@@ -41,7 +41,7 @@ func main() {
 			]
 		}
 	}`
-	
+
 	fmt.Println("=== Complex Property Regex Filter Test ===")
 	fmt.Println("Query: $.store.book[*].*[?(@property === \"category\" && @.match(/TION$/i))]")
 	fmt.Println()
@@ -55,28 +55,28 @@ func main() {
 	fmt.Println("- NOT 'reference' (ends with 'ence')")
 	fmt.Println("- NOT 'science' (ends with 'ence')")
 	fmt.Println()
-	
+
 	// Test the working query
 	results, err := jp.Query("$.store.book[*].*[?(@property === \"category\" && @.match(/TION$/i))]", jsonData)
 	if err != nil {
 		fmt.Printf("❌ Error: %v\n", err)
 		return
 	}
-	
+
 	fmt.Printf("📊 Results: %d matches\n", len(results))
-	
+
 	if len(results) == 2 {
 		fmt.Println("✅ Correct number of results!")
 	} else {
 		fmt.Printf("❌ Expected 2 results, got %d\n", len(results))
 	}
-	
+
 	expectedValues := map[string]bool{"fiction": false, "action": false}
-	
+
 	for i, r := range results {
 		value := r.Value.(string)
 		fmt.Printf("  [%d] '%s' (path: %s)\n", i, value, r.Path)
-		
+
 		if _, expected := expectedValues[value]; expected {
 			expectedValues[value] = true
 			fmt.Printf("      ✅ Expected value\n")
@@ -84,7 +84,7 @@ func main() {
 			fmt.Printf("      ❌ Unexpected value\n")
 		}
 	}
-	
+
 	// Check if all expected values were found
 	fmt.Println()
 	allFound := true
@@ -94,7 +94,7 @@ func main() {
 			allFound = false
 		}
 	}
-	
+
 	if allFound {
 		fmt.Println("✅ All expected values found!")
 		fmt.Println("✅ Complex property regex filter test PASSED!")

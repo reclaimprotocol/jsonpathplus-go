@@ -31,12 +31,12 @@ func (e *Evaluator) Evaluate(ast *types.AstNode, data interface{}, options *type
 	if options == nil {
 		options = &types.Options{}
 	}
-	
+
 	// Set root for $ references
 	if options.Root == nil {
 		options.Root = data
 	}
-	
+
 	rootResult := types.Result{
 		Value:          data,
 		Path:           "$",
@@ -45,35 +45,35 @@ func (e *Evaluator) Evaluate(ast *types.AstNode, data interface{}, options *type
 		Index:          0,
 		OriginalIndex:  0,
 	}
-	
+
 	return e.evaluateNode(ast, []types.Result{rootResult}, options)
 }
 
 // evaluateNode evaluates a single AST node
 func (e *Evaluator) evaluateNode(node *types.AstNode, contexts []types.Result, options *types.Options) []types.Result {
 	var results []types.Result
-	
+
 	// Special handling for filters applied to multiple contexts (e.g., after wildcard)
 	if node.Type == "filter" && len(contexts) > 1 {
 		return e.evaluateFilterOnResults(node, contexts, options)
 	}
-	
+
 	for _, ctx := range contexts {
 		nodeResults := e.evaluateSingleNode(node, ctx, options)
 		results = append(results, nodeResults...)
 	}
-	
+
 	return results
 }
 
 // evaluateFilterOnResults applies a filter to a collection of results
 func (e *Evaluator) evaluateFilterOnResults(node *types.AstNode, contexts []types.Result, options *types.Options) []types.Result {
 	var results []types.Result
-	
+
 	for _, ctx := range contexts {
 		// Create enhanced context for filter evaluation
 		itemContext := e.contextualEval.CreateContext(ctx, options.Root)
-		
+
 		if e.filterEval.EvaluateFilter(node.Value, itemContext) {
 			if len(node.Children) > 0 {
 				childResults := e.evaluateNode(node.Children[0], []types.Result{ctx}, options)
@@ -83,7 +83,7 @@ func (e *Evaluator) evaluateFilterOnResults(node *types.AstNode, contexts []type
 			}
 		}
 	}
-	
+
 	return results
 }
 
@@ -125,14 +125,14 @@ func (e *Evaluator) evaluateRoot(node *types.AstNode, ctx types.Result, options 
 	if len(node.Children) == 0 {
 		return []types.Result{ctx}
 	}
-	
+
 	return e.evaluateNode(node.Children[0], []types.Result{ctx}, options)
 }
 
 func (e *Evaluator) evaluateProperty(node *types.AstNode, ctx types.Result, options *types.Options) []types.Result {
 	var results []types.Result
 	property := node.Value
-	
+
 	switch v := ctx.Value.(type) {
 	case map[string]interface{}:
 		if value, exists := v[property]; exists {
@@ -144,7 +144,7 @@ func (e *Evaluator) evaluateProperty(node *types.AstNode, ctx types.Result, opti
 				Index:          0,
 				OriginalIndex:  0,
 			}
-			
+
 			if len(node.Children) > 0 {
 				return e.evaluateNode(node.Children[0], []types.Result{result}, options)
 			}
@@ -161,20 +161,20 @@ func (e *Evaluator) evaluateProperty(node *types.AstNode, ctx types.Result, opti
 				Index:          idx,
 				OriginalIndex:  idx,
 			}
-			
+
 			if len(node.Children) > 0 {
 				return e.evaluateNode(node.Children[0], []types.Result{result}, options)
 			}
 			results = append(results, result)
 		}
 	}
-	
+
 	return results
 }
 
 func (e *Evaluator) evaluateWildcard(node *types.AstNode, ctx types.Result, options *types.Options) []types.Result {
 	var results []types.Result
-	
+
 	switch v := ctx.Value.(type) {
 	case map[string]interface{}:
 		index := 0
@@ -195,7 +195,7 @@ func (e *Evaluator) evaluateWildcard(node *types.AstNode, ctx types.Result, opti
 		// Property wildcards on arrays should return properties of array elements
 		// Index wildcards on arrays should return the array elements themselves
 		isPropertyWildcard := ctx.Path != "" && !strings.HasSuffix(ctx.Path, "]")
-		
+
 		if isPropertyWildcard {
 			// Property wildcard: $.store.book.* should return all properties of all books
 			for i, value := range v {
@@ -242,18 +242,18 @@ func (e *Evaluator) evaluateWildcard(node *types.AstNode, ctx types.Result, opti
 			}
 		}
 	}
-	
+
 	// Apply children to all results at once (important for filters)
 	if len(node.Children) > 0 {
 		return e.evaluateNode(node.Children[0], results, options)
 	}
-	
+
 	return results
 }
 
 func (e *Evaluator) evaluateIndexWildcard(node *types.AstNode, ctx types.Result, options *types.Options) []types.Result {
 	var results []types.Result
-	
+
 	switch v := ctx.Value.(type) {
 	case map[string]interface{}:
 		// For objects, index wildcard behaves like property wildcard
@@ -284,33 +284,33 @@ func (e *Evaluator) evaluateIndexWildcard(node *types.AstNode, ctx types.Result,
 			results = append(results, result)
 		}
 	}
-	
+
 	// Apply children to all results at once (important for filters)
 	if len(node.Children) > 0 {
 		return e.evaluateNode(node.Children[0], results, options)
 	}
-	
+
 	return results
 }
 
 func (e *Evaluator) evaluateIndex(node *types.AstNode, ctx types.Result, options *types.Options) []types.Result {
 	var results []types.Result
-	
+
 	arr, ok := ctx.Value.([]interface{})
 	if !ok {
 		return results
 	}
-	
+
 	idx, err := strconv.Atoi(node.Value)
 	if err != nil {
 		return results
 	}
-	
+
 	// Handle negative indices
 	if idx < 0 {
 		idx = len(arr) + idx
 	}
-	
+
 	if idx >= 0 && idx < len(arr) {
 		result := types.Result{
 			Value:          arr[idx],
@@ -320,26 +320,26 @@ func (e *Evaluator) evaluateIndex(node *types.AstNode, ctx types.Result, options
 			Index:          idx,
 			OriginalIndex:  idx,
 		}
-		
+
 		if len(node.Children) > 0 {
 			return e.evaluateNode(node.Children[0], []types.Result{result}, options)
 		}
 		results = append(results, result)
 	}
-	
+
 	return results
 }
 
 func (e *Evaluator) evaluateSlice(node *types.AstNode, ctx types.Result, options *types.Options) []types.Result {
 	var results []types.Result
-	
+
 	arr, ok := ctx.Value.([]interface{})
 	if !ok {
 		return results
 	}
-	
+
 	start, end, step := e.parseSliceParams(node.Value, len(arr))
-	
+
 	// Handle forward and reverse iteration
 	if step > 0 {
 		for i := start; i < end && i < len(arr); i += step {
@@ -352,7 +352,7 @@ func (e *Evaluator) evaluateSlice(node *types.AstNode, ctx types.Result, options
 					Index:          len(results),
 					OriginalIndex:  i,
 				}
-				
+
 				if len(node.Children) > 0 {
 					childResults := e.evaluateNode(node.Children[0], []types.Result{result}, options)
 					results = append(results, childResults...)
@@ -372,7 +372,7 @@ func (e *Evaluator) evaluateSlice(node *types.AstNode, ctx types.Result, options
 					Index:          len(results),
 					OriginalIndex:  i,
 				}
-				
+
 				if len(node.Children) > 0 {
 					childResults := e.evaluateNode(node.Children[0], []types.Result{result}, options)
 					results = append(results, childResults...)
@@ -382,13 +382,13 @@ func (e *Evaluator) evaluateSlice(node *types.AstNode, ctx types.Result, options
 			}
 		}
 	}
-	
+
 	return results
 }
 
 func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, options *types.Options) []types.Result {
 	var results []types.Result
-	
+
 	// Handle array filtering
 	if arr, ok := ctx.Value.([]interface{}); ok {
 		for i, item := range arr {
@@ -398,7 +398,7 @@ func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, option
 			if parentProp == "" {
 				parentProp = strconv.Itoa(i)
 			}
-			
+
 			itemResult := types.Result{
 				Value:          item,
 				Path:           fmt.Sprintf("%s[%d]", ctx.Path, i),
@@ -407,9 +407,9 @@ func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, option
 				Index:          i,
 				OriginalIndex:  i,
 			}
-			
+
 			itemContext := e.contextualEval.CreateContext(itemResult, options.Root)
-			
+
 			if e.filterEval.EvaluateFilter(node.Value, itemContext) {
 				if len(node.Children) > 0 {
 					childResults := e.evaluateNode(node.Children[0], []types.Result{itemResult}, options)
@@ -423,7 +423,7 @@ func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, option
 		// Handle single item filtering (for chained operations)
 		// Create context for the single item
 		itemContext := e.contextualEval.CreateContext(ctx, options.Root)
-		
+
 		if e.filterEval.EvaluateFilter(node.Value, itemContext) {
 			if len(node.Children) > 0 {
 				childResults := e.evaluateNode(node.Children[0], []types.Result{ctx}, options)
@@ -433,18 +433,18 @@ func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, option
 			}
 		}
 	}
-	
+
 	return results
 }
 
 func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, options *types.Options) []types.Result {
 	var results []types.Result
 	visited := make(map[string]bool)
-	
+
 	// If we have children, we need to find all nodes that match the child criteria
 	if len(node.Children) > 0 {
 		var allNodes []types.Result
-		
+
 		// First, collect all nodes recursively
 		var traverse func(current types.Result)
 		traverse = func(current types.Result) {
@@ -452,10 +452,10 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 				return
 			}
 			visited[current.Path] = true
-			
+
 			// Add current node to potential matches
 			allNodes = append(allNodes, current)
-			
+
 			// Recursively traverse children
 			switch v := current.Value.(type) {
 			case map[string]interface{}:
@@ -484,9 +484,9 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 				}
 			}
 		}
-		
+
 		traverse(ctx)
-		
+
 		// Now apply the child node to each collected node
 		for _, nodeResult := range allNodes {
 			childResults := e.evaluateNode(node.Children[0], []types.Result{nodeResult}, options)
@@ -500,7 +500,7 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 				return
 			}
 			visited[current.Path] = true
-			
+
 			switch v := current.Value.(type) {
 			case map[string]interface{}:
 				for key, val := range v {
@@ -530,21 +530,21 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 				}
 			}
 		}
-		
+
 		traverse(ctx)
 	}
-	
+
 	return results
 }
 
 func (e *Evaluator) evaluateUnion(node *types.AstNode, ctx types.Result, options *types.Options) []types.Result {
 	var results []types.Result
-	
+
 	for _, child := range node.Children {
 		childResults := e.evaluateSingleNode(child, ctx, options)
 		results = append(results, childResults...)
 	}
-	
+
 	return results
 }
 
@@ -552,10 +552,10 @@ func (e *Evaluator) evaluateChain(node *types.AstNode, ctx types.Result, options
 	if len(node.Children) == 0 {
 		return []types.Result{ctx}
 	}
-	
+
 	// Start with the first operation
 	currentResults := e.evaluateSingleNode(node.Children[0], ctx, options)
-	
+
 	// Apply subsequent operations to the results
 	return e.operatorEval.EvaluateChainedOperations(
 		currentResults,
@@ -569,11 +569,11 @@ func (e *Evaluator) evaluateChain(node *types.AstNode, ctx types.Result, options
 
 func (e *Evaluator) evaluatePropertyNames(node *types.AstNode, ctx types.Result, options *types.Options) []types.Result {
 	results := e.operatorEval.EvaluatePropertyNames(ctx, options)
-	
+
 	if len(node.Children) > 0 {
 		return e.evaluateNode(node.Children[0], results, options)
 	}
-	
+
 	return results
 }
 
@@ -582,22 +582,22 @@ func (e *Evaluator) evaluateParent(node *types.AstNode, ctx types.Result, option
 	// then apply the parent operator to those results
 	if len(node.Children) > 0 {
 		childResults := e.evaluateNode(node.Children[0], []types.Result{ctx}, options)
-		
+
 		// Use deduplication when we have multiple child results
 		if len(childResults) > 1 {
 			return e.operatorEval.EvaluateParentWithDeduplication(childResults, options)
 		}
-		
+
 		// Single result - no need for deduplication
 		var results []types.Result
 		for _, childResult := range childResults {
 			parentResults := e.operatorEval.EvaluateParent(childResult, options)
 			results = append(results, parentResults...)
 		}
-		
+
 		return results
 	}
-	
+
 	// No children - apply parent operator directly to current context
 	return e.operatorEval.EvaluateParent(ctx, options)
 }
@@ -606,17 +606,17 @@ func (e *Evaluator) evaluateParent(node *types.AstNode, ctx types.Result, option
 func (e *Evaluator) parseSliceParams(slice string, arrLen int) (start, end, step int) {
 	slice = strings.TrimSpace(slice)
 	parts := strings.Split(slice, ":")
-	
+
 	step = 1
-	
+
 	if len(parts) > 2 && parts[2] != "" {
 		step, _ = strconv.Atoi(strings.TrimSpace(parts[2]))
 	}
-	
+
 	if step == 0 {
 		step = 1
 	}
-	
+
 	// Set defaults based on step direction
 	if step > 0 {
 		start = 0
@@ -625,17 +625,17 @@ func (e *Evaluator) parseSliceParams(slice string, arrLen int) (start, end, step
 		start = arrLen - 1
 		end = -1
 	}
-	
+
 	// Parse start if provided
 	if len(parts) > 0 && parts[0] != "" {
 		start, _ = strconv.Atoi(strings.TrimSpace(parts[0]))
 	}
-	
+
 	// Parse end if provided
 	if len(parts) > 1 && parts[1] != "" {
 		end, _ = strconv.Atoi(strings.TrimSpace(parts[1]))
 	}
-	
+
 	// Handle negative indices
 	if start < 0 {
 		start = arrLen + start
@@ -643,7 +643,7 @@ func (e *Evaluator) parseSliceParams(slice string, arrLen int) (start, end, step
 	if end < 0 && step > 0 {
 		end = arrLen + end
 	}
-	
+
 	// Clamp to valid range for forward iteration
 	if step > 0 {
 		if start < 0 {
@@ -661,6 +661,6 @@ func (e *Evaluator) parseSliceParams(slice string, arrLen int) (start, end, step
 			start = 0
 		}
 	}
-	
+
 	return start, end, step
 }

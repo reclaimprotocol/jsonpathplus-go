@@ -24,13 +24,13 @@ func main() {
 			]
 		}
 	}`
-	
+
 	fmt.Println("=== JSONPath Specification Analysis ===")
 	fmt.Println()
-	
+
 	fmt.Println("According to JSONPath spec, these should be equivalent to XPath:")
 	fmt.Println()
-	
+
 	fmt.Println("1. $..book (recursive descent to find 'book')")
 	results1, err := jp.Query("$..book", jsonData)
 	if err != nil {
@@ -41,7 +41,7 @@ func main() {
 			fmt.Printf("   [%d] Array with %d books (path: %s)\n", i, len(r.Value.([]interface{})), r.Path)
 		}
 	}
-	
+
 	fmt.Println()
 	fmt.Println("2. $..book.* (all properties of books found recursively)")
 	fmt.Println("   XPath equivalent: //book/*")
@@ -56,7 +56,7 @@ func main() {
 		}
 		fmt.Println("   ^ Currently returns book objects, but should return individual properties")
 	}
-	
+
 	fmt.Println()
 	fmt.Println("3. What $..book.* SHOULD return (based on XPath //book/*):")
 	fmt.Println("   Should be equivalent to: $.store.book[*].*")
@@ -70,7 +70,7 @@ func main() {
 		}
 		fmt.Println("   ^ These are individual property values")
 	}
-	
+
 	fmt.Println()
 	fmt.Println("=== Issue Analysis ===")
 	fmt.Println("The current implementation of $..book.* appears to have an issue:")

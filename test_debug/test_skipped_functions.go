@@ -30,12 +30,12 @@ func main() {
 	}`
 
 	fmt.Println("=== Testing Exact Test Cases from Compatibility Tests ===")
-	
+
 	// These are the exact expressions from the skipped tests
 	tests := []struct {
-		name     string
-		jsonpath string
-		expected int
+		name        string
+		jsonpath    string
+		expected    int
 		description string
 	}{
 		{"String contains", "$.users[?(@.email.contains('example'))]", 2, "Find users with 'example' in email"},
@@ -52,7 +52,7 @@ func main() {
 		fmt.Printf("\n=== %s ===\n", test.name)
 		fmt.Printf("JSONPath: %s\n", test.jsonpath)
 		fmt.Printf("Description: %s\n", test.description)
-		
+
 		results, err := jp.Query(test.jsonpath, jsonData)
 		if err != nil {
 			fmt.Printf("❌ Query Error: %v\n", err)
@@ -65,7 +65,7 @@ func main() {
 		} else {
 			fmt.Printf("❌ Test would fail\n")
 		}
-		
+
 		for i, result := range results {
 			fmt.Printf("  [%d] %v\n", i, result.Value)
 		}

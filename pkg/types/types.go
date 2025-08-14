@@ -15,9 +15,9 @@ type Result struct {
 	Index          int         // Index in the result set
 	OriginalIndex  int         // Original index in parent array (for array elements)
 	// String index fields for character position tracking
-	Start          int         // Starting character position in original JSON string
-	End            int         // Ending character position in original JSON string
-	Length         int         // Length of the element in the original JSON string
+	Start  int // Starting character position in original JSON string
+	End    int // Ending character position in original JSON string
+	Length int // Length of the element in the original JSON string
 }
 
 // String returns a string representation of the result
@@ -78,21 +78,21 @@ func convertToBracketNotation(path string) string {
 	if path == "$" {
 		return "$"
 	}
-	
+
 	result := "$"
 	remaining := path[1:] // Remove initial $
-	
+
 	for len(remaining) > 0 {
 		if remaining[0] == '.' {
 			// Handle property access
 			remaining = remaining[1:] // Skip the dot
-			
+
 			// Find the end of the property name
 			end := 0
 			for end < len(remaining) && remaining[end] != '.' && remaining[end] != '[' {
 				end++
 			}
-			
+
 			if end > 0 {
 				property := remaining[:end]
 				result += fmt.Sprintf("['%s']", property)
@@ -112,7 +112,7 @@ func convertToBracketNotation(path string) string {
 			break
 		}
 	}
-	
+
 	return result
 }
 

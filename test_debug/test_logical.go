@@ -15,10 +15,10 @@ func main() {
 			]
 		}
 	}`
-	
+
 	// Test individual conditions first
 	fmt.Println("=== Testing individual conditions ===")
-	
+
 	results1, err := jp.Query("$.store.book[?(@.category === 'fiction')]", jsonData)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -28,7 +28,7 @@ func main() {
 	for i, r := range results1 {
 		fmt.Printf("  [%d] %v\n", i, r.Value)
 	}
-	
+
 	results2, err := jp.Query("$.store.book[?(@.price < 15)]", jsonData)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -38,7 +38,7 @@ func main() {
 	for i, r := range results2 {
 		fmt.Printf("  [%d] %v\n", i, r.Value)
 	}
-	
+
 	// Test AND condition
 	fmt.Println("\n=== Testing AND condition ===")
 	results3, err := jp.Query("$.store.book[?(@.category === 'fiction' && @.price < 15)]", jsonData)
@@ -50,7 +50,7 @@ func main() {
 	for i, r := range results3 {
 		fmt.Printf("  [%d] %v\n", i, r.Value)
 	}
-	
+
 	// Test OR condition
 	fmt.Println("\n=== Testing OR condition ===")
 	results4, err := jp.Query("$.store.book[?(@.price < 10 || @.price > 20)]", jsonData)

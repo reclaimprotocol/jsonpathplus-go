@@ -19,7 +19,7 @@ func NewOperatorEvaluator() *OperatorEvaluator {
 // EvaluatePropertyNames handles the property names operator (~)
 func (o *OperatorEvaluator) EvaluatePropertyNames(ctx types.Result, options *types.Options) []types.Result {
 	var results []types.Result
-	
+
 	switch v := ctx.Value.(type) {
 	case map[string]interface{}:
 		index := 0
@@ -49,19 +49,19 @@ func (o *OperatorEvaluator) EvaluatePropertyNames(ctx types.Result, options *typ
 			index++
 		}
 	}
-	
+
 	return results
 }
 
 // EvaluateParent handles the parent operator (^)
 func (o *OperatorEvaluator) EvaluateParent(ctx types.Result, options *types.Options) []types.Result {
 	var results []types.Result
-	
+
 	// Return the parent object
 	if ctx.Parent != nil {
 		// Calculate parent path by removing the last segment
 		parentPath := o.calculateParentPath(ctx.Path)
-		
+
 		results = append(results, types.Result{
 			Value:          ctx.Parent,
 			Path:           parentPath,
@@ -71,7 +71,7 @@ func (o *OperatorEvaluator) EvaluateParent(ctx types.Result, options *types.Opti
 			OriginalIndex:  0,
 		})
 	}
-	
+
 	return results
 }
 
@@ -79,11 +79,11 @@ func (o *OperatorEvaluator) EvaluateParent(ctx types.Result, options *types.Opti
 func (o *OperatorEvaluator) EvaluateParentWithDeduplication(contexts []types.Result, options *types.Options) []types.Result {
 	seen := make(map[string]bool)
 	var results []types.Result
-	
+
 	for _, ctx := range contexts {
 		if ctx.Parent != nil {
 			parentPath := o.calculateParentPath(ctx.Path)
-			
+
 			// Only add if we haven't seen this parent path before
 			if !seen[parentPath] {
 				seen[parentPath] = true
@@ -98,7 +98,7 @@ func (o *OperatorEvaluator) EvaluateParentWithDeduplication(contexts []types.Res
 			}
 		}
 	}
-	
+
 	return results
 }
 
@@ -109,11 +109,11 @@ func (o *OperatorEvaluator) calculateParentPath(childPath string) string {
 	// "$.store.book[0]" -> "$.store.book"
 	// "$.store.book[0].title" -> "$.store.book[0]"
 	// "$.users[1].profile.bio" -> "$.users[1].profile"
-	
+
 	// Find the last meaningful separator
 	lastDot := -1
 	lastBracket := -1
-	
+
 	for i := len(childPath) - 1; i >= 0; i-- {
 		if childPath[i] == '.' && lastDot == -1 {
 			lastDot = i
@@ -135,7 +135,7 @@ func (o *OperatorEvaluator) calculateParentPath(childPath string) string {
 			break
 		}
 	}
-	
+
 	// Determine which separator is more recent
 	cutPoint := -1
 	if lastDot > lastBracket {
@@ -143,11 +143,11 @@ func (o *OperatorEvaluator) calculateParentPath(childPath string) string {
 	} else if lastBracket > -1 {
 		cutPoint = lastBracket
 	}
-	
+
 	if cutPoint > 0 {
 		return childPath[:cutPoint]
 	}
-	
+
 	// If we can't find a separator, return root
 	return "$"
 }
@@ -156,7 +156,7 @@ func (o *OperatorEvaluator) calculateParentPath(childPath string) string {
 func (o *OperatorEvaluator) EvaluateChainedOperations(results []types.Result, chainNodes []*types.AstNode, evaluateNodeFunc func(*types.AstNode, []types.Result, *types.Options) []types.Result, options *types.Options) []types.Result {
 	// Start with the initial results
 	currentResults := results
-	
+
 	// Apply each chained operation in sequence
 	for _, chainNode := range chainNodes {
 		// Special handling for slice operations applied to multiple results
@@ -166,17 +166,17 @@ func (o *OperatorEvaluator) EvaluateChainedOperations(results []types.Result, ch
 			currentResults = nextResults
 		} else {
 			var nextResults []types.Result
-			
+
 			// Apply the chain node to each current result
 			for _, result := range currentResults {
 				nodeResults := evaluateNodeFunc(chainNode, []types.Result{result}, options)
 				nextResults = append(nextResults, nodeResults...)
 			}
-			
+
 			currentResults = nextResults
 		}
 	}
-	
+
 	return currentResults
 }
 
@@ -184,9 +184,9 @@ func (o *OperatorEvaluator) EvaluateChainedOperations(results []types.Result, ch
 func (o *OperatorEvaluator) applySliceToResults(sliceNode *types.AstNode, results []types.Result) []types.Result {
 	slice := sliceNode.Value
 	start, end, step := o.parseSliceParams(slice, len(results))
-	
+
 	var slicedResults []types.Result
-	
+
 	// Handle forward and reverse iteration
 	if step > 0 {
 		for i := start; i < end && i < len(results); i += step {
@@ -201,7 +201,7 @@ func (o *OperatorEvaluator) applySliceToResults(sliceNode *types.AstNode, result
 			}
 		}
 	}
-	
+
 	return slicedResults
 }
 
@@ -209,17 +209,17 @@ func (o *OperatorEvaluator) applySliceToResults(sliceNode *types.AstNode, result
 func (o *OperatorEvaluator) parseSliceParams(slice string, arrLen int) (start, end, step int) {
 	slice = strings.TrimSpace(slice)
 	parts := strings.Split(slice, ":")
-	
+
 	step = 1
-	
+
 	if len(parts) > 2 && parts[2] != "" {
 		step, _ = strconv.Atoi(strings.TrimSpace(parts[2]))
 	}
-	
+
 	if step == 0 {
 		step = 1
 	}
-	
+
 	// Set defaults based on step direction
 	if step > 0 {
 		start = 0
@@ -228,17 +228,17 @@ func (o *OperatorEvaluator) parseSliceParams(slice string, arrLen int) (start, e
 		start = arrLen - 1
 		end = -1
 	}
-	
+
 	// Parse start if provided
 	if len(parts) > 0 && parts[0] != "" {
 		start, _ = strconv.Atoi(strings.TrimSpace(parts[0]))
 	}
-	
+
 	// Parse end if provided
 	if len(parts) > 1 && parts[1] != "" {
 		end, _ = strconv.Atoi(strings.TrimSpace(parts[1]))
 	}
-	
+
 	// Handle negative indices
 	if start < 0 {
 		start = arrLen + start
@@ -246,7 +246,7 @@ func (o *OperatorEvaluator) parseSliceParams(slice string, arrLen int) (start, e
 	if end < 0 && step > 0 {
 		end = arrLen + end
 	}
-	
+
 	// Clamp to valid range for forward iteration
 	if step > 0 {
 		if start < 0 {
@@ -264,7 +264,7 @@ func (o *OperatorEvaluator) parseSliceParams(slice string, arrLen int) (start, e
 			start = 0
 		}
 	}
-	
+
 	return start, end, step
 }
 
@@ -308,7 +308,7 @@ func (c *ContextualEvaluator) CreateChildContext(parent *types.Context, value in
 			newPath = fmt.Sprintf("%s[%d]", parent.Path, index)
 		}
 	}
-	
+
 	return types.NewContext(
 		parent.Root,
 		value,

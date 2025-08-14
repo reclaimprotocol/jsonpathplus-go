@@ -15,7 +15,7 @@ func main() {
 		"$.store.book[0].title",
 		"$.users[1].profile.bio",
 	}
-	
+
 	fmt.Println("=== Testing bracket notation conversion ===")
 	for _, path := range testPaths {
 		// Create a dummy context to test the conversion

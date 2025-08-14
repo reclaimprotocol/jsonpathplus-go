@@ -13,7 +13,7 @@ func main() {
 			]
 		}
 	}`
-	
+
 	// Test simpler typeof function
 	fmt.Println("=== Testing simpler typeof function ===")
 	results, err := jp.Query("$.store.book[0][?(@.price.typeof() === 'number')]", jsonData)

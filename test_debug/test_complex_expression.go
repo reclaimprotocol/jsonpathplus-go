@@ -54,9 +54,9 @@ func main() {
 	for i, result := range results {
 		fmt.Printf("  [%d] Value: %v\n", i, result.Value)
 		fmt.Printf("      Path: %s\n", result.Path)
-		fmt.Printf("      String Position: Start=%d, End=%d, Length=%d\n", 
+		fmt.Printf("      String Position: Start=%d, End=%d, Length=%d\n",
 			result.Start, result.End, result.Length)
-		
+
 		if result.Start > 0 && result.End > result.Start && result.End <= len(jsonStr) {
 			extracted := jsonStr[result.Start:result.End]
 			fmt.Printf("      Extracted: %q\n", extracted)

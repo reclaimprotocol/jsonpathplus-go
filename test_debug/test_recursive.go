@@ -7,7 +7,7 @@ import (
 
 func main() {
 	jsonData := `{"store": {"book": [{"title": "Book 1"}, {"title": "Book 2"}]}}`
-	
+
 	results, err := jp.Query("$..book", jsonData)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -17,9 +17,9 @@ func main() {
 	for i, r := range results {
 		fmt.Printf("  [%d] %v (path: %s)\n", i, r.Value, r.Path)
 	}
-	
+
 	fmt.Println()
-	
+
 	results2, err := jp.Query("$..book[*]", jsonData)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)

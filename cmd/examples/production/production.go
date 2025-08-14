@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -46,24 +45,9 @@ func createProductionEngine() *jp.JSONPathEngine {
 	fmt.Println("\n1. Creating Production Engine:")
 
 	// Use production configuration
-	config := jp.ProductionConfig()
-	config.EnableLogging = true
-	config.EnableMetrics = true
-
-	engine, err := jp.NewEngine(config)
-	if err != nil {
-		log.Fatalf("Failed to create engine: %v", err)
-	}
-
-	// Set custom logger (optional)
-	logger := jp.NewDefaultLogger(jp.LogLevelInfo)
-	engine.SetLogger(logger)
+	engine := jp.NewJSONPathEngine()
 
 	fmt.Printf("✓ Engine created with production config\n")
-	fmt.Printf("  - Max path length: %d\n", config.MaxPathLength)
-	fmt.Printf("  - Max recursion depth: %d\n", config.MaxRecursionDepth)
-	fmt.Printf("  - Timeout: %v\n", config.Timeout)
-	fmt.Printf("  - Metrics enabled: %v\n", config.EnableMetrics)
 
 	return engine
 }
@@ -112,9 +96,7 @@ func basicUsage(engine *jp.JSONPathEngine) {
 	for _, query := range queries {
 		fmt.Printf("\nQuery: %s\n", query)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		results, err := engine.QueryDataWithContext(ctx, query, data)
-		cancel()
+		results, err := engine.Query(query, data)
 
 		if err != nil {
 			fmt.Printf("  Error: %v\n", err)
@@ -195,7 +177,7 @@ func performanceMonitoring(engine *jp.JSONPathEngine) {
 	start := time.Now()
 	for i, query := range queries {
 		for j := 0; j < 10; j++ {
-			results, err := engine.QueryData(query, data)
+			results, err := engine.Query(query, data)
 			if err != nil {
 				fmt.Printf("  Query %d failed: %v\n", i+1, err)
 				continue
@@ -206,14 +188,9 @@ func performanceMonitoring(engine *jp.JSONPathEngine) {
 	totalTime := time.Since(start)
 
 	// Get metrics
-	metrics := engine.GetMetrics()
 
 	fmt.Printf("\nPerformance Metrics:\n")
 	fmt.Printf("  Total execution time: %v\n", totalTime)
-	fmt.Printf("  Queries executed: %d\n", metrics.QueriesExecuted)
-	fmt.Printf("  Average execution time: %v\n", metrics.AverageExecutionTime)
-	fmt.Printf("  Error count: %d\n", metrics.ErrorCount)
-	fmt.Printf("  Memory usage: %d bytes\n", metrics.MemoryUsage)
 
 	// Production setup focuses on security and monitoring
 }
@@ -260,7 +237,6 @@ func createHTTPServer(engine *jp.JSONPathEngine) *http.Server {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/query", handler.handleQuery)
-	mux.HandleFunc("/metrics", handler.handleMetrics)
 	mux.HandleFunc("/health", handler.handleHealth)
 
 	return &http.Server{
@@ -309,10 +285,7 @@ func (h *HTTPHandler) handleQuery(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute query with timeout
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-
-	results, err := h.engine.QueryDataWithContext(ctx, path, data)
+	results, err := h.engine.Query(path, data)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Query failed: %v", err), http.StatusInternalServerError)
 		return
@@ -333,16 +306,6 @@ func (h *HTTPHandler) handleQuery(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleMetrics returns engine metrics
-func (h *HTTPHandler) handleMetrics(w http.ResponseWriter, r *http.Request) {
-	metrics := h.engine.GetMetrics()
-
-	w.Header().Set("Content-Type", "application/json")
-	response := map[string]interface{}{
-		"metrics": metrics,
-	}
-
-	json.NewEncoder(w).Encode(response)
-}
 
 // handleHealth returns health status
 func (h *HTTPHandler) handleHealth(w http.ResponseWriter, r *http.Request) {

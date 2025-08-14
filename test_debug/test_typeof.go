@@ -16,7 +16,7 @@ func main() {
 			]
 		}
 	}`
-	
+
 	// Test basic access first
 	fmt.Println("=== Testing basic price access ===")
 	results, err := jp.Query("$.store.book[*].price", jsonData)
@@ -24,11 +24,11 @@ func main() {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	
+
 	for i, r := range results {
 		fmt.Printf("Price %d: %v (type: %T)\n", i, r.Value, r.Value)
 	}
-	
+
 	// Test typeof function
 	fmt.Println("\n=== Testing typeof function ===")
 	results2, err := jp.Query("$.store.book[*].price[?(@.typeof() === 'number')]", jsonData)
@@ -37,7 +37,7 @@ func main() {
 		return
 	}
 	fmt.Printf("Numeric prices: %d results\n", len(results2))
-	
+
 	for i, r := range results2 {
 		fmt.Printf("  [%d] %v\n", i, r.Value)
 	}

@@ -14,7 +14,7 @@ func main() {
 			{"name": "Charlie Brown", "email": "charlie@example.com", "age": 35, "active": true}
 		]
 	}`
-	
+
 	fmt.Println("=== Users data ===")
 	results, err := jp.Query("$.users[*]", jsonData)
 	if err != nil {
@@ -25,9 +25,9 @@ func main() {
 		user := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s: age=%.0f, active=%v\n", i, user["name"], user["age"], user["active"])
 	}
-	
+
 	fmt.Println("\n=== Individual conditions ===")
-	
+
 	results1, err := jp.Query("$.users[?(@.active === true)]", jsonData)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -38,7 +38,7 @@ func main() {
 		user := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s\n", i, user["name"])
 	}
-	
+
 	results2, err := jp.Query("$.users[?(@.age > 30)]", jsonData)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -49,7 +49,7 @@ func main() {
 		user := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s\n", i, user["name"])
 	}
-	
+
 	fmt.Println("\n=== Combined condition ===")
 	results3, err := jp.Query("$.users[?(@.active === true && @.age > 30)]", jsonData)
 	if err != nil {
@@ -61,7 +61,7 @@ func main() {
 		user := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s\n", i, user["name"])
 	}
-	
+
 	// Maybe the test wants >= 30 instead of > 30?
 	fmt.Println("\n=== Testing >= 30 ===")
 	results4, err := jp.Query("$.users[?(@.active === true && @.age >= 30)]", jsonData)

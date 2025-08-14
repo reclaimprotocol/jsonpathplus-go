@@ -20,7 +20,7 @@ func main() {
 			]
 		}
 	}`
-	
+
 	fmt.Println("=== Testing $..book.* (recursive wildcard) ===")
 	results1, err := jp.Query("$..book.*", jsonData)
 	if err != nil {
@@ -31,7 +31,7 @@ func main() {
 			fmt.Printf("  [%d] %v (type: %T, path: %s)\n", i, r.Value, r.Value, r.Path)
 		}
 	}
-	
+
 	fmt.Println("\n=== Testing $.store.book[*].* (alternative) ===")
 	results2, err := jp.Query("$.store.book[*].*", jsonData)
 	if err != nil {
@@ -42,7 +42,7 @@ func main() {
 			fmt.Printf("  [%d] %v (type: %T, path: %s)\n", i, r.Value, r.Value, r.Path)
 		}
 	}
-	
+
 	fmt.Println("\n=== Testing $.store.book[*].*[?(@property === \"category\")] ===")
 	results3, err := jp.Query("$.store.book[*].*[?(@property === \"category\")]", jsonData)
 	if err != nil {

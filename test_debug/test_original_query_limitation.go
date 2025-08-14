@@ -20,10 +20,10 @@ func main() {
 			]
 		}
 	}`
-	
+
 	fmt.Println("=== Testing Original Query vs Working Alternative ===")
 	fmt.Println()
-	
+
 	// Test the original query that was requested
 	fmt.Println("1. Original Query: $..book.*[?(@property === \"category\" && @.match(/TION$/i))]")
 	results1, err := jp.Query("$..book.*[?(@property === \"category\" && @.match(/TION$/i))]", jsonData)
@@ -36,9 +36,9 @@ func main() {
 			fmt.Println("   Reason: $..book.* returns book objects, not individual properties")
 		}
 	}
-	
+
 	fmt.Println()
-	
+
 	// Test what $..book.* actually returns
 	fmt.Println("2. Understanding $..book.*:")
 	results2, err := jp.Query("$..book.*", jsonData)
@@ -51,9 +51,9 @@ func main() {
 		}
 		fmt.Println("   ^ These are book objects, not individual properties")
 	}
-	
+
 	fmt.Println()
-	
+
 	// Test the working alternative
 	fmt.Println("3. Working Alternative: $.store.book[*].*[?(@property === \"category\" && @.match(/TION$/i))]")
 	results3, err := jp.Query("$.store.book[*].*[?(@property === \"category\" && @.match(/TION$/i))]", jsonData)
@@ -68,7 +68,7 @@ func main() {
 			fmt.Println("   ✅ Works correctly!")
 		}
 	}
-	
+
 	fmt.Println()
 	fmt.Println("=== Summary ===")
 	fmt.Println("The original query $..book.*[?(@property === \"category\" && @.match(/TION$/i))] ")

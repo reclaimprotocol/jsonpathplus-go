@@ -14,7 +14,7 @@ func main() {
 			{"id": 4, "name": "Device", "price": 30.0, "inStock": false}
 		]
 	}`
-	
+
 	// Test boolean existence filter
 	fmt.Println("=== Testing boolean existence filter ===")
 	results, err := jp.Query("$.products[?(@.inStock)]", jsonData)
@@ -23,12 +23,12 @@ func main() {
 		return
 	}
 	fmt.Printf("Products in stock: %d results\n", len(results))
-	
+
 	for i, r := range results {
 		product := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s (inStock: %v)\n", i, product["name"], product["inStock"])
 	}
-	
+
 	// Test negated boolean existence filter
 	fmt.Println("\n=== Testing negated boolean existence filter ===")
 	results2, err := jp.Query("$.products[?(!@.inStock)]", jsonData)
@@ -37,7 +37,7 @@ func main() {
 		return
 	}
 	fmt.Printf("Products not in stock: %d results\n", len(results2))
-	
+
 	for i, r := range results2 {
 		product := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s (inStock: %v)\n", i, product["name"], product["inStock"])

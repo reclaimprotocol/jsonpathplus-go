@@ -32,14 +32,7 @@ func main() {
 func createEngine() *jp.JSONPathEngine {
 	fmt.Println("\n1. Creating Production Engine")
 
-	config := jp.ProductionConfig()
-	config.EnableLogging = true
-	config.EnableMetrics = true
-
-	engine, err := jp.NewEngine(config)
-	if err != nil {
-		log.Fatalf("❌ Failed to create engine: %v", err)
-	}
+	engine := jp.NewJSONPathEngine()
 
 	fmt.Println("✅ Engine created with production configuration")
 	return engine
@@ -128,7 +121,7 @@ func basicQueries(engine *jp.JSONPathEngine, data interface{}) {
 		fmt.Printf("\n  Query %d: %s\n", i+1, query.description)
 		fmt.Printf("  Path: %s\n", query.path)
 
-		results, err := engine.QueryData(query.path, data)
+		results, err := engine.Query(query.path, data)
 		if err != nil {
 			fmt.Printf("  ❌ Error: %v\n", err)
 			continue
@@ -162,7 +155,7 @@ func indexPreservation(engine *jp.JSONPathEngine, data interface{}) {
 		fmt.Printf("\n  Demo %d: %s\n", i+1, query.description)
 		fmt.Printf("  Path: %s\n", query.path)
 
-		results, err := engine.QueryData(query.path, data)
+		results, err := engine.Query(query.path, data)
 		if err != nil {
 			fmt.Printf("  ❌ Error: %v\n", err)
 			continue
@@ -200,7 +193,7 @@ func filterExpressions(engine *jp.JSONPathEngine, data interface{}) {
 		fmt.Printf("\n  Filter %d: %s\n", i+1, filter.description)
 		fmt.Printf("  Expression: %s\n", filter.path)
 
-		results, err := engine.QueryData(filter.path, data)
+		results, err := engine.Query(filter.path, data)
 		if err != nil {
 			fmt.Printf("  ❌ Error: %v\n", err)
 			continue
@@ -244,47 +237,11 @@ func performanceFeatures(engine *jp.JSONPathEngine, data interface{}) {
 	fmt.Println("\n  Executing queries for metrics...")
 	for i, query := range queries {
 		for j := 0; j < 5; j++ { // Run each query 5 times
-			_, err := engine.QueryData(query, data)
+			_, err := engine.Query(query, data)
 			if err != nil {
 				fmt.Printf("  ❌ Query %d.%d failed: %v\n", i+1, j+1, err)
 			}
 		}
 	}
 
-	// Show metrics
-	metrics := engine.GetMetrics()
-	fmt.Printf("\n  📊 Performance Metrics:\n")
-	fmt.Printf("    Queries executed: %d\n", metrics.QueriesExecuted)
-	fmt.Printf("    Average execution time: %v\n", metrics.AverageExecutionTime)
-	fmt.Printf("    Error count: %d\n", metrics.ErrorCount)
-	fmt.Printf("    Memory usage: %d bytes\n", metrics.MemoryUsage)
-
-	// Note: Focus on core JSONPath functionality
-
-	// Configuration info
-	config := engine.GetConfig()
-	fmt.Printf("\n  ⚙️  Configuration:\n")
-	fmt.Printf("    Max path length: %d\n", config.MaxPathLength)
-	fmt.Printf("    Max recursion depth: %d\n", config.MaxRecursionDepth)
-	fmt.Printf("    Max result count: %d\n", config.MaxResultCount)
-	fmt.Printf("    Timeout: %v\n", config.Timeout)
-	fmt.Printf("    Strict mode: %v\n", config.StrictMode)
-
-	// Security demo
-	fmt.Printf("\n  🔒 Security Validation:\n")
-	validator := jp.NewSecurityValidator(jp.DefaultSecurityConfig())
-
-	testPaths := []string{
-		"$.company.name",                // Safe
-		"$.users[?(eval('malicious'))]", // Unsafe
-	}
-
-	for _, path := range testPaths {
-		err := validator.ValidatePath(path)
-		if err != nil {
-			fmt.Printf("    ❌ BLOCKED: %s\n", path)
-		} else {
-			fmt.Printf("    ✅ ALLOWED: %s\n", path)
-		}
-	}
 }

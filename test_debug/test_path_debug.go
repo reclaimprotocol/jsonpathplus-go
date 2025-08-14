@@ -14,7 +14,7 @@ func main() {
 			]
 		}
 	}`
-	
+
 	// Test simple @path exact match
 	fmt.Println("=== Testing exact @path match ===")
 	results1, err := jp.Query("$.store.book[?(@path === \"$['store']['book'][0]\")]", jsonData)
@@ -27,7 +27,7 @@ func main() {
 		book := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s (path: %s)\n", i, book["title"], r.Path)
 	}
-	
+
 	// Test @path inequality
 	fmt.Println("\n=== Testing @path inequality ===")
 	results2, err := jp.Query("$.store.book[?(@path !== \"$['store']['book'][0]\")]", jsonData)
@@ -40,7 +40,7 @@ func main() {
 		book := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s (path: %s)\n", i, book["title"], r.Path)
 	}
-	
+
 	// Test if @path is recognized at all
 	fmt.Println("\n=== Testing if @path is working ===")
 	results3, err := jp.Query("$.store.book[?(@path)]", jsonData)

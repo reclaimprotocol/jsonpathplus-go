@@ -19,7 +19,7 @@ func main() {
 			}
 		}
 	}`
-	
+
 	// Test basic array access first
 	fmt.Println("=== Testing basic access ===")
 	results1, err := jp.Query("$.store.book[*]", jsonData)
@@ -32,7 +32,7 @@ func main() {
 		book := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s (parent: %v)\n", i, book["title"], r.Parent != nil)
 	}
-	
+
 	// Test simple filter first
 	fmt.Println("\n=== Testing simple filter ===")
 	results2, err := jp.Query("$.store.book[?(@.price < 15)]", jsonData)
@@ -45,7 +45,7 @@ func main() {
 		book := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s\n", i, book["title"])
 	}
-	
+
 	// Test @parent existence
 	fmt.Println("\n=== Testing @parent filter ===")
 	results3, err := jp.Query("$.store.book[?(@parent)]", jsonData)
@@ -54,7 +54,7 @@ func main() {
 		return
 	}
 	fmt.Printf("Books with parent: %d results\n", len(results3))
-	
+
 	// Test @parent.bicycle
 	fmt.Println("\n=== Testing @parent.bicycle ===")
 	results4, err := jp.Query("$.store.book[?(@parent.bicycle)]", jsonData)
@@ -63,7 +63,7 @@ func main() {
 		return
 	}
 	fmt.Printf("Books where parent has bicycle: %d results\n", len(results4))
-	
+
 	// Test @parent.bicycle.color
 	fmt.Println("\n=== Testing @parent.bicycle.color ===")
 	results5, err := jp.Query("$.store.book[?(@parent.bicycle.color === 'red')]", jsonData)

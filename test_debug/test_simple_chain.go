@@ -9,10 +9,10 @@ func main() {
 	jsonData := `{
 		"arr": [1, 2, 3, 4, 5]
 	}`
-	
+
 	// Test simple chaining cases
 	fmt.Println("=== Testing simple array operations ===")
-	
+
 	// Test slice
 	results1, err := jp.Query("$.arr[0:3]", jsonData)
 	if err != nil {
@@ -23,7 +23,7 @@ func main() {
 	for i, r := range results1 {
 		fmt.Printf("  [%d] %v\n", i, r.Value)
 	}
-	
+
 	// Test simple double bracket
 	fmt.Println("\n=== Testing double bracket syntax ===")
 	results2, err := jp.Query("$.arr[0][0]", jsonData)
@@ -35,7 +35,7 @@ func main() {
 			fmt.Printf("  [%d] %v\n", i, r.Value)
 		}
 	}
-	
+
 	// Test more meaningful case
 	jsonData2 := `{
 		"data": [
@@ -44,7 +44,7 @@ func main() {
 			[70, 80, 90]
 		]
 	}`
-	
+
 	fmt.Println("\n=== Testing with nested arrays ===")
 	results3, err := jp.Query("$.data[0:2]", jsonData2)
 	if err != nil {
@@ -55,7 +55,7 @@ func main() {
 	for i, r := range results3 {
 		fmt.Printf("  [%d] %v\n", i, r.Value)
 	}
-	
+
 	// Test chained operation on nested arrays
 	fmt.Println("\n=== Testing chained operation ===")
 	results4, err := jp.Query("$.data[0:2][0]", jsonData2)

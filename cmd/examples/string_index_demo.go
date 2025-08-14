@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	jp "github.com/reclaimprotocol/jsonpathplus-go"
 	"strings"
+
+	jp "github.com/reclaimprotocol/jsonpathplus-go"
 )
 
 func main() {
@@ -60,7 +61,7 @@ func testBasicPropertyPositions() {
 	}
 
 	for _, test := range tests {
-		results, err := jp.QueryWithStringIndex(test.query, jsonStr)
+		results, err := jp.Query(test.query, jsonStr)
 		if err != nil {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue
@@ -98,7 +99,7 @@ func testArrayElementPositions() {
 	}
 
 	for _, test := range tests {
-		results, err := jp.QueryWithStringIndex(test.query, jsonStr)
+		results, err := jp.Query(test.query, jsonStr)
 		if err != nil {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue
@@ -138,7 +139,7 @@ func testNestedObjectPositions() {
 	}
 
 	for _, test := range tests {
-		results, err := jp.QueryWithStringIndex(test.query, jsonStr)
+		results, err := jp.Query(test.query, jsonStr)
 		if err != nil {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue
@@ -180,7 +181,7 @@ func testWhitespacePreservation() {
 	}
 
 	for _, test := range tests {
-		results, err := jp.QueryWithStringIndex(test.query, jsonStr)
+		results, err := jp.Query(test.query, jsonStr)
 		if err != nil {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue
@@ -229,7 +230,7 @@ func testComplexNestedStructures() {
 	}
 
 	for _, test := range tests {
-		results, err := jp.QueryWithStringIndex(test.query, jsonStr)
+		results, err := jp.Query(test.query, jsonStr)
 		if err != nil {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue
@@ -271,7 +272,7 @@ func testEdgeCases() {
 		fmt.Printf("Testing: %s\n", test.desc)
 		fmt.Printf("JSON: %s\n", test.jsonStr)
 
-		results, err := jp.QueryWithStringIndex(test.query, test.jsonStr)
+		results, err := jp.Query(test.query, test.jsonStr)
 		if err != nil {
 			fmt.Printf("❌ %s failed: %v\n", test.desc, err)
 			continue

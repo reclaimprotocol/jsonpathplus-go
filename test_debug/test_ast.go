@@ -10,14 +10,14 @@ func printAST(node *types.AstNode, depth int) {
 	if node == nil {
 		return
 	}
-	
+
 	indent := ""
 	for i := 0; i < depth; i++ {
 		indent += "  "
 	}
-	
+
 	fmt.Printf("%sType: %s, Value: %s\n", indent, node.Type, node.Value)
-	
+
 	for _, child := range node.Children {
 		printAST(child, depth+1)
 	}
@@ -25,9 +25,9 @@ func printAST(node *types.AstNode, depth int) {
 
 func main() {
 	p := parser.NewParser()
-	
+
 	paths := []string{"$..book", "$..book[*]", "$.store.book[*]"}
-	
+
 	for _, path := range paths {
 		fmt.Printf("=== Parsing: %s ===\n", path)
 		ast, err := p.Parse(path)

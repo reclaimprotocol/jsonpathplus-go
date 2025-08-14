@@ -40,7 +40,7 @@ func main() {
 			]
 		}
 	}`
-	
+
 	// Check all ISBN lengths
 	fmt.Println("=== Checking all ISBN lengths ===")
 	results, err := jp.Query("$.store.book[*].isbn", jsonData)
@@ -48,12 +48,12 @@ func main() {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	
+
 	for i, r := range results {
 		isbn := r.Value.(string)
 		fmt.Printf("ISBN %d: '%s' (length: %d)\n", i, isbn, len(isbn))
 	}
-	
+
 	// Test the filter
 	fmt.Println("\n=== Testing filter ===")
 	results2, err := jp.Query("$.store.book[?(@.isbn.length === 13)]", jsonData)

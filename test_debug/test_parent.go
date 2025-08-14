@@ -7,7 +7,7 @@ import (
 
 func main() {
 	jsonData := `{"store": {"book": [{"title": "Book 1", "price": 8.95}, {"title": "Book 2", "price": 12.99}]}}`
-	
+
 	// Test simple property access first
 	results, err := jp.Query("$.store.book[0]", jsonData)
 	if err != nil {
@@ -18,9 +18,9 @@ func main() {
 	for i, r := range results {
 		fmt.Printf("  [%d] %v (path: %s, parent: %v)\n", i, r.Value, r.Path, r.Parent != nil)
 	}
-	
+
 	fmt.Println()
-	
+
 	// Test parent operator
 	results2, err := jp.Query("$.store.book[0]^", jsonData)
 	if err != nil {

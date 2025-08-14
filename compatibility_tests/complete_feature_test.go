@@ -71,7 +71,7 @@ func TestCompleteFeatureSet(t *testing.T) {
 			category:    "recursive_descent",
 		},
 		{
-			name:        "Recursive descent - all prices", 
+			name:        "Recursive descent - all prices",
 			jsonpath:    "$..price",
 			expectedLen: 5,
 			description: "Find all price properties recursively",
@@ -408,7 +408,7 @@ func TestEdgeCasesComprehensive(t *testing.T) {
 func TestPerformanceScenarios(t *testing.T) {
 	// Generate large test data
 	largeData := map[string]interface{}{
-		"users": make([]interface{}, 1000),
+		"users":    make([]interface{}, 1000),
 		"products": make([]interface{}, 500),
 	}
 

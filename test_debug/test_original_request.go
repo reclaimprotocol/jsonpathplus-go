@@ -37,7 +37,7 @@ func main() {
 			]
 		}
 	}`
-	
+
 	fmt.Println("=== ORIGINAL REQUESTED QUERY TEST ===")
 	fmt.Println()
 	fmt.Println("Query: $..book.*[?(@property === \"category\" && @.match(/TION$/i))]")
@@ -45,26 +45,26 @@ func main() {
 	fmt.Println("Should find: 'fiction', 'action'")
 	fmt.Println("Should NOT find: 'reference' (ends with 'ence'), 'science' (ends with 'ence')")
 	fmt.Println()
-	
+
 	results, err := jp.Query("$..book.*[?(@property === \"category\" && @.match(/TION$/i))]", jsonData)
 	if err != nil {
 		fmt.Printf("❌ Error: %v\n", err)
 		return
 	}
-	
+
 	fmt.Printf("📊 Results: %d\n", len(results))
-	
+
 	expectedResults := []string{"fiction", "action"}
 	actualResults := make([]string, 0, len(results))
-	
+
 	for i, r := range results {
 		value := r.Value.(string)
 		actualResults = append(actualResults, value)
 		fmt.Printf("  [%d] '%s' (path: %s)\n", i, value, r.Path)
 	}
-	
+
 	fmt.Println()
-	
+
 	// Verify results
 	success := len(results) == len(expectedResults)
 	if success {
@@ -82,7 +82,7 @@ func main() {
 			}
 		}
 	}
-	
+
 	if success {
 		fmt.Println("✅ SUCCESS: Original query works perfectly!")
 		fmt.Println("✅ Found exactly the expected results")

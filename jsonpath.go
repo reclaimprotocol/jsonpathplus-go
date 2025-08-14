@@ -41,12 +41,12 @@ type JSONPath struct {
 // New creates a new JSONPath instance
 func New(path string) (*JSONPath, error) {
 	engine := NewJSONPathEngine()
-	
+
 	ast, err := engine.parser.Parse(path)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &JSONPath{
 		path:   path,
 		ast:    ast,
@@ -92,7 +92,7 @@ func Query(path string, input interface{}) ([]Result, error) {
 	var data interface{}
 	var jsonStr string
 	var isStringInput bool
-	
+
 	// Check if input is a string (JSON) or already parsed data
 	if str, ok := input.(string); ok {
 		jsonStr = str
@@ -104,17 +104,17 @@ func Query(path string, input interface{}) ([]Result, error) {
 		data = input
 		isStringInput = false
 	}
-	
+
 	jp, err := New(path)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	results, err := jp.Execute(data)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// If input was a JSON string, calculate string indices for each result
 	if isStringInput {
 		for i := range results {
@@ -126,7 +126,7 @@ func Query(path string, input interface{}) ([]Result, error) {
 			results[i].OriginalIndex = stringPos.Start
 		}
 	}
-	
+
 	return results, nil
 }
 
@@ -164,7 +164,7 @@ func NewEngine() *JSONPathEngine {
 // StringPosition represents a position in the original JSON string
 type StringPosition struct {
 	Start  int // Starting character position
-	End    int // Ending character position  
+	End    int // Ending character position
 	Length int // Length of the element
 }
 
@@ -172,12 +172,12 @@ type StringPosition struct {
 func findStringPositionForResult(result Result, jsonStr string) StringPosition {
 	// Handle different types of JSONPath results
 	path := result.Path
-	
+
 	// Root element
 	if path == "$" {
 		return StringPosition{Start: 0, End: len(jsonStr), Length: len(jsonStr)}
 	}
-	
+
 	// Handle property access in objects
 	if result.ParentProperty != "" && result.Parent != nil {
 		// Check if parent is an array (array element access)
@@ -186,13 +186,13 @@ func findStringPositionForResult(result Result, jsonStr string) StringPosition {
 				return findArrayElementPosition(idx, jsonStr)
 			}
 		}
-		
+
 		// Property access in objects
 		if _, isObject := result.Parent.(map[string]interface{}); isObject {
 			return findPropertyValuePosition(result.ParentProperty, jsonStr, path)
 		}
 	}
-	
+
 	// Fallback: try to find by parsing the path
 	return findPositionByPath(path, jsonStr)
 }
@@ -204,37 +204,37 @@ func findArrayElementPosition(index int, jsonStr string) StringPosition {
 	if arrayStart == -1 {
 		return StringPosition{}
 	}
-	
+
 	pos := arrayStart + 1
 	currentIndex := 0
-	
+
 	// Skip whitespace
 	for pos < len(jsonStr) && isWhitespace(jsonStr[pos]) {
 		pos++
 	}
-	
+
 	// If we want index 0, we're at the first element
 	if index == 0 {
 		elementEnd := skipJSONElement(jsonStr, pos)
 		return StringPosition{Start: pos, End: elementEnd, Length: elementEnd - pos}
 	}
-	
+
 	// Skip elements until we reach the target index
 	for currentIndex < index && pos < len(jsonStr) {
 		pos = skipJSONElement(jsonStr, pos)
-		
+
 		// Skip whitespace and comma
 		for pos < len(jsonStr) && (isWhitespace(jsonStr[pos]) || jsonStr[pos] == ',') {
 			pos++
 		}
 		currentIndex++
 	}
-	
+
 	if pos < len(jsonStr) {
 		elementEnd := skipJSONElement(jsonStr, pos)
 		return StringPosition{Start: pos, End: elementEnd, Length: elementEnd - pos}
 	}
-	
+
 	return StringPosition{}
 }
 
@@ -253,10 +253,10 @@ func findPropertyValuePosition(propName, jsonStr, path string) StringPosition {
 			}
 		}
 	}
-	
+
 	// Search for the property key
 	searchStr := fmt.Sprintf(`"%s"`, propName)
-	
+
 	pos := 0
 	occurrenceCount := 0
 	for {
@@ -264,15 +264,15 @@ func findPropertyValuePosition(propName, jsonStr, path string) StringPosition {
 		if idx == -1 {
 			break
 		}
-		
+
 		absolutePos := pos + idx
-		
+
 		// Check if this is a property key (followed by colon)
 		afterKey := absolutePos + len(searchStr)
 		for afterKey < len(jsonStr) && isWhitespace(jsonStr[afterKey]) {
 			afterKey++
 		}
-		
+
 		if afterKey < len(jsonStr) && jsonStr[afterKey] == ':' {
 			// If we have an array index, return the occurrence that matches
 			if arrayIndex == -1 || occurrenceCount == arrayIndex {
@@ -280,10 +280,10 @@ func findPropertyValuePosition(propName, jsonStr, path string) StringPosition {
 			}
 			occurrenceCount++
 		}
-		
+
 		pos = absolutePos + 1
 	}
-	
+
 	return StringPosition{}
 }
 
@@ -291,13 +291,13 @@ func findPropertyValuePosition(propName, jsonStr, path string) StringPosition {
 func findPositionByPath(path, jsonStr string) StringPosition {
 	// This is a simplified implementation
 	// For complex paths, we'd need more sophisticated parsing
-	
+
 	// Handle simple property access like $.property
 	if strings.HasPrefix(path, "$.") && !strings.Contains(path[2:], ".") && !strings.Contains(path, "[") {
 		propName := path[2:]
 		return findPropertyValuePosition(propName, jsonStr, path)
 	}
-	
+
 	// Handle array access like $[0], $[1], etc.
 	if strings.HasPrefix(path, "$[") && strings.HasSuffix(path, "]") {
 		indexStr := path[2 : len(path)-1]
@@ -305,7 +305,7 @@ func findPositionByPath(path, jsonStr string) StringPosition {
 			return findArrayElementPosition(idx, jsonStr)
 		}
 	}
-	
+
 	// For complex paths, return empty position
 	return StringPosition{}
 }
@@ -317,7 +317,7 @@ func skipJSONElement(jsonStr string, start int) int {
 	if start >= len(jsonStr) {
 		return start
 	}
-	
+
 	char := jsonStr[start]
 	switch char {
 	case '"':
@@ -352,10 +352,10 @@ func skipBracedElement(jsonStr string, start int, openBrace, closeBrace byte) in
 	pos := start + 1
 	depth := 1
 	inString := false
-	
+
 	for pos < len(jsonStr) && depth > 0 {
 		char := jsonStr[pos]
-		
+
 		if char == '"' && (pos == 0 || jsonStr[pos-1] != '\\') {
 			inString = !inString
 		} else if !inString {
@@ -367,7 +367,7 @@ func skipBracedElement(jsonStr string, start int, openBrace, closeBrace byte) in
 		}
 		pos++
 	}
-	
+
 	return pos
 }
 

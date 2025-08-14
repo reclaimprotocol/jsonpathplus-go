@@ -20,10 +20,10 @@ func printAST(node *types.AstNode, indent string) {
 func main() {
 	// Test different wildcard expressions to see how they parse
 	paths := []string{
-		"$.*",   // Property wildcard
-		"$[*]",  // Index wildcard  
+		"$.*",  // Property wildcard
+		"$[*]", // Index wildcard
 	}
-	
+
 	for _, path := range paths {
 		fmt.Printf("=== AST for: %s ===\n", path)
 		ast, err := jp.Parse(path)
@@ -33,7 +33,7 @@ func main() {
 		}
 		printAST(ast, "")
 		fmt.Println()
-		
+
 		// Test on an array
 		jsonStr := `[{"id":1,"name":"first"},{"id":2,"name":"second"}]`
 		fmt.Printf("Testing %s on array:\n", path)

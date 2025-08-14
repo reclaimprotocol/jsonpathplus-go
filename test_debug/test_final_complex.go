@@ -36,14 +36,14 @@ func main() {
 			]
 		}
 	}`
-	
+
 	fmt.Println("=== Expected Results ===")
 	fmt.Println("Categories ending with 'tion': reference, fiction, action")
 	fmt.Println("Query should find these 3 values")
-	
+
 	fmt.Println("\n=== Testing simpler approach ===")
 	fmt.Println("Query: $.store.book[*].category[?(@.match(/TION$/i))]")
-	
+
 	results1, err := jp.Query("$.store.book[*].category[?(@.match(/TION$/i))]", jsonData)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -53,10 +53,10 @@ func main() {
 			fmt.Printf("  [%d] '%s'\n", i, r.Value)
 		}
 	}
-	
+
 	fmt.Println("\n=== Testing case-sensitive version ===")
 	fmt.Println("Query: $.store.book[*].category[?(@.match(/tion$/))]")
-	
+
 	results2, err := jp.Query("$.store.book[*].category[?(@.match(/tion$/))]", jsonData)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -66,10 +66,10 @@ func main() {
 			fmt.Printf("  [%d] '%s'\n", i, r.Value)
 		}
 	}
-	
+
 	fmt.Println("\n=== Testing original complex query ===")
 	fmt.Println("Query: $..book.*[?(@property === \"category\" && @.match(/TION$/i))]")
-	
+
 	results3, err := jp.Query("$..book.*[?(@property === \"category\" && @.match(/TION$/i))]", jsonData)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)

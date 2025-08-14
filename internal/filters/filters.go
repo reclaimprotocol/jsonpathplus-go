@@ -22,7 +22,7 @@ func NewFilterEvaluator() *FilterEvaluator {
 func (f *FilterEvaluator) EvaluateFilter(filter string, ctx *types.Context) bool {
 	filter = strings.TrimPrefix(filter, "?(")
 	filter = strings.TrimSuffix(filter, ")")
-	
+
 	return f.evaluateFilterExpression(filter, ctx)
 }
 
@@ -79,17 +79,17 @@ func (f *FilterEvaluator) tryContextFilter(expr string, ctx *types.Context) (boo
 	if strings.Contains(expr, "@parentProperty") {
 		return f.handleParentPropertyFilter(expr, ctx)
 	}
-	
+
 	// Handle @property expressions
 	if strings.Contains(expr, "@property") {
 		return f.handlePropertyFilter(expr, ctx)
 	}
-	
+
 	// Handle @parent expressions
 	if strings.Contains(expr, "@parent") {
 		return f.handleParentFilter(expr, ctx)
 	}
-	
+
 	// Handle @path expressions (check for @path but not @parentProperty)
 	if strings.Contains(expr, "@path") && !strings.Contains(expr, "@parentProperty") {
 		return f.handlePathFilter(expr, ctx)
@@ -136,14 +136,14 @@ func (f *FilterEvaluator) handleParentFilter(expr string, ctx *types.Context) (b
 
 	propertyPath := matches[1]
 	parent := ctx.GetParent()
-	
+
 	if parent == nil {
 		return false, true
 	}
 
 	// Get the property value from parent (supports nested paths like "bicycle.color")
 	parentValue := utils.GetPropertyValue(parent, propertyPath)
-	
+
 	// Check if this is just an existence check
 	if strings.TrimSpace(expr) == fmt.Sprintf("@parent.%s", propertyPath) {
 		return parentValue != nil, true
@@ -170,7 +170,7 @@ func (f *FilterEvaluator) handlePathFilter(expr string, ctx *types.Context) (boo
 	if strings.TrimSpace(expr) == "@path" {
 		return ctx.Path != "", true
 	}
-	
+
 	// Pattern: @path === 'value' or @path !== 'value'
 	// Handle paths with nested quotes by finding the outer quote boundaries
 	re := regexp.MustCompile(`@path\s*(===|!==|==|!=)\s*['\"](.*)['\"]`)
@@ -200,7 +200,7 @@ func (f *FilterEvaluator) handleParentPropertyFilter(expr string, ctx *types.Con
 		(strings.HasPrefix(expr, "\"") && strings.HasSuffix(expr, "\"")) {
 		expr = expr[1 : len(expr)-1]
 	}
-	
+
 	// Pattern: @parentProperty === 'value' or @parentProperty !== 'value'
 	re := regexp.MustCompile(`@parentProperty\s*(===|!==|==|!=)\s*['"](.*?)['"]`)
 	matches := re.FindStringSubmatch(expr)
@@ -211,13 +211,13 @@ func (f *FilterEvaluator) handleParentPropertyFilter(expr string, ctx *types.Con
 		if len(numMatches) != 3 {
 			return false, false
 		}
-		
+
 		operator := numMatches[1]
 		expectedIndex, err := strconv.Atoi(numMatches[2])
 		if err != nil {
 			return false, false
 		}
-		
+
 		actualIndex, err := strconv.Atoi(ctx.GetPropertyName())
 		if err != nil {
 			return false, true // Not a numeric property
@@ -237,7 +237,7 @@ func (f *FilterEvaluator) handleParentPropertyFilter(expr string, ctx *types.Con
 		case ">=":
 			return actualIndex >= expectedIndex, true
 		}
-		
+
 		return false, true
 	}
 
@@ -276,16 +276,16 @@ func (f *FilterEvaluator) tryLogicalFilter(expr string, ctx *types.Context) (boo
 	if andPos := f.findLogicalOperator(expr, "&&"); andPos != -1 {
 		left := strings.TrimSpace(expr[:andPos])
 		right := strings.TrimSpace(expr[andPos+2:])
-		
+
 		// Strip outer parentheses if present
 		left = f.stripOuterParentheses(left)
 		right = f.stripOuterParentheses(right)
-		
+
 		leftResult := f.evaluateFilterExpression(left, ctx)
 		if !leftResult {
 			return false, true // Short-circuit evaluation
 		}
-		
+
 		rightResult := f.evaluateFilterExpression(right, ctx)
 		return rightResult, true
 	}
@@ -294,16 +294,16 @@ func (f *FilterEvaluator) tryLogicalFilter(expr string, ctx *types.Context) (boo
 	if orPos := f.findLogicalOperator(expr, "||"); orPos != -1 {
 		left := strings.TrimSpace(expr[:orPos])
 		right := strings.TrimSpace(expr[orPos+2:])
-		
+
 		// Strip outer parentheses if present
 		left = f.stripOuterParentheses(left)
 		right = f.stripOuterParentheses(right)
-		
+
 		leftResult := f.evaluateFilterExpression(left, ctx)
 		if leftResult {
 			return true, true // Short-circuit evaluation
 		}
-		
+
 		rightResult := f.evaluateFilterExpression(right, ctx)
 		return rightResult, true
 	}
@@ -360,7 +360,7 @@ func (f *FilterEvaluator) tryDirectComparisonFilter(expr string, current interfa
 	operator := matches[1]
 	valueStr := strings.TrimSpace(matches[2])
 	parsedValue := utils.ParseValue(valueStr)
-	
+
 	return utils.CompareValues(current, operator, parsedValue), true
 }
 
@@ -431,37 +431,37 @@ func (f *FilterEvaluator) tryFunctionPredicateFilter(expr string, current interf
 	if result, ok := f.tryMatchFunction(expr, current); ok {
 		return result, true
 	}
-	
+
 	// Handle .contains(substring)
 	if result, ok := f.tryContainsFunction(expr, current); ok {
 		return result, true
 	}
-	
+
 	// Handle .startsWith(prefix)
 	if result, ok := f.tryStartsWithFunction(expr, current); ok {
 		return result, true
 	}
-	
+
 	// Handle .endsWith(suffix)
 	if result, ok := f.tryEndsWithFunction(expr, current); ok {
 		return result, true
 	}
-	
+
 	// Handle .length comparisons
 	if result, ok := f.tryLengthFunction(expr, current); ok {
 		return result, true
 	}
-	
+
 	// Handle .toLowerCase() and .toUpperCase()
 	if result, ok := f.tryCaseFunction(expr, current); ok {
 		return result, true
 	}
-	
+
 	// Handle chained operations (e.g., .toLowerCase().contains())
 	if result, ok := f.tryChainedOperations(expr, current); ok {
 		return result, true
 	}
-	
+
 	// Handle .typeof() comparisons
 	if result, ok := f.tryTypeofFunction(expr, current); ok {
 		return result, true
@@ -510,10 +510,10 @@ func (f *FilterEvaluator) findLogicalOperator(expr string, op string) int {
 	inQuotes := false
 	quoteChar := byte(0)
 	parenDepth := 0
-	
+
 	for i := 0; i < len(expr)-len(op)+1; i++ {
 		ch := expr[i]
-		
+
 		if !inQuotes {
 			if ch == '\'' || ch == '"' {
 				inQuotes = true
@@ -539,18 +539,18 @@ func (f *FilterEvaluator) findLogicalOperator(expr string, op string) int {
 			}
 		}
 	}
-	
+
 	return -1
 }
 
 // stripOuterParentheses removes outer parentheses if they wrap the entire expression
 func (f *FilterEvaluator) stripOuterParentheses(expr string) string {
 	expr = strings.TrimSpace(expr)
-	
+
 	if len(expr) < 2 || expr[0] != '(' || expr[len(expr)-1] != ')' {
 		return expr
 	}
-	
+
 	// Check if the parentheses actually wrap the entire expression
 	// by tracking depth and ensuring we never close all parentheses before the end
 	depth := 0
@@ -565,7 +565,7 @@ func (f *FilterEvaluator) stripOuterParentheses(expr string) string {
 			}
 		}
 	}
-	
+
 	// If we get here, the outer parentheses wrap the entire expression
 	return strings.TrimSpace(expr[1 : len(expr)-1])
 }

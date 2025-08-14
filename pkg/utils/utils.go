@@ -12,13 +12,13 @@ import (
 // ParseValue parses a string value into the appropriate type
 func ParseValue(s string) interface{} {
 	s = strings.TrimSpace(s)
-	
+
 	// Remove quotes if present
 	if (strings.HasPrefix(s, "'") && strings.HasSuffix(s, "'")) ||
 		(strings.HasPrefix(s, "\"") && strings.HasSuffix(s, "\"")) {
 		return s[1 : len(s)-1]
 	}
-	
+
 	// Try boolean
 	if s == "true" {
 		return true
@@ -26,17 +26,17 @@ func ParseValue(s string) interface{} {
 	if s == "false" {
 		return false
 	}
-	
+
 	// Try null
 	if s == "null" {
 		return nil
 	}
-	
+
 	// Try number
 	if num, err := strconv.ParseFloat(s, 64); err == nil {
 		return num
 	}
-	
+
 	return s
 }
 
@@ -49,11 +49,11 @@ func CompareValues(left interface{}, operator string, right interface{}) bool {
 	if left == nil || right == nil {
 		return operator == "!=" || operator == "!=="
 	}
-	
+
 	// Handle string comparisons
 	leftStr, leftIsStr := left.(string)
 	rightStr, rightIsStr := right.(string)
-	
+
 	if leftIsStr && rightIsStr {
 		switch operator {
 		case "==", "===":
@@ -70,11 +70,11 @@ func CompareValues(left interface{}, operator string, right interface{}) bool {
 			return leftStr >= rightStr
 		}
 	}
-	
+
 	// Handle numeric comparisons
 	leftNum := toFloat64(left)
 	rightNum := toFloat64(right)
-	
+
 	if isNumeric(left) && isNumeric(right) {
 		switch operator {
 		case "==", "===":
@@ -91,7 +91,7 @@ func CompareValues(left interface{}, operator string, right interface{}) bool {
 			return leftNum >= rightNum
 		}
 	}
-	
+
 	// Default to equality check for other types
 	switch operator {
 	case "==", "===":
@@ -108,12 +108,12 @@ func GetPropertyValue(obj interface{}, property string) interface{} {
 	if obj == nil {
 		return nil
 	}
-	
+
 	// Handle nested property access (e.g., "profile.bio")
 	if strings.Contains(property, ".") {
 		return getNestedProperty(obj, property)
 	}
-	
+
 	switch v := obj.(type) {
 	case map[string]interface{}:
 		return v[property]
@@ -140,17 +140,17 @@ func getNestedProperty(obj interface{}, path string) interface{} {
 	if obj == nil {
 		return nil
 	}
-	
+
 	parts := strings.Split(path, ".")
 	current := obj
-	
+
 	for _, part := range parts {
 		current = GetPropertyValue(current, part)
 		if current == nil {
 			return nil
 		}
 	}
-	
+
 	return current
 }
 
@@ -203,61 +203,61 @@ func TryMatchFunction(expr string, current interface{}) (bool, bool) {
 	// Try regex literal format with optional flags: .match(/pattern/flags)
 	reRegexLiteral := regexp.MustCompile(`\.match\(/(.+?)/([gimsx]*)\)`)
 	matches := reRegexLiteral.FindStringSubmatch(expr)
-	
+
 	if len(matches) >= 2 {
 		pattern := matches[1]
 		flags := ""
 		if len(matches) == 3 {
 			flags = matches[2]
 		}
-		
+
 		// Get the actual string value
 		str := getStringValue(expr, current)
 		if str == "" {
 			return false, true
 		}
-		
+
 		// Apply flags to pattern
 		if strings.Contains(flags, "i") {
 			pattern = "(?i)" + pattern
 		}
 		if strings.Contains(flags, "m") {
-			pattern = "(?m)" + pattern  
+			pattern = "(?m)" + pattern
 		}
 		if strings.Contains(flags, "s") {
 			pattern = "(?s)" + pattern
 		}
-		
+
 		// Compile and match the regex
 		regex, err := regexp.Compile(pattern)
 		if err != nil {
 			return false, true
 		}
-		
+
 		return regex.MatchString(str), true
 	}
-	
+
 	// Try quoted string format: .match("pattern") or .match('pattern')
 	reQuoted := regexp.MustCompile(`\.match\(['"](.+?)['"]\)`)
 	matches = reQuoted.FindStringSubmatch(expr)
 	if len(matches) != 2 {
 		return false, false
 	}
-	
+
 	pattern := matches[1]
-	
+
 	// Get the actual string value
 	str := getStringValue(expr, current)
 	if str == "" {
 		return false, true
 	}
-	
+
 	// Compile and match the regex
 	regex, err := regexp.Compile(pattern)
 	if err != nil {
 		return false, true
 	}
-	
+
 	return regex.MatchString(str), true
 }
 
@@ -268,17 +268,17 @@ func TryContainsFunction(expr string, current interface{}) (bool, bool) {
 	if len(matches) != 2 {
 		return false, false
 	}
-	
+
 	searchTerm := matches[1]
-	
+
 	// Get the base property
 	baseProperty := getBaseProperty(expr)
 	value := getPropertyValueForFunction(current, baseProperty)
-	
+
 	if value == nil {
 		return false, true
 	}
-	
+
 	switch v := value.(type) {
 	case string:
 		return strings.Contains(v, searchTerm), true
@@ -302,13 +302,13 @@ func TryStartsWithFunction(expr string, current interface{}) (bool, bool) {
 	if len(matches) != 2 {
 		return false, false
 	}
-	
+
 	prefix := matches[1]
 	str := getStringValue(expr, current)
 	if str == "" {
 		return false, true
 	}
-	
+
 	return strings.HasPrefix(str, prefix), true
 }
 
@@ -319,13 +319,13 @@ func TryEndsWithFunction(expr string, current interface{}) (bool, bool) {
 	if len(matches) != 2 {
 		return false, false
 	}
-	
+
 	suffix := matches[1]
 	str := getStringValue(expr, current)
 	if str == "" {
 		return false, true
 	}
-	
+
 	return strings.HasSuffix(str, suffix), true
 }
 
@@ -336,20 +336,20 @@ func TryLengthFunction(expr string, current interface{}) (bool, bool) {
 	if len(matches) != 3 {
 		return false, false
 	}
-	
+
 	operator := matches[1]
 	expectedLength, err := strconv.Atoi(matches[2])
 	if err != nil {
 		return false, false
 	}
-	
+
 	baseProperty := getBaseProperty(expr)
 	value := getPropertyValueForFunction(current, baseProperty)
-	
+
 	if value == nil {
 		return false, true
 	}
-	
+
 	var actualLength int
 	switch v := value.(type) {
 	case string:
@@ -361,7 +361,7 @@ func TryLengthFunction(expr string, current interface{}) (bool, bool) {
 	default:
 		return false, true
 	}
-	
+
 	switch operator {
 	case "===", "==":
 		return actualLength == expectedLength, true
@@ -376,7 +376,7 @@ func TryLengthFunction(expr string, current interface{}) (bool, bool) {
 	case ">=":
 		return actualLength >= expectedLength, true
 	}
-	
+
 	return false, true
 }
 
@@ -387,12 +387,12 @@ func TryCaseFunction(expr string, current interface{}) (bool, bool) {
 	if matches := lowerRe.FindStringSubmatch(expr); len(matches) == 3 {
 		operator := matches[1]
 		expectedValue := matches[2]
-		
+
 		str := getStringValue(expr, current)
 		if str == "" {
 			return false, true
 		}
-		
+
 		lowerStr := strings.ToLower(str)
 		switch operator {
 		case "==":
@@ -401,18 +401,18 @@ func TryCaseFunction(expr string, current interface{}) (bool, bool) {
 			return lowerStr != expectedValue, true
 		}
 	}
-	
+
 	// Handle .toUpperCase() == 'value'
 	upperRe := regexp.MustCompile(`\.toUpperCase\(\)\s*(==|!=)\s*['"](.+?)['"]`)
 	if matches := upperRe.FindStringSubmatch(expr); len(matches) == 3 {
 		operator := matches[1]
 		expectedValue := matches[2]
-		
+
 		str := getStringValue(expr, current)
 		if str == "" {
 			return false, true
 		}
-		
+
 		upperStr := strings.ToUpper(str)
 		switch operator {
 		case "==":
@@ -421,7 +421,7 @@ func TryCaseFunction(expr string, current interface{}) (bool, bool) {
 			return upperStr != expectedValue, true
 		}
 	}
-	
+
 	return false, false
 }
 
@@ -432,13 +432,13 @@ func TryTypeofFunction(expr string, current interface{}) (bool, bool) {
 	if len(matches) != 3 {
 		return false, false
 	}
-	
+
 	operator := matches[1]
 	expectedType := matches[2]
-	
+
 	baseProperty := getBaseProperty(expr)
 	value := getPropertyValueForFunction(current, baseProperty)
-	
+
 	var actualType string
 	switch value.(type) {
 	case string:
@@ -456,14 +456,14 @@ func TryTypeofFunction(expr string, current interface{}) (bool, bool) {
 	default:
 		actualType = "unknown"
 	}
-	
+
 	switch operator {
 	case "===", "==":
 		return actualType == expectedType, true
 	case "!==", "!=":
 		return actualType != expectedType, true
 	}
-	
+
 	return false, true
 }
 
@@ -477,11 +477,11 @@ func TryChainedOperations(expr string, current interface{}) (bool, bool) {
 		if str == "" {
 			return false, true
 		}
-		
+
 		lowerStr := strings.ToLower(str)
 		return strings.Contains(lowerStr, searchTerm), true
 	}
-	
+
 	// Handle .toUpperCase().contains()
 	upperContainsRe := regexp.MustCompile(`\.toUpperCase\(\)\.contains\(['"](.+?)['"]\)`)
 	if matches := upperContainsRe.FindStringSubmatch(expr); len(matches) == 2 {
@@ -490,11 +490,11 @@ func TryChainedOperations(expr string, current interface{}) (bool, bool) {
 		if str == "" {
 			return false, true
 		}
-		
+
 		upperStr := strings.ToUpper(str)
 		return strings.Contains(upperStr, searchTerm), true
 	}
-	
+
 	return false, false
 }
 
@@ -503,15 +503,15 @@ func TryChainedOperations(expr string, current interface{}) (bool, bool) {
 func getStringValue(expr string, current interface{}) string {
 	baseProperty := getBaseProperty(expr)
 	value := getPropertyValueForFunction(current, baseProperty)
-	
+
 	if value == nil {
 		return ""
 	}
-	
+
 	if str, ok := value.(string); ok {
 		return str
 	}
-	
+
 	return fmt.Sprintf("%v", value)
 }
 
@@ -542,7 +542,7 @@ func getPropertyValueForFunction(current interface{}, property string) interface
 	if property == "" {
 		return current
 	}
-	
+
 	return GetPropertyValue(current, property)
 }
 
@@ -555,27 +555,27 @@ func TryFloorFunction(expr string, current interface{}) (bool, bool) {
 	if len(matches) != 3 {
 		return false, false
 	}
-	
+
 	operator := matches[1]
 	expectedValue, err := strconv.ParseFloat(matches[2], 64)
 	if err != nil {
 		return false, false
 	}
-	
+
 	baseProperty := getBaseProperty(expr)
 	value := getPropertyValueForFunction(current, baseProperty)
-	
+
 	if value == nil {
 		return false, true
 	}
-	
+
 	if !isNumeric(value) {
 		return false, true
 	}
-	
+
 	floatValue := toFloat64(value)
 	floorValue := math.Floor(floatValue)
-	
+
 	switch operator {
 	case "===", "==":
 		return floorValue == expectedValue, true
@@ -590,7 +590,7 @@ func TryFloorFunction(expr string, current interface{}) (bool, bool) {
 	case ">=":
 		return floorValue >= expectedValue, true
 	}
-	
+
 	return false, true
 }
 
@@ -601,27 +601,27 @@ func TryRoundFunction(expr string, current interface{}) (bool, bool) {
 	if len(matches) != 3 {
 		return false, false
 	}
-	
+
 	operator := matches[1]
 	expectedValue, err := strconv.ParseFloat(matches[2], 64)
 	if err != nil {
 		return false, false
 	}
-	
+
 	baseProperty := getBaseProperty(expr)
 	value := getPropertyValueForFunction(current, baseProperty)
-	
+
 	if value == nil {
 		return false, true
 	}
-	
+
 	if !isNumeric(value) {
 		return false, true
 	}
-	
+
 	floatValue := toFloat64(value)
 	roundValue := math.Round(floatValue)
-	
+
 	switch operator {
 	case "===", "==":
 		return roundValue == expectedValue, true
@@ -636,7 +636,7 @@ func TryRoundFunction(expr string, current interface{}) (bool, bool) {
 	case ">=":
 		return roundValue >= expectedValue, true
 	}
-	
+
 	return false, true
 }
 
@@ -647,27 +647,27 @@ func TryCeilFunction(expr string, current interface{}) (bool, bool) {
 	if len(matches) != 3 {
 		return false, false
 	}
-	
+
 	operator := matches[1]
 	expectedValue, err := strconv.ParseFloat(matches[2], 64)
 	if err != nil {
 		return false, false
 	}
-	
+
 	baseProperty := getBaseProperty(expr)
 	value := getPropertyValueForFunction(current, baseProperty)
-	
+
 	if value == nil {
 		return false, true
 	}
-	
+
 	if !isNumeric(value) {
 		return false, true
 	}
-	
+
 	floatValue := toFloat64(value)
 	ceilValue := math.Ceil(floatValue)
-	
+
 	switch operator {
 	case "===", "==":
 		return ceilValue == expectedValue, true
@@ -682,6 +682,6 @@ func TryCeilFunction(expr string, current interface{}) (bool, bool) {
 	case ">=":
 		return ceilValue >= expectedValue, true
 	}
-	
+
 	return false, true
 }

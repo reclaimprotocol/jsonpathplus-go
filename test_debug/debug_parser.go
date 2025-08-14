@@ -23,7 +23,7 @@ func main() {
 		"$[*].id",
 		"$.id",
 	}
-	
+
 	for _, path := range paths {
 		fmt.Printf("=== AST for: %s ===\n", path)
 		ast, err := jp.Parse(path)

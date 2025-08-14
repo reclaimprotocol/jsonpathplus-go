@@ -66,7 +66,6 @@ lint:
 fmt:
 	@echo "Formatting code..."
 	gofmt -s -w .
-	goimports -w .
 
 ## vet: Run go vet
 .PHONY: vet

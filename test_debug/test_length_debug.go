@@ -15,7 +15,7 @@ func main() {
 			]
 		}
 	}`
-	
+
 	// Test basic access first
 	fmt.Println("=== Testing basic access ===")
 	results, err := jp.Query("$.store.book[*].isbn", jsonData)
@@ -23,11 +23,11 @@ func main() {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	
+
 	for i, r := range results {
 		fmt.Printf("ISBN %d: %s (length: %d)\n", i, r.Value, len(r.Value.(string)))
 	}
-	
+
 	// Test length function
 	fmt.Println("\n=== Testing length function ===")
 	results2, err := jp.Query("$.store.book[?(@.isbn.length === 13)]", jsonData)
@@ -36,7 +36,7 @@ func main() {
 		return
 	}
 	fmt.Printf("Books with 13-char ISBN: %d results\n", len(results2))
-	
+
 	// Test alternative syntax
 	results3, err := jp.Query("$.store.book[?(@.isbn.length == 13)]", jsonData)
 	if err != nil {
@@ -44,7 +44,7 @@ func main() {
 		return
 	}
 	fmt.Printf("Books with 13-char ISBN (==): %d results\n", len(results3))
-	
+
 	// Test with 14-character length
 	results4, err := jp.Query("$.store.book[?(@.isbn.length === 14)]", jsonData)
 	if err != nil {

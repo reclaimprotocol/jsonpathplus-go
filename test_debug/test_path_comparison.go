@@ -14,9 +14,9 @@ func main() {
 			]
 		}
 	}`
-	
+
 	fmt.Println("=== Comparing different wildcard contexts ===")
-	
+
 	// Test what $.store.book looks like when reached via different paths
 	fmt.Println("Direct path: $.store.book")
 	results1, err := jp.Query("$.store.book", jsonData)
@@ -27,7 +27,7 @@ func main() {
 			fmt.Printf("Path: '%s'\n", r.Path)
 		}
 	}
-	
+
 	fmt.Println()
 	fmt.Println("Recursive path: $..book")
 	results2, err := jp.Query("$..book", jsonData)
@@ -38,12 +38,12 @@ func main() {
 			fmt.Printf("Path: '%s'\n", r.Path)
 		}
 	}
-	
+
 	fmt.Println()
 	fmt.Println("The key insight: Both have the same path '$.store.book'")
 	fmt.Println("So the wildcard behavior should be the same for both")
 	fmt.Println()
-	
+
 	// Test the working case
 	fmt.Println("Working: $..book.*")
 	results3, err := jp.Query("$..book.*", jsonData)
@@ -55,9 +55,9 @@ func main() {
 			fmt.Printf("  [%d] %v (path: %s)\n", i, r.Value, r.Path)
 		}
 	}
-	
+
 	fmt.Println()
-	
+
 	// Test the broken case
 	fmt.Println("Broken: $.store.book[*]")
 	results4, err := jp.Query("$.store.book[*]", jsonData)

@@ -20,7 +20,7 @@ func main() {
 			]
 		}
 	}`
-	
+
 	fmt.Println("=== Testing $..book.* (all book properties) ===")
 	results1, err := jp.Query("$..book.*", jsonData)
 	if err != nil {
@@ -31,7 +31,7 @@ func main() {
 			fmt.Printf("  [%d] %v (path: %s)\n", i, r.Value, r.Path)
 		}
 	}
-	
+
 	fmt.Println("\n=== Testing $.store.book[0] access ===")
 	results2, err := jp.Query("$.store.book[0]", jsonData)
 	if err != nil {
@@ -42,7 +42,7 @@ func main() {
 			fmt.Printf("  [%d] %v (path: %s)\n", i, r.Value, r.Path)
 		}
 	}
-	
+
 	fmt.Println("\n=== Testing $.store.book[0].* (first book properties) ===")
 	results3, err := jp.Query("$.store.book[0].*", jsonData)
 	if err != nil {
@@ -53,7 +53,7 @@ func main() {
 			fmt.Printf("  [%d] %v (path: %s)\n", i, r.Value, r.Path)
 		}
 	}
-	
+
 	fmt.Println("\n=== Testing @property filter on first book ===")
 	results4, err := jp.Query("$.store.book[0].*[?(@property === \"category\")]", jsonData)
 	if err != nil {
@@ -64,7 +64,7 @@ func main() {
 			fmt.Printf("  [%d] %v (path: %s)\n", i, r.Value, r.Path)
 		}
 	}
-	
+
 	fmt.Println("\n=== Testing simple regex match ===")
 	results5, err := jp.Query("$.store.book[0].category[?(@.match(/reference/))]", jsonData)
 	if err != nil {

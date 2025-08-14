@@ -41,7 +41,7 @@ func (p *Parser) Parse(path string) (*types.AstNode, error) {
 // parseFromRoot parses the path after the root $
 func (p *Parser) parseFromRoot(path string) (*types.AstNode, error) {
 	root := &types.AstNode{Type: "root", Value: "$"}
-	
+
 	if path == "" {
 		return root, nil
 	}
@@ -89,7 +89,7 @@ func (p *Parser) parseDotSegment(path string) (*types.AstNode, int, error) {
 	// Handle recursive descent (..)
 	if path[1] == '.' {
 		recursiveNode := &types.AstNode{Type: "recursive", Value: ".."}
-		
+
 		// Check if there's more after the ..
 		if len(path) > 2 {
 			// If the next character is not . or [, it's a direct property after ..
@@ -99,13 +99,13 @@ func (p *Parser) parseDotSegment(path string) (*types.AstNode, int, error) {
 				if end > 2 {
 					property := path[2:end]
 					propertyNode := &types.AstNode{Type: "property", Value: property}
-					
+
 					// Check if there are more segments after the property (like [*])
 					if end < len(path) {
 						// Parse the remaining path and attach as children to the property
 						remaining := path[end:]
 						currentNode := propertyNode
-						
+
 						for remaining != "" {
 							nextNode, nextPos, err := p.parseNextSegment(remaining)
 							if err != nil {
@@ -116,13 +116,13 @@ func (p *Parser) parseDotSegment(path string) (*types.AstNode, int, error) {
 							remaining = remaining[nextPos:]
 						}
 					}
-					
+
 					recursiveNode.Children = append(recursiveNode.Children, propertyNode)
 					return recursiveNode, len(path), nil
 				}
 			}
 		}
-		
+
 		return recursiveNode, 2, nil
 	}
 
@@ -148,7 +148,7 @@ func (p *Parser) parseDotSegment(path string) (*types.AstNode, int, error) {
 	}
 
 	property := path[pos:end]
-	
+
 	// Check for operators after property
 	if end < len(path) {
 		if path[end] == '~' {
@@ -158,7 +158,7 @@ func (p *Parser) parseDotSegment(path string) (*types.AstNode, int, error) {
 			return &types.AstNode{Type: "parent", Value: property}, end + 1, nil
 		}
 	}
-	
+
 	return &types.AstNode{Type: "property", Value: property}, end, nil
 }
 
@@ -170,7 +170,7 @@ func (p *Parser) parseBracketSegment(path string) (*types.AstNode, int, error) {
 	}
 
 	content := path[1:end]
-	
+
 	// Check for chained operations (multiple bracket segments)
 	nextPos := end + 1
 	var chainedNodes []*types.AstNode
@@ -189,13 +189,13 @@ func (p *Parser) parseBracketSegment(path string) (*types.AstNode, int, error) {
 		if chainEnd == -1 {
 			break
 		}
-		
+
 		chainContent := remaining[1:chainEnd]
 		chainNode, err := p.parseBracketContent(chainContent)
 		if err != nil {
 			break
 		}
-		
+
 		chainedNodes = append(chainedNodes, chainNode)
 		nextPos += chainEnd + 1
 		remaining = path[nextPos:]
@@ -211,7 +211,7 @@ func (p *Parser) parseBracketSegment(path string) (*types.AstNode, int, error) {
 		chainNode.Children = chainedNodes
 		finalNode = chainNode
 	}
-	
+
 	// Check for operators after the bracket expression
 	remaining = path[nextPos:]
 	if len(remaining) > 0 {
@@ -233,7 +233,7 @@ func (p *Parser) parseBracketSegment(path string) (*types.AstNode, int, error) {
 // parseBracketContent parses the content inside brackets
 func (p *Parser) parseBracketContent(content string) (*types.AstNode, error) {
 	content = strings.TrimSpace(content)
-	
+
 	if content == "" {
 		return nil, fmt.Errorf("empty bracket content")
 	}
@@ -252,7 +252,7 @@ func (p *Parser) parseBracketContent(content string) (*types.AstNode, error) {
 	if (strings.HasPrefix(content, "'") && strings.HasSuffix(content, "'")) ||
 		(strings.HasPrefix(content, "\"") && strings.HasSuffix(content, "\"")) {
 		property := content[1 : len(content)-1]
-		
+
 		// Check for special operators
 		if strings.HasSuffix(property, "~") {
 			return &types.AstNode{Type: "property_names", Value: strings.TrimSuffix(property, "~")}, nil
@@ -260,7 +260,7 @@ func (p *Parser) parseBracketContent(content string) (*types.AstNode, error) {
 		if strings.HasSuffix(property, "^") {
 			return &types.AstNode{Type: "parent", Value: strings.TrimSuffix(property, "^")}, nil
 		}
-		
+
 		return &types.AstNode{Type: "property", Value: property}, nil
 	}
 
@@ -278,13 +278,13 @@ func (p *Parser) parseBracketContent(content string) (*types.AstNode, error) {
 	if strings.Contains(content, ",") {
 		parts := p.splitUnion(content)
 		unionNode := &types.AstNode{Type: "union", Value: "union"}
-		
+
 		for _, part := range parts {
 			part = strings.TrimSpace(part)
 			if part == "" {
 				continue
 			}
-			
+
 			// Parse each union part
 			childNode, err := p.parseUnionPart(part)
 			if err != nil {
@@ -292,7 +292,7 @@ func (p *Parser) parseBracketContent(content string) (*types.AstNode, error) {
 			}
 			unionNode.Children = append(unionNode.Children, childNode)
 		}
-		
+
 		return unionNode, nil
 	}
 
@@ -358,14 +358,14 @@ func (p *Parser) findMatchingBracket(path string, start int) int {
 	if start >= len(path) || path[start] != '[' {
 		return -1
 	}
-	
+
 	depth := 0
 	inQuotes := false
 	quoteChar := byte(0)
-	
+
 	for i := start; i < len(path); i++ {
 		ch := path[i]
-		
+
 		if !inQuotes {
 			if ch == '\'' || ch == '"' {
 				inQuotes = true
@@ -385,7 +385,7 @@ func (p *Parser) findMatchingBracket(path string, start int) int {
 			}
 		}
 	}
-	
+
 	return -1
 }
 
@@ -395,10 +395,10 @@ func (p *Parser) splitUnion(content string) []string {
 	inQuotes := false
 	quoteChar := byte(0)
 	depth := 0
-	
+
 	for i := 0; i < len(content); i++ {
 		ch := content[i]
-		
+
 		if !inQuotes {
 			if ch == '\'' || ch == '"' {
 				inQuotes = true
@@ -424,7 +424,7 @@ func (p *Parser) splitUnion(content string) []string {
 			}
 		}
 	}
-	
+
 	parts = append(parts, current.String())
 	return parts
 }

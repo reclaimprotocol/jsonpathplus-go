@@ -27,10 +27,10 @@ func TestRefactoredAdvancedFeatures(t *testing.T) {
 	}`
 
 	tests := []struct {
-		name        string
-		path        string
-		expectedLen int
-		description string
+		name          string
+		path          string
+		expectedLen   int
+		description   string
 		useRefactored bool
 	}{
 		// Test chained operations
@@ -41,7 +41,7 @@ func TestRefactoredAdvancedFeatures(t *testing.T) {
 			description:   "Get names of developers using chained operations",
 			useRefactored: true,
 		},
-		
+
 		// Test property names operator
 		{
 			name:          "Property names of departments",
@@ -50,7 +50,7 @@ func TestRefactoredAdvancedFeatures(t *testing.T) {
 			description:   "Get property names of departments",
 			useRefactored: true,
 		},
-		
+
 		// Test @property filter
 		{
 			name:          "Filter by property name",
@@ -59,7 +59,7 @@ func TestRefactoredAdvancedFeatures(t *testing.T) {
 			description:   "Find departments with property name 'engineering'",
 			useRefactored: true,
 		},
-		
+
 		// Test @parentProperty filter
 		{
 			name:          "Filter by parent property",
@@ -68,7 +68,7 @@ func TestRefactoredAdvancedFeatures(t *testing.T) {
 			description:   "Find items where parent property is 'employees'",
 			useRefactored: true,
 		},
-		
+
 		// Test parent operator
 		{
 			name:          "Get parent of filtered items",
@@ -77,7 +77,7 @@ func TestRefactoredAdvancedFeatures(t *testing.T) {
 			description:   "Get parent of manager employees",
 			useRefactored: true,
 		},
-		
+
 		// Compare with original implementation
 		{
 			name:          "Basic query with original",
@@ -99,12 +99,12 @@ func TestRefactoredAdvancedFeatures(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var results interface{}
 			var err error
-			
+
 			// Use the unified Query API
 			queryResults, queryErr := jp.Query(tt.path, unmarshalJSON(t, jsonData))
 			results = queryResults
 			err = queryErr
-			
+
 			if err != nil {
 				// Some advanced features might not be supported in original implementation
 				if !tt.useRefactored {
@@ -114,10 +114,10 @@ func TestRefactoredAdvancedFeatures(t *testing.T) {
 				t.Errorf("Query failed: %v", err)
 				return
 			}
-			
+
 			queryResultsTyped := results.([]jp.Result)
 			resultLen := len(queryResultsTyped)
-			
+
 			if resultLen != tt.expectedLen {
 				t.Errorf("%s: Expected %d results, got %d", tt.description, tt.expectedLen, resultLen)
 				t.Logf("Query: %s", tt.path)

@@ -67,14 +67,14 @@ func main() {
 		for i, result := range results {
 			fmt.Printf("  [%d] Value: %v\n", i, result.Value)
 			fmt.Printf("      Path: %s\n", result.Path)
-			fmt.Printf("      String Position: Start=%d, End=%d, Length=%d\n", 
+			fmt.Printf("      String Position: Start=%d, End=%d, Length=%d\n",
 				result.Start, result.End, result.Length)
-			
+
 			// Verify the string position by extracting the substring
 			if result.Start >= 0 && result.End > result.Start && result.End <= len(jsonStr) {
 				extracted := jsonStr[result.Start:result.End]
 				fmt.Printf("      Extracted: %q\n", extracted)
-				
+
 				// Basic validation
 				if result.Length == result.End-result.Start {
 					fmt.Printf("      ✅ Length calculation correct\n")
@@ -98,7 +98,7 @@ func main() {
 		fmt.Printf("Error: %v\n", err)
 	} else {
 		for _, result := range results {
-			fmt.Printf("Value: %v, Start: %d, End: %d, Length: %d\n", 
+			fmt.Printf("Value: %v, Start: %d, End: %d, Length: %d\n",
 				result.Value, result.Start, result.End, result.Length)
 			if result.Start == 0 && result.End == 0 && result.Length == 0 {
 				fmt.Printf("✅ No string indices for parsed data (as expected)\n")

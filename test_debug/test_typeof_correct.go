@@ -16,7 +16,7 @@ func main() {
 			]
 		}
 	}`
-	
+
 	// Test filter books where price is a number
 	fmt.Println("=== Testing typeof function with proper usage ===")
 	results, err := jp.Query("$.store.book[?(@.price.typeof() === 'number')]", jsonData)
@@ -25,7 +25,7 @@ func main() {
 		return
 	}
 	fmt.Printf("Books with numeric price: %d results\n", len(results))
-	
+
 	for i, r := range results {
 		book := r.Value.(map[string]interface{})
 		fmt.Printf("  [%d] %s (price: %v)\n", i, book["title"], book["price"])

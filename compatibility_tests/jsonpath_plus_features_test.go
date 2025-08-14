@@ -74,7 +74,7 @@ func TestJSONPathPlusFeatures(t *testing.T) {
 			description: "Get all company properties except metadata",
 		},
 
-		// @parentProperty filter  
+		// @parentProperty filter
 		{
 			name:        "Filter by parent property",
 			jsonpath:    "$.company.departments.engineering.employees[?(@parentProperty === 'employees')]",
@@ -330,7 +330,7 @@ func TestEdgeCasesAndErrorHandling(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			results, err := jp.Query(tt.jsonpath, unmarshalJSON(t, jsonData))
-			
+
 			if tt.expectError {
 				if err == nil {
 					t.Errorf("Expected error for %s, but got none", tt.description)

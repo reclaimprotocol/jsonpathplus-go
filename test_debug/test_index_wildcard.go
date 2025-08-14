@@ -14,9 +14,9 @@ func main() {
 			]
 		}
 	}`
-	
+
 	fmt.Println("=== Testing [*] pattern ===")
-	
+
 	// Test [*] expansion
 	fmt.Println("1. $.store.book[*] (expand array elements)")
 	results1, err := jp.Query("$.store.book[*]", jsonData)
@@ -28,9 +28,9 @@ func main() {
 			fmt.Printf("   [%d] %v (type: %T, path: %s)\n", i, r.Value, r.Value, r.Path)
 		}
 	}
-	
+
 	fmt.Println()
-	
+
 	// Test [*].* chaining
 	fmt.Println("2. $.store.book[*].* (expand array, then get properties)")
 	results2, err := jp.Query("$.store.book[*].*", jsonData)
@@ -42,9 +42,9 @@ func main() {
 			fmt.Printf("   [%d] %v (type: %T, path: %s)\n", i, r.Value, r.Value, r.Path)
 		}
 	}
-	
+
 	fmt.Println()
-	
+
 	// Test direct wildcard
 	fmt.Println("3. $.store.book.* (direct wildcard on array)")
 	results3, err := jp.Query("$.store.book.*", jsonData)
@@ -56,7 +56,7 @@ func main() {
 			fmt.Printf("   [%d] %v (type: %T, path: %s)\n", i, r.Value, r.Value, r.Path)
 		}
 	}
-	
+
 	fmt.Println()
 	fmt.Println("=== Analysis ===")
 	fmt.Println("Both patterns should now return the same results:")
