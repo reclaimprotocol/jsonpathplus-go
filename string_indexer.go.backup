@@ -8,12 +8,7 @@ import (
 	"encoding/json"
 )
 
-// StringPosition represents a position in the original JSON string.
-type StringPosition struct {
-	Start  int // Starting character position
-	End    int // Ending character position
-	Length int // Length of the element
-}
+// StringPosition type is now defined in jsonpath.go
 
 // IndexedValue wraps a value with its string position information.
 type IndexedValue struct {
@@ -71,7 +66,4 @@ func (t *StringIndexTracker) GetPositionByPath(path string) StringPosition {
 	return StringPosition{}
 }
 
-// isWhitespace checks if a character is whitespace.
-func isWhitespace(c byte) bool {
-	return c == ' ' || c == '\t' || c == '\n' || c == '\r'
-}
+// isWhitespace function is now defined in jsonpath.go

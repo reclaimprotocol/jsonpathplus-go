@@ -1,22 +1,33 @@
-# API Documentation
+# JSONPath-Plus Go API Documentation
+
+## Overview
+
+This is a comprehensive JSONPath implementation with extended JSONPath-Plus features, providing a modular architecture and advanced query capabilities.
 
 ## Core Functions
 
-### `Query(path string, jsonStr string) ([]Result, error)`
+### `Query(path string, input interface{}) ([]Result, error)`
 
-Executes a JSONPath query with string character position tracking.
+**Primary query function** - Executes a JSONPath query against JSON string or parsed data.
 
 **Parameters:**
 - `path` - JSONPath expression (e.g., "$.users[*].name")
-- `jsonStr` - JSON string to query
+- `input` - JSON string or parsed data structure
 
 **Returns:**
-- `[]Result` - Array of query results with position information
+- `[]Result` - Array of query results with metadata
 - `error` - Error if query fails
 
-### `QueryData(path string, data interface{}) ([]Result, error)`
+**Example:**
+```go
+// With JSON string
+results, err := jp.Query("$.users[*].name", `{"users":[{"name":"Alice"}]}`)
 
-Executes a JSONPath query on parsed data (legacy support).
+// With parsed data
+var data interface{}
+json.Unmarshal([]byte(jsonStr), &data)
+results, err := jp.Query("$.users[*].name", data)
+```
 
 **Parameters:**
 - `path` - JSONPath expression
@@ -51,7 +62,7 @@ Creates a production-ready JSONPath engine.
 - `QueryData(path, data)` - Query parsed data
 - `QueryDataWithContext(ctx, path, data)` - Query with context
 - `GetMetrics()` - Performance metrics
-- `GetCacheStats()` - Cache statistics  
+  
 - `Close()` - Cleanup resources
 
 ## Configuration

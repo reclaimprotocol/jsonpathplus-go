@@ -39,11 +39,12 @@ func main() {
 ## ✨ Features
 
 - 🎯 **String Position Tracking** - Get exact character positions in original JSON
-- 🏭 **Production Ready** - Built-in caching, logging, metrics, and security
+- 🏭 **Production Ready** - Built-in logging, metrics, and security
 - 🧵 **Thread Safe** - Concurrent operations with context support
 - 🔒 **Secure** - Input validation and rate limiting
-- ⚡ **High Performance** - Optimized with LRU caching and minimal allocations
+- ⚡ **High Performance** - Optimized parsing and evaluation with minimal allocations
 - 📝 **JSONPath-Plus Compatible** - Full feature compatibility
+- ✅ **76.2% Test Coverage** - Comprehensive test suite
 
 ## 📁 Project Structure
 
@@ -96,9 +97,11 @@ results, err := jp.Query("$.name", jsonStr)
 ## 📊 Performance
 
 ```
-BenchmarkSimplePath-12                  1,761,480 ops    683.0 ns/op
-BenchmarkStringIndexPreservation-12       342,960 ops  3,647.0 ns/op  
-BenchmarkCachedQuery-12                     6,973 ops 171,663.0 ns/op
+BenchmarkSimplePath-12                  1,676,084 ops    718.9 ns/op    1544 B/op    24 allocs/op
+BenchmarkRecursivePath-12                 645,528 ops  2,104.0 ns/op    2492 B/op    36 allocs/op
+BenchmarkFilterExpression-12               3,939 ops 311,978.0 ns/op  647197 B/op  5429 allocs/op
+BenchmarkEngineQuery-12                     2,373 ops 504,600.0 ns/op  721585 B/op  5668 allocs/op
+BenchmarkStringIndexPreservation-12      339,159 ops  3,450.0 ns/op    5611 B/op    85 allocs/op
 ```
 
 ## 🧪 Testing

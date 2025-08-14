@@ -259,7 +259,7 @@ func performanceFeatures(engine *jp.JSONPathEngine, data interface{}) {
 	fmt.Printf("    Error count: %d\n", metrics.ErrorCount)
 	fmt.Printf("    Memory usage: %d bytes\n", metrics.MemoryUsage)
 
-	// Cache functionality has been removed for simplicity
+	// Note: Focus on core JSONPath functionality
 
 	// Configuration info
 	config := engine.GetConfig()

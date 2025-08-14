@@ -7,11 +7,7 @@ import (
 
 // TestStringIndexPreservation tests that indices represent character positions in original JSON string.
 func TestStringIndexPreservation(t *testing.T) {
-	engine, err := NewEngine(DefaultConfig())
-	if err != nil {
-		t.Fatalf("Failed to create engine: %v", err)
-	}
-	defer func() { _ = engine.Close() }()
+	engine := NewEngine()
 
 	t.Run("SimpleObjectProperty", func(t *testing.T) {
 		testSimpleObjectStringIndex(t, engine)

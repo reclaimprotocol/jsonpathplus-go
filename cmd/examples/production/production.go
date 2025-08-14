@@ -215,7 +215,7 @@ func performanceMonitoring(engine *jp.JSONPathEngine) {
 	fmt.Printf("  Error count: %d\n", metrics.ErrorCount)
 	fmt.Printf("  Memory usage: %d bytes\n", metrics.MemoryUsage)
 
-	// Cache functionality removed for simplicity
+	// Production setup focuses on security and monitoring
 }
 
 // rateLimitingExample demonstrates rate limiting

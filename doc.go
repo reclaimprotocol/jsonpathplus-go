@@ -103,10 +103,6 @@ Monitor performance with built-in metrics:
 		metrics.QueriesExecuted,
 		metrics.AverageExecutionTime)
 
-	cacheStats := engine.GetCacheStats()
-	fmt.Printf("Cache hit ratio: %.2f%%\n",
-		cacheStats.HitRatio * 100)
-
 # JSONPath Syntax Support
 
 The library supports the full JSONPath specification:
@@ -229,7 +225,7 @@ Implement rate limiting for API endpoints:
 3. Set appropriate resource limits
 4. Validate paths in strict mode
 5. Use context for cancellation in long-running operations
-6. Monitor cache hit ratios and adjust cache size accordingly
+6. Monitor performance metrics and optimize accordingly
 7. Implement proper error handling
 8. Use rate limiting for public APIs
 9. Regular security audits of allowed expressions
@@ -239,7 +235,7 @@ Implement rate limiting for API endpoints:
 
 The library is optimized for performance with:
 
-- Compiled JSONPath expression caching
+- Optimized JSONPath expression parsing
 - Efficient AST evaluation
 - Memory pool reuse
 - Concurrent-safe operations

@@ -19,8 +19,8 @@ func QueryWithStringIndex(path string, jsonStr string) ([]Result, error) {
 		return nil, fmt.Errorf("failed to parse JSON: %v", err)
 	}
 
-	// Execute normal query using the legacy function
-	results, err := QueryData(path, indexedData.Value)
+	// Execute normal query using the current function
+	results, err := Query(path, indexedData.Value)
 	if err != nil {
 		return nil, fmt.Errorf("query failed: %v", err)
 	}
@@ -64,7 +64,7 @@ func findStringPositionForValue(result Result, jsonStr string, tracker *StringIn
 	if result.Parent != nil {
 		if _, isArray := result.Parent.([]interface{}); isArray {
 			if idx, err := strconv.Atoi(result.ParentProperty); err == nil {
-				return findArrayElementPosition(idx, result.Path, jsonStr)
+				return findArrayElementPosition(idx, jsonStr)
 			}
 		}
 	}

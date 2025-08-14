@@ -201,12 +201,13 @@ for _, result := range results {
 ### **Production Configuration**
 
 ```go
-// Production-ready engine with caching and security
+// Production-ready engine with security and monitoring
 engine, err := jp.NewEngine(jp.Config{
-    CacheSize:        1000,
-    SecurityEnabled:  true,
-    LoggingEnabled:   true,
-    MetricsEnabled:   true,
+    StrictMode:       true,
+    EnableLogging:    true,
+    EnableMetrics:    true,
+    MaxPathLength:    500,
+    MaxResultCount:   1000,
 })
 defer engine.Close()
 
@@ -251,7 +252,7 @@ Compare JSON files with character-level precision.
 - **Query Performance**: ~857μs/op for complex nested operations
 - **Memory Efficiency**: Minimal overhead for position tracking
 - **Thread Safety**: All operations are concurrent-safe
-- **Caching**: LRU cache for compiled expressions
+- **Optimized Parsing**: Fast JSONPath expression parsing
 
 ## 🔧 **Production Features**
 
@@ -259,7 +260,7 @@ Compare JSON files with character-level precision.
 - ✅ **Error Handling**: Comprehensive error types and messages
 - ✅ **Logging**: Structured logging with configurable levels  
 - ✅ **Metrics**: Performance monitoring and statistics
-- ✅ **Caching**: LRU cache for query compilation
+- ✅ **Performance**: Optimized parsing and evaluation
 - ✅ **Security**: Input validation and rate limiting
 - ✅ **Testing**: 100% test coverage with comprehensive edge cases
 
