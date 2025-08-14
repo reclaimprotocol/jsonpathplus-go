@@ -1,0 +1,33 @@
+{
+  "orders": [
+    {
+      "id": "ORD001",
+      "customer": {"name": "Alice", "type": "premium"},
+      "items": [
+        {"product": "laptop", "price": 999.99, "quantity": 1},
+        {"product": "mouse", "price": 29.99, "quantity": 2}
+      ],
+      "status": "shipped",
+      "total": 1059.97
+    },
+    {
+      "id": "ORD002", 
+      "customer": {"name": "Bob", "type": "regular"},
+      "items": [
+        {"product": "keyboard", "price": 79.99, "quantity": 1}
+      ],
+      "status": "pending",
+      "total": 79.99
+    },
+    {
+      "id": "ORD003",
+      "customer": {"name": "Charlie", "type": "premium"},
+      "items": [
+        {"product": "monitor", "price": 299.99, "quantity": 1},
+        {"product": "cable", "price": 19.99, "quantity": 3}
+      ],
+      "status": "shipped",
+      "total": 359.97
+    }
+  ]
+}

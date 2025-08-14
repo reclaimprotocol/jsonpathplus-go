@@ -1,0 +1,23 @@
+{
+  "company": {
+    "departments": {
+      "engineering": {
+        "employees": [
+          {"name": "Alice", "level": "senior", "role": "developer"},
+          {"name": "Bob", "level": "junior", "role": "designer"}
+        ],
+        "manager": "Eve"
+      },
+      "sales": {
+        "employees": [
+          {"name": "Charlie", "level": "senior", "role": "rep"}
+        ],
+        "manager": "Dave"
+      }
+    },
+    "metadata": {
+      "founded": 2010,
+      "location": "San Francisco"
+    }
+  }
+}

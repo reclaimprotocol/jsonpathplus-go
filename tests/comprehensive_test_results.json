@@ -1,0 +1,214 @@
+{
+  "timestamp": "2025-08-14T16:35:03.036Z",
+  "overallSummary": {
+    "totalTests": 47,
+    "perfectMatches": 45,
+    "functionalMatches": 45,
+    "countMatches": 47,
+    "valueMatches": 47,
+    "pathMatches": 47,
+    "errorMatches": 45,
+    "suites": {
+      "existing_tests": {
+        "total": 0,
+        "perfectMatches": 0,
+        "functionalMatches": 0,
+        "countMatches": 0,
+        "valueMatches": 0,
+        "pathMatches": 0,
+        "errorMatches": 0
+      },
+      "core_jsonpath_spec": {
+        "total": 8,
+        "perfectMatches": 8,
+        "functionalMatches": 8,
+        "countMatches": 8,
+        "valueMatches": 8,
+        "pathMatches": 8,
+        "errorMatches": 8
+      },
+      "filter_expressions": {
+        "total": 9,
+        "perfectMatches": 9,
+        "functionalMatches": 9,
+        "countMatches": 9,
+        "valueMatches": 9,
+        "pathMatches": 9,
+        "errorMatches": 9
+      },
+      "context_variables": {
+        "total": 6,
+        "perfectMatches": 6,
+        "functionalMatches": 6,
+        "countMatches": 6,
+        "valueMatches": 6,
+        "pathMatches": 6,
+        "errorMatches": 6
+      },
+      "function_expressions": {
+        "total": 6,
+        "perfectMatches": 5,
+        "functionalMatches": 5,
+        "countMatches": 6,
+        "valueMatches": 6,
+        "pathMatches": 6,
+        "errorMatches": 5
+      },
+      "edge_cases": {
+        "total": 9,
+        "perfectMatches": 9,
+        "functionalMatches": 9,
+        "countMatches": 9,
+        "valueMatches": 9,
+        "pathMatches": 9,
+        "errorMatches": 9
+      },
+      "error_handling": {
+        "total": 4,
+        "perfectMatches": 3,
+        "functionalMatches": 3,
+        "countMatches": 4,
+        "valueMatches": 4,
+        "pathMatches": 4,
+        "errorMatches": 3
+      },
+      "nested_and_complex": {
+        "total": 5,
+        "perfectMatches": 5,
+        "functionalMatches": 5,
+        "countMatches": 5,
+        "valueMatches": 5,
+        "pathMatches": 5,
+        "errorMatches": 5
+      }
+    }
+  },
+  "suiteResults": [
+    {
+      "name": "existing_tests",
+      "summary": {
+        "total": 0,
+        "perfectMatches": 0,
+        "functionalMatches": 0,
+        "countMatches": 0,
+        "valueMatches": 0,
+        "pathMatches": 0,
+        "errorMatches": 0
+      },
+      "failedTests": []
+    },
+    {
+      "name": "core_jsonpath_spec",
+      "summary": {
+        "total": 8,
+        "perfectMatches": 8,
+        "functionalMatches": 8,
+        "countMatches": 8,
+        "valueMatches": 8,
+        "pathMatches": 8,
+        "errorMatches": 8
+      },
+      "failedTests": []
+    },
+    {
+      "name": "filter_expressions",
+      "summary": {
+        "total": 9,
+        "perfectMatches": 9,
+        "functionalMatches": 9,
+        "countMatches": 9,
+        "valueMatches": 9,
+        "pathMatches": 9,
+        "errorMatches": 9
+      },
+      "failedTests": []
+    },
+    {
+      "name": "context_variables",
+      "summary": {
+        "total": 6,
+        "perfectMatches": 6,
+        "functionalMatches": 6,
+        "countMatches": 6,
+        "valueMatches": 6,
+        "pathMatches": 6,
+        "errorMatches": 6
+      },
+      "failedTests": []
+    },
+    {
+      "name": "function_expressions",
+      "summary": {
+        "total": 6,
+        "perfectMatches": 5,
+        "functionalMatches": 5,
+        "countMatches": 6,
+        "valueMatches": 6,
+        "pathMatches": 6,
+        "errorMatches": 5
+      },
+      "failedTests": [
+        {
+          "name": "Length function",
+          "query": "$.data[?(@.length > 3)]",
+          "issues": {
+            "countMatch": true,
+            "valuesMatch": true,
+            "pathsMatch": true,
+            "errorMatch": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "edge_cases",
+      "summary": {
+        "total": 9,
+        "perfectMatches": 9,
+        "functionalMatches": 9,
+        "countMatches": 9,
+        "valueMatches": 9,
+        "pathMatches": 9,
+        "errorMatches": 9
+      },
+      "failedTests": []
+    },
+    {
+      "name": "error_handling",
+      "summary": {
+        "total": 4,
+        "perfectMatches": 3,
+        "functionalMatches": 3,
+        "countMatches": 4,
+        "valueMatches": 4,
+        "pathMatches": 4,
+        "errorMatches": 3
+      },
+      "failedTests": [
+        {
+          "name": "Length on null",
+          "query": "$.data[?(@.length > 3)]",
+          "issues": {
+            "countMatch": true,
+            "valuesMatch": true,
+            "pathsMatch": true,
+            "errorMatch": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "nested_and_complex",
+      "summary": {
+        "total": 5,
+        "perfectMatches": 5,
+        "functionalMatches": 5,
+        "countMatches": 5,
+        "valueMatches": 5,
+        "pathMatches": 5,
+        "errorMatches": 5
+      },
+      "failedTests": []
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "store": {
+    "book": [
+      {"title": "Book0"},
+      {"title": "Book1"},
+      {"title": "Book2"}
+    ]
+  }
+}

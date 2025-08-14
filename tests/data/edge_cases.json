@@ -1,0 +1,14 @@
+{
+  "empty": {},
+  "emptyArray": [],
+  "nullValue": null,
+  "zeroValue": 0,
+  "falseValue": false,
+  "emptyString": "",
+  "specialChars": {
+    "hyphen-key": "value1",
+    "space key": "value2",
+    "123numeric": "value3",
+    "": "empty key value"
+  }
+}

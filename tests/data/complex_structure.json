@@ -1,0 +1,14 @@
+{
+  "users": {
+    "1": {"name": "Alice", "age": 25, "active": true},
+    "2": {"name": "Bob", "age": 30, "active": false},
+    "10": {"name": "Charlie", "age": 35, "active": true}
+  },
+  "settings": {
+    "theme": "dark",
+    "notifications": {
+      "email": true,
+      "push": false
+    }
+  }
+}

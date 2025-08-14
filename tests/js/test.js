@@ -2,16 +2,35 @@
 
 const { JSONPath } = require('jsonpath-plus');
 
-if (process.argv.length !== 4) {
-  console.error(`Usage: ${process.argv[1]} <jsonpath> <json-data>`);
+if (process.argv.length < 4) {
+  console.error(`Usage: ${process.argv[1]} <jsonpath-or-file> <json-data-or-file> [--query-file] [--data-file]`);
   process.exit(1);
 }
 
-const jsonpath = process.argv[2];
-const jsonData = process.argv[3];
+const fs = require('fs');
+const jsonpathOrFile = process.argv[2];
+const jsonDataOrFile = process.argv[3];
+let jsonpath, data;
+
+// Check flags
+const queryFromFile = process.argv.includes('--query-file');
+const dataFromFile = process.argv.includes('--data-file') || process.argv.includes('--file');
 
 try {
-  const data = JSON.parse(jsonData);
+  // Read JSONPath query
+  if (queryFromFile) {
+    jsonpath = fs.readFileSync(jsonpathOrFile, 'utf8').trim();
+  } else {
+    jsonpath = jsonpathOrFile;
+  }
+  
+  // Read JSON data
+  if (dataFromFile) {
+    const fileData = fs.readFileSync(jsonDataOrFile, 'utf8');
+    data = JSON.parse(fileData);
+  } else {
+    data = JSON.parse(jsonDataOrFile);
+  }
   
   const values = JSONPath({
     path: jsonpath,

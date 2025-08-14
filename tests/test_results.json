@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-08-14T23:28:22.023Z",
+  "timestamp": "2025-08-14T23:49:36.611Z",
   "summary": {
     "total": 50,
-    "perfectMatches": 48,
+    "perfectMatches": 49,
     "countMatches": 50,
-    "valueMatches": 49,
+    "valueMatches": 50,
     "categories": {
       "basic": {
         "total": 1,
@@ -24,7 +24,7 @@
       },
       "property_filters": {
         "total": 7,
-        "matches": 6
+        "matches": 7
       },
       "parent_filters": {
         "total": 3,
@@ -83,13 +83,14 @@
   "analysis": {
     "zeroResultIssues": 0,
     "countMismatches": 0,
-    "valueMismatches": 1,
+    "valueMismatches": 0,
     "errorMismatches": 1,
     "workingCategories": [
       "basic",
       "recursive_descent",
       "array_access",
       "filters",
+      "property_filters",
       "parent_filters",
       "debug",
       "array_slice",
@@ -280,12 +281,12 @@
       },
       "comparison": {
         "countMatch": true,
-        "valuesMatch": false,
-        "pathsMatch": false,
+        "valuesMatch": true,
+        "pathsMatch": true,
         "goError": false,
         "jsError": false,
         "errorMatch": true,
-        "perfectMatch": false
+        "perfectMatch": true
       }
     },
     {

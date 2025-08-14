@@ -6,14 +6,38 @@ const path = require('path');
 
 // Load shared test cases
 const testData = JSON.parse(fs.readFileSync('./shared/testcases.json', 'utf8'));
-const registryData = JSON.parse(fs.readFileSync('./shared/test_data_registry.json', 'utf8'));
 
 function runGoTest(jsonpath, data) {
   try {
-    const dataJson = JSON.stringify(testData.testData[data] || registryData[data]);
-    const result = execSync(`cd go && go run main.go "${jsonpath}" '${dataJson}'`, 
-      { encoding: 'utf8', timeout: 10000 });
-    return JSON.parse(result.trim());
+    // Load data from individual files in data directory
+    let dataJson;
+    if (testData.testData[data]) {
+      dataJson = JSON.stringify(testData.testData[data]);
+    } else {
+      // Try to load from data directory
+      try {
+        const dataFile = `./data/${data}.json`;
+        dataJson = fs.readFileSync(dataFile, 'utf8');
+      } catch (e) {
+        throw new Error(`Data not found: ${data}`);
+      }
+    }
+    
+    // Write both query and data to temporary files to avoid shell escaping issues
+    const tempDataFile = `./temp_data_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.json`;
+    const tempQueryFile = `./temp_query_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.txt`;
+    fs.writeFileSync(tempDataFile, dataJson);
+    fs.writeFileSync(tempQueryFile, jsonpath);
+    
+    try {
+      const result = execSync(`cd go && go run main.go "../${tempQueryFile}" "../${tempDataFile}" --query-file --data-file`, 
+        { encoding: 'utf8', timeout: 10000 });
+      return JSON.parse(result.trim());
+    } finally {
+      // Clean up temp files
+      try { fs.unlinkSync(tempDataFile); } catch (e) {}
+      try { fs.unlinkSync(tempQueryFile); } catch (e) {}
+    }
   } catch (error) {
     return {
       error: error.message,
@@ -26,10 +50,35 @@ function runGoTest(jsonpath, data) {
 
 function runJsTest(jsonpath, data) {
   try {
-    const dataJson = JSON.stringify(testData.testData[data] || registryData[data]);
-    const result = execSync(`node js/test.js "${jsonpath}" '${dataJson}'`, 
-      { encoding: 'utf8', timeout: 10000 });
-    return JSON.parse(result.trim());
+    // Load data from individual files in data directory
+    let dataJson;
+    if (testData.testData[data]) {
+      dataJson = JSON.stringify(testData.testData[data]);
+    } else {
+      // Try to load from data directory
+      try {
+        const dataFile = `./data/${data}.json`;
+        dataJson = fs.readFileSync(dataFile, 'utf8');
+      } catch (e) {
+        throw new Error(`Data not found: ${data}`);
+      }
+    }
+    
+    // Write both query and data to temporary files to avoid shell escaping issues
+    const tempDataFile = `./temp_data_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.json`;
+    const tempQueryFile = `./temp_query_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.txt`;
+    fs.writeFileSync(tempDataFile, dataJson);
+    fs.writeFileSync(tempQueryFile, jsonpath);
+    
+    try {
+      const result = execSync(`node js/test.js "${tempQueryFile}" "${tempDataFile}" --query-file --data-file`, 
+        { encoding: 'utf8', timeout: 10000 });
+      return JSON.parse(result.trim());
+    } finally {
+      // Clean up temp files
+      try { fs.unlinkSync(tempDataFile); } catch (e) {}
+      try { fs.unlinkSync(tempQueryFile); } catch (e) {}
+    }
   } catch (error) {
     return {
       error: error.message,
@@ -186,11 +235,89 @@ function main() {
   console.log('='.repeat(80));
   console.log(`OVERALL COMPATIBILITY RATE: ${(summary.perfectMatches/summary.total*100).toFixed(1)}%`);
   console.log('='.repeat(80));
+  
+  // Detailed Analysis Summary
+  console.log('');
+  console.log('🔍 COMPATIBILITY ANALYSIS:');
+  console.log('');
+  
+  // Categorize issues
+  const zeroResultIssues = results.filter(r => !r.comparison.perfectMatch && r.goResult.count === 0 && r.jsResult.count > 0);
+  const countMismatches = results.filter(r => !r.comparison.countMatch);
+  const valueMismatches = results.filter(r => r.comparison.countMatch && !r.comparison.valuesMatch);
+  const errorMismatches = results.filter(r => !r.comparison.errorMatch);
+  
+  console.log(`📊 Issue Breakdown:`);
+  console.log(`   • Zero Results (Go=0, JS>0): ${zeroResultIssues.length} tests`);
+  console.log(`   • Count Mismatches: ${countMismatches.length} tests`);
+  console.log(`   • Value Mismatches: ${valueMismatches.length} tests`);  
+  console.log(`   • Error Handling Mismatches: ${errorMismatches.length} tests`);
+  console.log('');
+  
+  // Priority Issues (Zero results from Go)
+  if (zeroResultIssues.length > 0) {
+    console.log('🚨 HIGH PRIORITY - Zero Result Issues:');
+    zeroResultIssues.slice(0, 5).forEach((issue, i) => {
+      console.log(`   ${i+1}. ${issue.testCase.name}`);
+      console.log(`      Query: ${issue.testCase.jsonpath}`);
+      console.log(`      Category: ${issue.testCase.category}`);
+    });
+    if (zeroResultIssues.length > 5) {
+      console.log(`   ... and ${zeroResultIssues.length - 5} more`);
+    }
+    console.log('');
+  }
+  
+  // Working Categories
+  const workingCategories = Object.entries(summary.categories).filter(([cat, stats]) => stats.matches === stats.total);
+  if (workingCategories.length > 0) {
+    console.log('✅ FULLY WORKING CATEGORIES:');
+    workingCategories.forEach(([category, stats]) => {
+      console.log(`   • ${category}: ${stats.matches}/${stats.total}`);
+    });
+    console.log('');
+  }
+  
+  // Problematic Categories  
+  const problematicCategories = Object.entries(summary.categories)
+    .filter(([cat, stats]) => stats.matches / stats.total < 0.5)
+    .sort(([,a], [,b]) => (a.matches/a.total) - (b.matches/b.total));
+    
+  if (problematicCategories.length > 0) {
+    console.log('❌ NEEDS ATTENTION:');
+    problematicCategories.forEach(([category, stats]) => {
+      const percentage = (stats.matches / stats.total * 100).toFixed(1);
+      console.log(`   • ${category}: ${stats.matches}/${stats.total} (${percentage}%)`);
+    });
+    console.log('');
+  }
+  
+  // Next Steps
+  console.log('🎯 RECOMMENDED NEXT STEPS:');
+  if (zeroResultIssues.length > 0) {
+    const topCategories = [...new Set(zeroResultIssues.map(r => r.testCase.category))].slice(0, 3);
+    console.log(`   1. Debug filter evaluation for: ${topCategories.join(', ')}`);
+  }
+  if (errorMismatches.length > 0) {
+    console.log(`   2. Implement missing error handling patterns`);
+  }
+  if (valueMismatches.length > 0) {
+    console.log(`   3. Fix remaining value serialization differences`);
+  }
+  console.log('');
 
   // Save detailed report
   const reportData = {
     timestamp: new Date().toISOString(),
     summary,
+    analysis: {
+      zeroResultIssues: zeroResultIssues.length,
+      countMismatches: countMismatches.length,
+      valueMismatches: valueMismatches.length,
+      errorMismatches: errorMismatches.length,
+      workingCategories: workingCategories.map(([cat, stats]) => cat),
+      problematicCategories: problematicCategories.map(([cat, stats]) => ({ category: cat, success_rate: (stats.matches/stats.total*100).toFixed(1) + '%' }))
+    },
     results: results.map(r => ({
       testCase: r.testCase,
       goResult: {
@@ -208,7 +335,6 @@ function main() {
   };
   
   fs.writeFileSync('./test_results.json', JSON.stringify(reportData, null, 2));
-  console.log('');
   console.log('📄 Detailed report saved to: ./test_results.json');
 }
 
