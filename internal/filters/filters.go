@@ -23,12 +23,18 @@ func (f *FilterEvaluator) EvaluateFilter(filter string, ctx *types.Context) bool
 	filter = strings.TrimPrefix(filter, "?(")
 	filter = strings.TrimSuffix(filter, ")")
 
-	return f.evaluateFilterExpression(filter, ctx)
+	result := f.evaluateFilterExpression(filter, ctx)
+	return result
 }
 
 // evaluateFilterExpression evaluates the main filter logic with context
 func (f *FilterEvaluator) evaluateFilterExpression(expr string, ctx *types.Context) bool {
 	expr = f.cleanFilterExpression(expr)
+
+	// Handle bare current-value truthiness: ?(@)
+	if expr == "@" || expr == "" {
+		return isTruthy(ctx.Current)
+	}
 
 	// Handle logical operators (&&, ||)
 	if result, ok := f.tryLogicalFilter(expr, ctx); ok {
@@ -57,6 +63,11 @@ func (f *FilterEvaluator) evaluateFilterExpression(expr string, ctx *types.Conte
 
 	// Try direct value comparison first (@ > 5)
 	if result, ok := f.tryDirectComparisonFilter(expr, ctx.Current); ok {
+		return result
+	}
+
+	// Try array wildcard comparison first (e.g., @.items[*].product === 'laptop')
+	if result, ok := f.tryArrayWildcardFilter(expr, ctx.Current); ok {
 		return result
 	}
 
@@ -100,25 +111,60 @@ func (f *FilterEvaluator) tryContextFilter(expr string, ctx *types.Context) (boo
 
 // handlePropertyFilter handles @property-based filters
 func (f *FilterEvaluator) handlePropertyFilter(expr string, ctx *types.Context) (bool, bool) {
-	// Pattern: @property === 'value' or @property !== 'value'
+	// Try string comparison first: @property === 'value' or @property !== 'value'
 	re := regexp.MustCompile(`@property\s*(===|!==|==|!=)\s*['"](.*?)['"]`)
 	matches := re.FindStringSubmatch(expr)
-	if len(matches) != 3 {
-		return false, false
+	if len(matches) == 3 {
+		operator := matches[1]
+		expectedValue := matches[2]
+		actualValue := ctx.GetPropertyName()
+
+		switch operator {
+		case "===", "==":
+			return actualValue == expectedValue, true
+		case "!==", "!=":
+			return actualValue != expectedValue, true
+		}
+
+		return false, true
 	}
 
-	operator := matches[1]
-	expectedValue := matches[2]
-	actualValue := ctx.GetPropertyName()
+	// Try numeric comparison: @property !== 0 or @property === 1
+	numRe := regexp.MustCompile(`@property\s*(===|!==|==|!=|<=|>=|<|>)\s*(\d+)`)
+	numMatches := numRe.FindStringSubmatch(expr)
+	if len(numMatches) == 3 {
+		operator := numMatches[1]
+		expectedIndex, err := strconv.Atoi(numMatches[2])
+		if err != nil {
+			return false, false
+		}
 
-	switch operator {
-	case "===", "==":
-		return actualValue == expectedValue, true
-	case "!==", "!=":
-		return actualValue != expectedValue, true
+		actualValue := ctx.GetPropertyName()
+		actualIndex, err := strconv.Atoi(actualValue)
+		if err != nil {
+			// If property name is not numeric, it can't equal a number
+			return operator == "!=" || operator == "!==", true
+		}
+
+		switch operator {
+		case "===", "==":
+			return actualIndex == expectedIndex, true
+		case "!==", "!=":
+			return actualIndex != expectedIndex, true
+		case "<":
+			return actualIndex < expectedIndex, true
+		case "<=":
+			return actualIndex <= expectedIndex, true
+		case ">":
+			return actualIndex > expectedIndex, true
+		case ">=":
+			return actualIndex >= expectedIndex, true
+		}
+
+		return false, true
 	}
 
-	return false, true
+	return false, false
 }
 
 // handleParentFilter handles @parent-based filters
@@ -264,7 +310,14 @@ func (f *FilterEvaluator) cleanFilterExpression(expr string) string {
 	if strings.HasPrefix(expr, "@.") {
 		expr = strings.TrimPrefix(expr, "@")
 	}
-	// Handle direct @ comparisons by replacing @ with empty to indicate current value
+	// Preserve context keywords starting with @
+	if strings.HasPrefix(expr, "@parentProperty") || strings.HasPrefix(expr, "@parent") || strings.HasPrefix(expr, "@property") || strings.HasPrefix(expr, "@path") {
+		return strings.TrimSpace(expr)
+	}
+	// Allow direct-value comparisons like "@=== 'x'" by stripping leading @
+	if strings.HasPrefix(expr, "@") {
+		expr = strings.TrimPrefix(expr, "@")
+	}
 	// Simplify by unconditionally trimming the "@ " prefix if present
 	expr = strings.TrimPrefix(expr, "@ ")
 	return strings.TrimSpace(expr)
@@ -363,24 +416,69 @@ func (f *FilterEvaluator) tryDirectComparisonFilter(expr string, current interfa
 	return utils.CompareValues(current, operator, parsedValue), true
 }
 
-func (f *FilterEvaluator) tryComparisonFilter(expr string, current interface{}) (bool, bool) {
-	re := regexp.MustCompile(`\.(\w+)\s*(===|!==|<=|>=|==|!=|<|>)\s*(.+)`)
+func (f *FilterEvaluator) tryArrayWildcardFilter(expr string, current interface{}) (bool, bool) {
+	// Pattern: .property[*].subproperty === 'value'
+	// This handles expressions like @.items[*].product === 'laptop'
+	re := regexp.MustCompile(`\.([a-zA-Z_]\w*)\[\*\]\.([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*)\s*(===|!==|<=|>=|==|!=|<|>)\s*(.+)`)
 	matches := re.FindStringSubmatch(expr)
-	if len(matches) != 4 {
+	if len(matches) != 5 {
 		return false, false
 	}
 
-	property := matches[1]
-	operator := matches[2]
-	valueStr := strings.TrimSpace(matches[3])
+	arrayProperty := matches[1]     // e.g., "items"
+	subProperty := matches[2]       // e.g., "product"
+	operator := matches[3]          // e.g., "==="
+	valueStr := strings.TrimSpace(matches[4]) // e.g., "'laptop'"
 
+	// Get the array from current object
 	obj, ok := current.(map[string]interface{})
 	if !ok {
 		return false, true
 	}
 
-	propValue, exists := obj[property]
+	arrayValue, exists := obj[arrayProperty]
 	if !exists {
+		return operator == "!=" || operator == "!==", true
+	}
+
+	arr, ok := arrayValue.([]interface{})
+	if !ok {
+		return false, true
+	}
+
+	parsedValue := utils.ParseValue(valueStr)
+
+	// Check if any element in the array matches the condition
+	for _, item := range arr {
+		subValue := utils.GetPropertyValue(item, subProperty)
+		if utils.CompareValues(subValue, operator, parsedValue) {
+			return true, true
+		}
+	}
+
+	// For !== and != operators, return true only if ALL elements don't match
+	if operator == "!==" || operator == "!=" {
+		return true, true
+	}
+
+	return false, true
+}
+
+func (f *FilterEvaluator) tryComparisonFilter(expr string, current interface{}) (bool, bool) {
+	// Support nested property access like .customer.type
+	re := regexp.MustCompile(`\.([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*)\s*(===|!==|<=|>=|==|!=|<|>)\s*(.+)`)
+	matches := re.FindStringSubmatch(expr)
+	if len(matches) != 4 {
+		return false, false
+	}
+
+	propertyPath := matches[1]
+	operator := matches[2]
+	valueStr := strings.TrimSpace(matches[3])
+
+	// Use utils.GetPropertyValue for nested property access
+	propValue := utils.GetPropertyValue(current, propertyPath)
+	if propValue == nil {
 		return operator == "!=" || operator == "!==", true
 	}
 
@@ -465,6 +563,11 @@ func (f *FilterEvaluator) tryFunctionPredicateFilter(expr string, current interf
 	if result, ok := f.tryTypeofFunction(expr, current); ok {
 		return result, true
 	}
+	
+	// Handle math functions (.floor(), .round(), .ceil())
+	if result, ok := f.tryMathFunctions(expr, current); ok {
+		return result, true
+	}
 
 	return false, false
 }
@@ -501,6 +604,25 @@ func (f *FilterEvaluator) tryChainedOperations(expr string, current interface{})
 
 func (f *FilterEvaluator) tryTypeofFunction(expr string, current interface{}) (bool, bool) {
 	return utils.TryTypeofFunction(expr, current)
+}
+
+func (f *FilterEvaluator) tryMathFunctions(expr string, current interface{}) (bool, bool) {
+	// Try floor function
+	if result, ok := utils.TryFloorFunction(expr, current); ok {
+		return result, true
+	}
+	
+	// Try round function  
+	if result, ok := utils.TryRoundFunction(expr, current); ok {
+		return result, true
+	}
+	
+	// Try ceil function
+	if result, ok := utils.TryCeilFunction(expr, current); ok {
+		return result, true
+	}
+	
+	return false, false
 }
 
 // Helper functions
@@ -567,4 +689,46 @@ func (f *FilterEvaluator) stripOuterParentheses(expr string) string {
 
 	// If we get here, the outer parentheses wrap the entire expression
 	return strings.TrimSpace(expr[1 : len(expr)-1])
+}
+
+// Helper to evaluate truthiness similar to JavaScript semantics used by JSONPath-Plus
+func isTruthy(v interface{}) bool {
+	switch t := v.(type) {
+	case nil:
+		return false
+	case bool:
+		return t
+	case string:
+		return t != ""
+	case float32:
+		return t != 0
+	case float64:
+		return t != 0
+	case int:
+		return t != 0
+	case int8:
+		return t != 0
+	case int16:
+		return t != 0
+	case int32:
+		return t != 0
+	case int64:
+		return t != 0
+	case uint:
+		return t != 0
+	case uint8:
+		return t != 0
+	case uint16:
+		return t != 0
+	case uint32:
+		return t != 0
+	case uint64:
+		return t != 0
+	case []interface{}:
+		return len(t) > 0
+	case map[string]interface{}:
+		return len(t) > 0
+	default:
+		return true
+	}
 }

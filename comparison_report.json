@@ -1,0 +1,1540 @@
+{
+  "timestamp": "2025-08-14T12:08:28.825Z",
+  "summary": {
+    "total": 27,
+    "perfectMatches": 2,
+    "countMatches": 8,
+    "valueMatches": 8,
+    "pathMatches": 8,
+    "errorMatches": 2,
+    "categories": {
+      "goessner_spec": {
+        "total": 14,
+        "matches": 0
+      },
+      "jsonpath_plus_features": {
+        "total": 5,
+        "matches": 0
+      },
+      "advanced_filters": {
+        "total": 3,
+        "matches": 1
+      },
+      "function_predicates": {
+        "total": 3,
+        "matches": 1
+      },
+      "edge_cases": {
+        "total": 2,
+        "matches": 0
+      }
+    }
+  },
+  "results": [
+    {
+      "testCase": {
+        "name": "Authors of all books",
+        "jsonpath": "$.store.book[*].author",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Basic property access in arrays"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: creating new go.mod: module temp\ngo: to add module requirements and sums:\n\tgo mod tidy\ngo: cannot run *_test.go files (go_test.go)\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 4,
+        "values": [
+          "Nigel Rees",
+          "Evelyn Waugh",
+          "Herman Melville",
+          "J. R. R. Tolkien"
+        ],
+        "paths": [
+          "$['store']['book'][0]['author']",
+          "$['store']['book'][1]['author']",
+          "$['store']['book'][2]['author']",
+          "$['store']['book'][3]['author']"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "All authors",
+        "jsonpath": "$..author",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Recursive descent for specific property"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 4,
+        "values": [
+          "Nigel Rees",
+          "Evelyn Waugh",
+          "Herman Melville",
+          "J. R. R. Tolkien"
+        ],
+        "paths": [
+          "$['store']['book'][0]['author']",
+          "$['store']['book'][1]['author']",
+          "$['store']['book'][2]['author']",
+          "$['store']['book'][3]['author']"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "All elements beneath root",
+        "jsonpath": "$..*",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Complete recursive descent"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 27,
+        "values": [
+          {
+            "book": [
+              {
+                "category": "reference",
+                "author": "Nigel Rees",
+                "title": "Sayings of the Century",
+                "price": 8.95
+              },
+              {
+                "category": "fiction",
+                "author": "Evelyn Waugh",
+                "title": "Sword of Honour",
+                "price": 12.99
+              },
+              {
+                "category": "fiction",
+                "author": "Herman Melville",
+                "title": "Moby Dick",
+                "isbn": "0-553-21311-3",
+                "price": 8.99
+              },
+              {
+                "category": "fiction",
+                "author": "J. R. R. Tolkien",
+                "title": "The Lord of the Rings",
+                "isbn": "0-395-19395-8",
+                "price": 22.99
+              }
+            ],
+            "bicycle": {
+              "color": "red",
+              "price": 19.95
+            }
+          },
+          [
+            {
+              "category": "reference",
+              "author": "Nigel Rees",
+              "title": "Sayings of the Century",
+              "price": 8.95
+            },
+            {
+              "category": "fiction",
+              "author": "Evelyn Waugh",
+              "title": "Sword of Honour",
+              "price": 12.99
+            },
+            {
+              "category": "fiction",
+              "author": "Herman Melville",
+              "title": "Moby Dick",
+              "isbn": "0-553-21311-3",
+              "price": 8.99
+            },
+            {
+              "category": "fiction",
+              "author": "J. R. R. Tolkien",
+              "title": "The Lord of the Rings",
+              "isbn": "0-395-19395-8",
+              "price": 22.99
+            }
+          ],
+          {
+            "color": "red",
+            "price": 19.95
+          },
+          {
+            "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          },
+          {
+            "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          },
+          {
+            "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          },
+          {
+            "category": "fiction",
+            "author": "J. R. R. Tolkien",
+            "title": "The Lord of the Rings",
+            "isbn": "0-395-19395-8",
+            "price": 22.99
+          },
+          "reference",
+          "Nigel Rees",
+          "Sayings of the Century",
+          8.95,
+          "fiction",
+          "Evelyn Waugh",
+          "Sword of Honour",
+          12.99,
+          "fiction",
+          "Herman Melville",
+          "Moby Dick",
+          "0-553-21311-3",
+          8.99,
+          "fiction",
+          "J. R. R. Tolkien",
+          "The Lord of the Rings",
+          "0-395-19395-8",
+          22.99,
+          "red",
+          19.95
+        ],
+        "paths": [
+          "$['store']",
+          "$['store']['book']",
+          "$['store']['bicycle']",
+          "$['store']['book'][0]",
+          "$['store']['book'][1]",
+          "$['store']['book'][2]",
+          "$['store']['book'][3]",
+          "$['store']['book'][0]['category']",
+          "$['store']['book'][0]['author']",
+          "$['store']['book'][0]['title']",
+          "$['store']['book'][0]['price']",
+          "$['store']['book'][1]['category']",
+          "$['store']['book'][1]['author']",
+          "$['store']['book'][1]['title']",
+          "$['store']['book'][1]['price']",
+          "$['store']['book'][2]['category']",
+          "$['store']['book'][2]['author']",
+          "$['store']['book'][2]['title']",
+          "$['store']['book'][2]['isbn']",
+          "$['store']['book'][2]['price']",
+          "$['store']['book'][3]['category']",
+          "$['store']['book'][3]['author']",
+          "$['store']['book'][3]['title']",
+          "$['store']['book'][3]['isbn']",
+          "$['store']['book'][3]['price']",
+          "$['store']['bicycle']['color']",
+          "$['store']['bicycle']['price']"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "All prices in store",
+        "jsonpath": "$.store..price",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Recursive descent for price property"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 5,
+        "values": [
+          8.95,
+          12.99,
+          8.99,
+          22.99,
+          19.95
+        ],
+        "paths": [
+          "$['store']['book'][0]['price']",
+          "$['store']['book'][1]['price']",
+          "$['store']['book'][2]['price']",
+          "$['store']['book'][3]['price']",
+          "$['store']['bicycle']['price']"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Third book",
+        "jsonpath": "$..book[2]",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Array index access with recursive descent"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 1,
+        "values": [
+          {
+            "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          }
+        ],
+        "paths": [
+          "$['store']['book'][2]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Last book",
+        "jsonpath": "$..book[-1]",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Negative array indexing"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "First two books",
+        "jsonpath": "$..book[0,1]",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Multiple array indices (union)"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 2,
+        "values": [
+          {
+            "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          },
+          {
+            "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          }
+        ],
+        "paths": [
+          "$['store']['book'][0]",
+          "$['store']['book'][1]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Books with ISBN",
+        "jsonpath": "$..book[?(@.isbn)]",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Filter by property existence"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 2,
+        "values": [
+          {
+            "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          },
+          {
+            "category": "fiction",
+            "author": "J. R. R. Tolkien",
+            "title": "The Lord of the Rings",
+            "isbn": "0-395-19395-8",
+            "price": 22.99
+          }
+        ],
+        "paths": [
+          "$['store']['book'][2]",
+          "$['store']['book'][3]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Books cheaper than 10",
+        "jsonpath": "$..book[?(@.price<10)]",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Numeric comparison filter"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 2,
+        "values": [
+          {
+            "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          },
+          {
+            "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          }
+        ],
+        "paths": [
+          "$['store']['book'][0]",
+          "$['store']['book'][2]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "All books except first",
+        "jsonpath": "$..book[1:]",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Array slice notation"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 3,
+        "values": [
+          {
+            "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          },
+          {
+            "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          },
+          {
+            "category": "fiction",
+            "author": "J. R. R. Tolkien",
+            "title": "The Lord of the Rings",
+            "isbn": "0-395-19395-8",
+            "price": 22.99
+          }
+        ],
+        "paths": [
+          "$['store']['book'][1]",
+          "$['store']['book'][2]",
+          "$['store']['book'][3]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Price properties not equal to 8.95",
+        "jsonpath": "$..*[?(@property === 'price' && @ !== 8.95)]",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Property name filter with value condition"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 4,
+        "values": [
+          19.95,
+          12.99,
+          8.99,
+          22.99
+        ],
+        "paths": [
+          "$['store']['bicycle']['price']",
+          "$['store']['book'][1]['price']",
+          "$['store']['book'][2]['price']",
+          "$['store']['book'][3]['price']"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Book children except category",
+        "jsonpath": "$..book.*[?(@property !== \"category\")]",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Property name exclusion filter"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 14,
+        "values": [
+          "Nigel Rees",
+          "Sayings of the Century",
+          8.95,
+          "Evelyn Waugh",
+          "Sword of Honour",
+          12.99,
+          "Herman Melville",
+          "Moby Dick",
+          "0-553-21311-3",
+          8.99,
+          "J. R. R. Tolkien",
+          "The Lord of the Rings",
+          "0-395-19395-8",
+          22.99
+        ],
+        "paths": [
+          "$['store']['book'][0]['author']",
+          "$['store']['book'][0]['title']",
+          "$['store']['book'][0]['price']",
+          "$['store']['book'][1]['author']",
+          "$['store']['book'][1]['title']",
+          "$['store']['book'][1]['price']",
+          "$['store']['book'][2]['author']",
+          "$['store']['book'][2]['title']",
+          "$['store']['book'][2]['isbn']",
+          "$['store']['book'][2]['price']",
+          "$['store']['book'][3]['author']",
+          "$['store']['book'][3]['title']",
+          "$['store']['book'][3]['isbn']",
+          "$['store']['book'][3]['price']"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Books not at index 0",
+        "jsonpath": "$..book[?(@property !== 0)]",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Array index filter"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 3,
+        "values": [
+          {
+            "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          },
+          {
+            "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          },
+          {
+            "category": "fiction",
+            "author": "J. R. R. Tolkien",
+            "title": "The Lord of the Rings",
+            "isbn": "0-395-19395-8",
+            "price": 22.99
+          }
+        ],
+        "paths": [
+          "$['store']['book'][1]",
+          "$['store']['book'][2]",
+          "$['store']['book'][3]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Book properties where parent index is not 0",
+        "jsonpath": "$..book.*[?(@parentProperty !== 0)]",
+        "data": "goessner_spec_data",
+        "category": "goessner_spec",
+        "description": "Parent property filter"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 14,
+        "values": [
+          "fiction",
+          "Evelyn Waugh",
+          "Sword of Honour",
+          12.99,
+          "fiction",
+          "Herman Melville",
+          "Moby Dick",
+          "0-553-21311-3",
+          8.99,
+          "fiction",
+          "J. R. R. Tolkien",
+          "The Lord of the Rings",
+          "0-395-19395-8",
+          22.99
+        ],
+        "paths": [
+          "$['store']['book'][1]['category']",
+          "$['store']['book'][1]['author']",
+          "$['store']['book'][1]['title']",
+          "$['store']['book'][1]['price']",
+          "$['store']['book'][2]['category']",
+          "$['store']['book'][2]['author']",
+          "$['store']['book'][2]['title']",
+          "$['store']['book'][2]['isbn']",
+          "$['store']['book'][2]['price']",
+          "$['store']['book'][3]['category']",
+          "$['store']['book'][3]['author']",
+          "$['store']['book'][3]['title']",
+          "$['store']['book'][3]['isbn']",
+          "$['store']['book'][3]['price']"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Filter by property name",
+        "jsonpath": "$.company.departments.*[?(@property === 'engineering')]",
+        "data": "company_data",
+        "category": "jsonpath_plus_features",
+        "description": "Property name matching"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Filter by parent property",
+        "jsonpath": "$.company.departments.engineering.employees[?(@parentProperty === 'engineering')]",
+        "data": "company_data",
+        "category": "jsonpath_plus_features",
+        "description": "Parent property context"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Filter departments by parent property",
+        "jsonpath": "$.company.departments.*[?(@parentProperty === 'departments')]",
+        "data": "company_data",
+        "category": "jsonpath_plus_features",
+        "description": "Object property parent filtering"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Parent filter - simple",
+        "jsonpath": "$.store.book[?(@parent.bicycle)]",
+        "data": "goessner_spec_data",
+        "category": "jsonpath_plus_features",
+        "description": "Parent object property existence"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 4,
+        "values": [
+          {
+            "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          },
+          {
+            "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          },
+          {
+            "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          },
+          {
+            "category": "fiction",
+            "author": "J. R. R. Tolkien",
+            "title": "The Lord of the Rings",
+            "isbn": "0-395-19395-8",
+            "price": 22.99
+          }
+        ],
+        "paths": [
+          "$['store']['book'][0]",
+          "$['store']['book'][1]",
+          "$['store']['book'][2]",
+          "$['store']['book'][3]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Parent filter - property value",
+        "jsonpath": "$.store.book[?(@parent.bicycle.color === 'red')]",
+        "data": "goessner_spec_data",
+        "category": "jsonpath_plus_features",
+        "description": "Parent object nested property value"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 4,
+        "values": [
+          {
+            "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          },
+          {
+            "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          },
+          {
+            "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          },
+          {
+            "category": "fiction",
+            "author": "J. R. R. Tolkien",
+            "title": "The Lord of the Rings",
+            "isbn": "0-395-19395-8",
+            "price": 22.99
+          }
+        ],
+        "paths": [
+          "$['store']['book'][0]",
+          "$['store']['book'][1]",
+          "$['store']['book'][2]",
+          "$['store']['book'][3]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Premium customers with shipped orders",
+        "jsonpath": "$.orders[?(@.customer.type === 'premium' && @.status === 'shipped')]",
+        "data": "orders_data",
+        "category": "advanced_filters",
+        "description": "Logical AND in filters"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 2,
+        "values": [
+          {
+            "id": "ORD001",
+            "customer": {
+              "name": "Alice",
+              "type": "premium"
+            },
+            "items": [
+              {
+                "product": "laptop",
+                "price": 999.99,
+                "quantity": 1
+              },
+              {
+                "product": "mouse",
+                "price": 29.99,
+                "quantity": 2
+              }
+            ],
+            "status": "shipped",
+            "total": 1059.97
+          },
+          {
+            "id": "ORD003",
+            "customer": {
+              "name": "Charlie",
+              "type": "premium"
+            },
+            "items": [
+              {
+                "product": "monitor",
+                "price": 299.99,
+                "quantity": 1
+              },
+              {
+                "product": "cable",
+                "price": 19.99,
+                "quantity": 3
+              }
+            ],
+            "status": "shipped",
+            "total": 359.97
+          }
+        ],
+        "paths": [
+          "$['orders'][0]",
+          "$['orders'][2]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Orders over $100",
+        "jsonpath": "$.orders[?(@.total > 100)]",
+        "data": "orders_data",
+        "category": "advanced_filters",
+        "description": "Numeric comparison filter"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 2,
+        "values": [
+          {
+            "id": "ORD001",
+            "customer": {
+              "name": "Alice",
+              "type": "premium"
+            },
+            "items": [
+              {
+                "product": "laptop",
+                "price": 999.99,
+                "quantity": 1
+              },
+              {
+                "product": "mouse",
+                "price": 29.99,
+                "quantity": 2
+              }
+            ],
+            "status": "shipped",
+            "total": 1059.97
+          },
+          {
+            "id": "ORD003",
+            "customer": {
+              "name": "Charlie",
+              "type": "premium"
+            },
+            "items": [
+              {
+                "product": "monitor",
+                "price": 299.99,
+                "quantity": 1
+              },
+              {
+                "product": "cable",
+                "price": 19.99,
+                "quantity": 3
+              }
+            ],
+            "status": "shipped",
+            "total": 359.97
+          }
+        ],
+        "paths": [
+          "$['orders'][0]",
+          "$['orders'][2]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Orders with laptop products",
+        "jsonpath": "$.orders[?(@.items[*].product === 'laptop')]",
+        "data": "orders_data",
+        "category": "advanced_filters",
+        "description": "Array wildcard in filter expressions"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "error": "Unexpected \"*\" at character 11",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": true,
+        "jsError": true,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "String contains function",
+        "jsonpath": "$.store.book[?(@.title.contains('Sword'))]",
+        "data": "goessner_spec_data",
+        "category": "function_predicates",
+        "description": "String contains method"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "error": "jsonPath: func is not a function: @.title.contains('Sword')",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": true,
+        "jsError": true,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "String startsWith function",
+        "jsonpath": "$.store.book[?(@.title.startsWith('Moby'))]",
+        "data": "goessner_spec_data",
+        "category": "function_predicates",
+        "description": "String startsWith method"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 1,
+        "values": [
+          {
+            "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          }
+        ],
+        "paths": [
+          "$['store']['book'][2]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Regex match function",
+        "jsonpath": "$.store.book[?(@.title.match(/.*Century.*/))]",
+        "data": "goessner_spec_data",
+        "category": "function_predicates",
+        "description": "Regular expression matching"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 1,
+        "values": [
+          {
+            "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          }
+        ],
+        "paths": [
+          "$['store']['book'][0]"
+        ]
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Empty array filter",
+        "jsonpath": "$[?(@.nonexistent)]",
+        "data": "goessner_spec_data",
+        "category": "edge_cases",
+        "description": "Filter on non-existent property"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Null value access",
+        "jsonpath": "$.store.book[0].nonexistent",
+        "data": "goessner_spec_data",
+        "category": "edge_cases",
+        "description": "Access non-existent property"
+      },
+      "goResult": {
+        "error": "Command failed: cd /tmp && go mod init temp && go mod edit -require=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0 && go mod edit -replace=github.com/reclaimprotocol/jsonpathplus-go@v0.0.0=/Users/abdul/Desktop/code/cc_exp/jsonpathplus-go && go run go_test.go\ngo: /tmp/go.mod already exists\n",
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "jsResult": {
+        "count": 0,
+        "values": [],
+        "paths": []
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": true,
+        "jsError": false,
+        "errorMatch": false,
+        "perfectMatch": false
+      }
+    }
+  ],
+  "testCases": [
+    {
+      "name": "Authors of all books",
+      "jsonpath": "$.store.book[*].author",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Basic property access in arrays"
+    },
+    {
+      "name": "All authors",
+      "jsonpath": "$..author",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Recursive descent for specific property"
+    },
+    {
+      "name": "All elements beneath root",
+      "jsonpath": "$..*",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Complete recursive descent"
+    },
+    {
+      "name": "All prices in store",
+      "jsonpath": "$.store..price",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Recursive descent for price property"
+    },
+    {
+      "name": "Third book",
+      "jsonpath": "$..book[2]",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Array index access with recursive descent"
+    },
+    {
+      "name": "Last book",
+      "jsonpath": "$..book[-1]",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Negative array indexing"
+    },
+    {
+      "name": "First two books",
+      "jsonpath": "$..book[0,1]",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Multiple array indices (union)"
+    },
+    {
+      "name": "Books with ISBN",
+      "jsonpath": "$..book[?(@.isbn)]",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Filter by property existence"
+    },
+    {
+      "name": "Books cheaper than 10",
+      "jsonpath": "$..book[?(@.price<10)]",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Numeric comparison filter"
+    },
+    {
+      "name": "All books except first",
+      "jsonpath": "$..book[1:]",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Array slice notation"
+    },
+    {
+      "name": "Price properties not equal to 8.95",
+      "jsonpath": "$..*[?(@property === 'price' && @ !== 8.95)]",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Property name filter with value condition"
+    },
+    {
+      "name": "Book children except category",
+      "jsonpath": "$..book.*[?(@property !== \"category\")]",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Property name exclusion filter"
+    },
+    {
+      "name": "Books not at index 0",
+      "jsonpath": "$..book[?(@property !== 0)]",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Array index filter"
+    },
+    {
+      "name": "Book properties where parent index is not 0",
+      "jsonpath": "$..book.*[?(@parentProperty !== 0)]",
+      "data": "goessner_spec_data",
+      "category": "goessner_spec",
+      "description": "Parent property filter"
+    },
+    {
+      "name": "Filter by property name",
+      "jsonpath": "$.company.departments.*[?(@property === 'engineering')]",
+      "data": "company_data",
+      "category": "jsonpath_plus_features",
+      "description": "Property name matching"
+    },
+    {
+      "name": "Filter by parent property",
+      "jsonpath": "$.company.departments.engineering.employees[?(@parentProperty === 'engineering')]",
+      "data": "company_data",
+      "category": "jsonpath_plus_features",
+      "description": "Parent property context"
+    },
+    {
+      "name": "Filter departments by parent property",
+      "jsonpath": "$.company.departments.*[?(@parentProperty === 'departments')]",
+      "data": "company_data",
+      "category": "jsonpath_plus_features",
+      "description": "Object property parent filtering"
+    },
+    {
+      "name": "Parent filter - simple",
+      "jsonpath": "$.store.book[?(@parent.bicycle)]",
+      "data": "goessner_spec_data",
+      "category": "jsonpath_plus_features",
+      "description": "Parent object property existence"
+    },
+    {
+      "name": "Parent filter - property value",
+      "jsonpath": "$.store.book[?(@parent.bicycle.color === 'red')]",
+      "data": "goessner_spec_data",
+      "category": "jsonpath_plus_features",
+      "description": "Parent object nested property value"
+    },
+    {
+      "name": "Premium customers with shipped orders",
+      "jsonpath": "$.orders[?(@.customer.type === 'premium' && @.status === 'shipped')]",
+      "data": "orders_data",
+      "category": "advanced_filters",
+      "description": "Logical AND in filters"
+    },
+    {
+      "name": "Orders over $100",
+      "jsonpath": "$.orders[?(@.total > 100)]",
+      "data": "orders_data",
+      "category": "advanced_filters",
+      "description": "Numeric comparison filter"
+    },
+    {
+      "name": "Orders with laptop products",
+      "jsonpath": "$.orders[?(@.items[*].product === 'laptop')]",
+      "data": "orders_data",
+      "category": "advanced_filters",
+      "description": "Array wildcard in filter expressions"
+    },
+    {
+      "name": "String contains function",
+      "jsonpath": "$.store.book[?(@.title.contains('Sword'))]",
+      "data": "goessner_spec_data",
+      "category": "function_predicates",
+      "description": "String contains method"
+    },
+    {
+      "name": "String startsWith function",
+      "jsonpath": "$.store.book[?(@.title.startsWith('Moby'))]",
+      "data": "goessner_spec_data",
+      "category": "function_predicates",
+      "description": "String startsWith method"
+    },
+    {
+      "name": "Regex match function",
+      "jsonpath": "$.store.book[?(@.title.match(/.*Century.*/))]",
+      "data": "goessner_spec_data",
+      "category": "function_predicates",
+      "description": "Regular expression matching"
+    },
+    {
+      "name": "Empty array filter",
+      "jsonpath": "$[?(@.nonexistent)]",
+      "data": "goessner_spec_data",
+      "category": "edge_cases",
+      "description": "Filter on non-existent property"
+    },
+    {
+      "name": "Null value access",
+      "jsonpath": "$.store.book[0].nonexistent",
+      "data": "goessner_spec_data",
+      "category": "edge_cases",
+      "description": "Access non-existent property"
+    }
+  ]
+}

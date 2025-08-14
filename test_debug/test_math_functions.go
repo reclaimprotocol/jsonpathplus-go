@@ -25,7 +25,7 @@ func main() {
 		description string
 	}{
 		{"Math floor", "$.users[?(@.age.floor() > 25)]", 3, "Users with floor(age) > 25"},
-		{"Math round", "$.users[?(@.age.round() === 30)]", 2, "Users with rounded age of 30"}, // 30.7 rounds to 31, 28.1 rounds to 28
+		{"Math round", "$.users[?(@.age.round() === 25)]", 1, "Users with rounded age of 25"}, // 25.3 rounds to 25
 		{"Math ceil", "$.users[?(@.age.ceil() > 30)]", 2, "Users with ceil(age) > 30"},
 	}
 

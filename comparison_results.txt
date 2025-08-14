@@ -1,0 +1,230 @@
+================================================================================
+JSONPATH LIBRARY COMPARISON TEST
+================================================================================
+Timestamp: 2025-08-14T12:33:50.509Z
+Test Cases: 10
+================================================================================
+
+[1/10] Authors of all books
+   Query: $.store.book[*].author
+   Category: basic
+   Executing Go implementation...
+   Executing JS implementation...
+
+   RESULTS:
+   Go:       4 results
+   JS:       4 results
+   Match:    ❌ DIFFERENT
+   Issues:   
+   Go Values:  ["Nigel Rees","Evelyn Waugh","Herman Melville"]...
+   JS Values:  ["Nigel Rees","Evelyn Waugh","Herman Melville"]...
+
+--------------------------------------------------------------------------------
+
+[2/10] All authors
+   Query: $..author
+   Category: recursive_descent
+   Executing Go implementation...
+   Executing JS implementation...
+
+   RESULTS:
+   Go:       4 results
+   JS:       4 results
+   Match:    ❌ DIFFERENT
+   Issues:   
+   Go Values:  ["Nigel Rees","Evelyn Waugh","Herman Melville"]...
+   JS Values:  ["Nigel Rees","Evelyn Waugh","Herman Melville"]...
+
+--------------------------------------------------------------------------------
+
+[3/10] All elements beneath root
+   Query: $..*
+   Category: recursive_descent
+   Executing Go implementation...
+   Executing JS implementation...
+
+   RESULTS:
+   Go:       27 results
+   JS:       27 results
+   Match:    ❌ DIFFERENT
+   Issues:   VALUES 
+   Go Values:  [{"bicycle":{"color":"red","price":19.95},"book":[{"author":"Nigel Rees","category":"reference","price":8.95,"title":"Sayings of the Century"},{"author":"Evelyn Waugh","category":"fiction","price":12.99,"title":"Sword of Honour"},{"author":"Herman Melville","category":"fiction","isbn":"0-553-21311-3","price":8.99,"title":"Moby Dick"},{"author":"J. R. R. Tolkien","category":"fiction","isbn":"0-395-19395-8","price":22.99,"title":"The Lord of the Rings"}]},[{"author":"Nigel Rees","category":"reference","price":8.95,"title":"Sayings of the Century"},{"author":"Evelyn Waugh","category":"fiction","price":12.99,"title":"Sword of Honour"},{"author":"Herman Melville","category":"fiction","isbn":"0-553-21311-3","price":8.99,"title":"Moby Dick"},{"author":"J. R. R. Tolkien","category":"fiction","isbn":"0-395-19395-8","price":22.99,"title":"The Lord of the Rings"}],{"author":"Nigel Rees","category":"reference","price":8.95,"title":"Sayings of the Century"}]...
+   JS Values:  [{"book":[{"category":"reference","author":"Nigel Rees","title":"Sayings of the Century","price":8.95},{"category":"fiction","author":"Evelyn Waugh","title":"Sword of Honour","price":12.99},{"category":"fiction","author":"Herman Melville","title":"Moby Dick","isbn":"0-553-21311-3","price":8.99},{"category":"fiction","author":"J. R. R. Tolkien","title":"The Lord of the Rings","isbn":"0-395-19395-8","price":22.99}],"bicycle":{"color":"red","price":19.95}},[{"category":"reference","author":"Nigel Rees","title":"Sayings of the Century","price":8.95},{"category":"fiction","author":"Evelyn Waugh","title":"Sword of Honour","price":12.99},{"category":"fiction","author":"Herman Melville","title":"Moby Dick","isbn":"0-553-21311-3","price":8.99},{"category":"fiction","author":"J. R. R. Tolkien","title":"The Lord of the Rings","isbn":"0-395-19395-8","price":22.99}],{"color":"red","price":19.95}]...
+
+--------------------------------------------------------------------------------
+
+[4/10] Third book
+   Query: $..book[2]
+   Category: array_access
+   Executing Go implementation...
+   Executing JS implementation...
+
+   RESULTS:
+   Go:       1 results
+   JS:       1 results
+   Match:    ❌ DIFFERENT
+   Issues:   VALUES 
+   Go Values:  [{"author":"Herman Melville","category":"fiction","isbn":"0-553-21311-3","price":8.99,"title":"Moby Dick"}]
+   JS Values:  [{"category":"fiction","author":"Herman Melville","title":"Moby Dick","isbn":"0-553-21311-3","price":8.99}]
+
+--------------------------------------------------------------------------------
+
+[5/10] Books with ISBN
+   Query: $..book[?(@.isbn)]
+   Category: filters
+   Executing Go implementation...
+   Executing JS implementation...
+
+   RESULTS:
+   Go:       2 results
+   JS:       2 results
+   Match:    ❌ DIFFERENT
+   Issues:   VALUES 
+   Go Values:  [{"author":"Herman Melville","category":"fiction","isbn":"0-553-21311-3","price":8.99,"title":"Moby Dick"},{"author":"J. R. R. Tolkien","category":"fiction","isbn":"0-395-19395-8","price":22.99,"title":"The Lord of the Rings"}]
+   JS Values:  [{"category":"fiction","author":"Herman Melville","title":"Moby Dick","isbn":"0-553-21311-3","price":8.99},{"category":"fiction","author":"J. R. R. Tolkien","title":"The Lord of the Rings","isbn":"0-395-19395-8","price":22.99}]
+
+--------------------------------------------------------------------------------
+
+[6/10] Books cheaper than 10
+   Query: $..book[?(@.price<10)]
+   Category: filters
+   Executing Go implementation...
+   Executing JS implementation...
+
+   RESULTS:
+   Go:       2 results
+   JS:       2 results
+   Match:    ❌ DIFFERENT
+   Issues:   VALUES 
+   Go Values:  [{"author":"Nigel Rees","category":"reference","price":8.95,"title":"Sayings of the Century"},{"author":"Herman Melville","category":"fiction","isbn":"0-553-21311-3","price":8.99,"title":"Moby Dick"}]
+   JS Values:  [{"category":"reference","author":"Nigel Rees","title":"Sayings of the Century","price":8.95},{"category":"fiction","author":"Herman Melville","title":"Moby Dick","isbn":"0-553-21311-3","price":8.99}]
+
+--------------------------------------------------------------------------------
+
+[7/10] Price properties not equal to 8.95
+   Query: $..*[?(@property === 'price' && @ !== 8.95)]
+   Category: property_filters
+   Executing Go implementation...
+   Executing JS implementation...
+
+   RESULTS:
+   Go:       4 results
+   JS:       4 results
+   Match:    ✅ PERFECT
+
+--------------------------------------------------------------------------------
+
+[8/10] Books not at index 0
+   Query: $..book[?(@property !== 0)]
+   Category: property_filters
+   Executing Go implementation...
+   Executing JS implementation...
+
+   RESULTS:
+   Go:       4 results
+   JS:       3 results
+   Match:    ❌ DIFFERENT
+   Issues:   COUNT VALUES 
+   Go Values:  [{"author":"Nigel Rees","category":"reference","price":8.95,"title":"Sayings of the Century"},{"author":"Evelyn Waugh","category":"fiction","price":12.99,"title":"Sword of Honour"},{"author":"Herman Melville","category":"fiction","isbn":"0-553-21311-3","price":8.99,"title":"Moby Dick"}]...
+   JS Values:  [{"category":"fiction","author":"Evelyn Waugh","title":"Sword of Honour","price":12.99},{"category":"fiction","author":"Herman Melville","title":"Moby Dick","isbn":"0-553-21311-3","price":8.99},{"category":"fiction","author":"J. R. R. Tolkien","title":"The Lord of the Rings","isbn":"0-395-19395-8","price":22.99}]
+
+--------------------------------------------------------------------------------
+
+[9/10] Parent filter - simple
+   Query: $.store.book[?(@parent.bicycle)]
+   Category: parent_filters
+   Executing Go implementation...
+   Executing JS implementation...
+
+   RESULTS:
+   Go:       4 results
+   JS:       4 results
+   Match:    ❌ DIFFERENT
+   Issues:   VALUES 
+   Go Values:  [{"author":"Nigel Rees","category":"reference","price":8.95,"title":"Sayings of the Century"},{"author":"Evelyn Waugh","category":"fiction","price":12.99,"title":"Sword of Honour"},{"author":"Herman Melville","category":"fiction","isbn":"0-553-21311-3","price":8.99,"title":"Moby Dick"}]...
+   JS Values:  [{"category":"reference","author":"Nigel Rees","title":"Sayings of the Century","price":8.95},{"category":"fiction","author":"Evelyn Waugh","title":"Sword of Honour","price":12.99},{"category":"fiction","author":"Herman Melville","title":"Moby Dick","isbn":"0-553-21311-3","price":8.99}]...
+
+--------------------------------------------------------------------------------
+
+[10/10] Orders with laptop products
+   Query: $.orders[?(@.items[*].product === 'laptop')]
+   Category: array_wildcards
+   Executing Go implementation...
+   Executing JS implementation...
+
+   RESULTS:
+   Go:       1 results
+   JS:       ERROR: Unexpected "*" at character 11
+   Match:    ❌ DIFFERENT
+   Issues:   COUNT VALUES ERRORS
+
+--------------------------------------------------------------------------------
+
+================================================================================
+FINAL COMPARISON REPORT
+================================================================================
+Total Tests: 10
+Perfect Matches: 1 (10.0%)
+Count Matches: 8 (80.0%)
+Value Matches: 3 (30.0%)
+
+CATEGORY BREAKDOWN:
+  basic               : 0/1 (0.0%)
+  recursive_descent   : 0/2 (0.0%)
+  array_access        : 0/1 (0.0%)
+  filters             : 0/2 (0.0%)
+  property_filters    : 1/2 (50.0%)
+  parent_filters      : 0/1 (0.0%)
+  array_wildcards     : 0/1 (0.0%)
+
+DETAILED FAILURES:
+  1. Authors of all books
+     Query: $.store.book[*].author
+     Go: 4 results
+     JS: 4 results
+
+  2. All authors
+     Query: $..author
+     Go: 4 results
+     JS: 4 results
+
+  3. All elements beneath root
+     Query: $..*
+     Go: 27 results
+     JS: 27 results
+
+  4. Third book
+     Query: $..book[2]
+     Go: 1 results
+     JS: 1 results
+
+  5. Books with ISBN
+     Query: $..book[?(@.isbn)]
+     Go: 2 results
+     JS: 2 results
+
+  6. Books cheaper than 10
+     Query: $..book[?(@.price<10)]
+     Go: 2 results
+     JS: 2 results
+
+  7. Books not at index 0
+     Query: $..book[?(@property !== 0)]
+     Go: 4 results
+     JS: 3 results
+
+  8. Parent filter - simple
+     Query: $.store.book[?(@parent.bicycle)]
+     Go: 4 results
+     JS: 4 results
+
+  9. Orders with laptop products
+     Query: $.orders[?(@.items[*].product === 'laptop')]
+     Go: 1 results
+     JS Error: Unexpected "*" at character 11
+
+================================================================================
+OVERALL COMPATIBILITY RATE: 10.0%
+================================================================================
+
+📄 Detailed report saved to: scalable_comparison_report.json

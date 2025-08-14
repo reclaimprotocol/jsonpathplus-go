@@ -119,6 +119,21 @@ func (e *Evaluator) evaluateSingleNode(node *types.AstNode, ctx types.Result, op
 	}
 }
 
+// deduplicateResults removes duplicate results based on path
+func (e *Evaluator) deduplicateResults(results []types.Result) []types.Result {
+	seen := make(map[string]bool)
+	var deduplicated []types.Result
+	
+	for _, result := range results {
+		if !seen[result.Path] {
+			seen[result.Path] = true
+			deduplicated = append(deduplicated, result)
+		}
+	}
+	
+	return deduplicated
+}
+
 // Node type evaluators
 
 func (e *Evaluator) evaluateRoot(node *types.AstNode, ctx types.Result, options *types.Options) []types.Result {
@@ -183,7 +198,7 @@ func (e *Evaluator) evaluateWildcard(node *types.AstNode, ctx types.Result, opti
 				Value:          value,
 				Path:           fmt.Sprintf("%s.%s", ctx.Path, key),
 				Parent:         ctx.Value,
-				ParentProperty: key,
+				ParentProperty: key, // Use the property name itself
 				Index:          index,
 				OriginalIndex:  index,
 			}
@@ -203,11 +218,15 @@ func (e *Evaluator) evaluateWildcard(node *types.AstNode, ctx types.Result, opti
 					// For each object in the array, add all its properties
 					propIndex := 0
 					for key, propValue := range valueMap {
+						// For properties of array elements, @parentProperty should be:
+						// - The array index if we're looking at properties of the array element
+						// - The property name that led to the array if that's what we want
+						// Based on the test cases, it should be the array index
 						result := types.Result{
 							Value:          propValue,
 							Path:           fmt.Sprintf("%s[%d].%s", ctx.Path, i, key),
 							Parent:         value,
-							ParentProperty: key,
+							ParentProperty: strconv.Itoa(i), // Array index of this book
 							Index:          propIndex,
 							OriginalIndex:  propIndex,
 						}
@@ -392,18 +411,15 @@ func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, option
 	// Handle array filtering
 	if arr, ok := ctx.Value.([]interface{}); ok {
 		for i, item := range arr {
-			// Create enhanced context for filter evaluation
-			// For @parentProperty, use the property name that led to this array
-			parentProp := ctx.ParentProperty
-			if parentProp == "" {
-				parentProp = strconv.Itoa(i)
-			}
-
+			// For array elements:
+			// - @parent should refer to the container of the array (ctx.Parent)
+			// - @parentProperty should be the property name that led to the array (ctx.ParentProperty)
+			// - @property should be the array index (i)
 			itemResult := types.Result{
 				Value:          item,
 				Path:           fmt.Sprintf("%s[%d]", ctx.Path, i),
-				Parent:         ctx.Parent, // Use the parent of the array, not the array itself
-				ParentProperty: parentProp, // Use the property that contains the array
+				Parent:         ctx.Parent,         // Parent is the container of the array (for @parent)
+				ParentProperty: ctx.ParentProperty, // Property that led to the array (for @parentProperty)
 				Index:          i,
 				OriginalIndex:  i,
 			}
@@ -440,6 +456,106 @@ func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, option
 func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, options *types.Options) []types.Result {
 	var results []types.Result
 	visited := make(map[string]bool)
+
+	// Special case: if we have exactly one child that is a wildcard, treat this as $..*
+	// which should return all descendants at all levels
+	if len(node.Children) == 1 && node.Children[0].Type == "wildcard" {
+		var traverse func(current types.Result, includeRoot bool)
+		traverse = func(current types.Result, includeRoot bool) {
+			if visited[current.Path] {
+				return
+			}
+			visited[current.Path] = true
+
+			// Include the current node if not the initial root
+			if includeRoot && current.Path != "$" {
+				results = append(results, current)
+			}
+
+			// Recursively traverse children
+			switch v := current.Value.(type) {
+			case map[string]interface{}:
+				for key, val := range v {
+					childResult := types.Result{
+						Value:          val,
+						Path:           fmt.Sprintf("%s['%s']", current.Path, key),
+						Parent:         current.Value,
+						ParentProperty: key,
+						Index:          0,
+						OriginalIndex:  0,
+					}
+					traverse(childResult, true)
+				}
+			case []interface{}:
+				for i, val := range v {
+					childResult := types.Result{
+						Value:          val,
+						Path:           fmt.Sprintf("%s[%d]", current.Path, i),
+						Parent:         current.Value,
+						ParentProperty: strconv.Itoa(i),
+						Index:          i,
+						OriginalIndex:  i,
+					}
+					traverse(childResult, true)
+				}
+			}
+		}
+
+		traverse(ctx, false)
+		return results
+	}
+
+	// Special case: if we have wildcard+filter as children, this is $..*[?(...)]
+	// which should apply the filter to all property values found via recursive descent
+	if len(node.Children) == 2 && node.Children[0].Type == "wildcard" && node.Children[1].Type == "filter" {
+		var allProperties []types.Result
+		var traverse func(current types.Result)
+		traverse = func(current types.Result) {
+			if visited[current.Path] {
+				return
+			}
+			visited[current.Path] = true
+
+			// Recursively traverse children to collect all properties
+			switch v := current.Value.(type) {
+			case map[string]interface{}:
+				for key, val := range v {
+					// Add this property to the list
+					propertyResult := types.Result{
+						Value:          val,
+						Path:           fmt.Sprintf("%s['%s']", current.Path, key),
+						Parent:         current.Value,
+						ParentProperty: key,
+						Index:          0,
+						OriginalIndex:  0,
+					}
+					allProperties = append(allProperties, propertyResult)
+					
+					// Continue traversing
+					traverse(propertyResult)
+				}
+			case []interface{}:
+				for i, val := range v {
+					childResult := types.Result{
+						Value:          val,
+						Path:           fmt.Sprintf("%s[%d]", current.Path, i),
+						Parent:         current.Value,
+						ParentProperty: strconv.Itoa(i),
+						Index:          i,
+						OriginalIndex:  i,
+					}
+					traverse(childResult)
+				}
+			}
+		}
+
+		traverse(ctx)
+		
+		// Apply the filter to all collected properties
+		filterNode := node.Children[1]
+		results = e.evaluateFilterOnResults(filterNode, allProperties, options)
+		return results
+	}
 
 	// If we have children, we need to find all nodes that match the child criteria
 	if len(node.Children) > 0 {
@@ -487,10 +603,32 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 
 		traverse(ctx)
 
-		// Now apply the child node to each collected node
-		for _, nodeResult := range allNodes {
-			childResults := e.evaluateNode(node.Children[0], []types.Result{nodeResult}, options)
-			results = append(results, childResults...)
+		// Special handling for recursive descent followed by wildcard+filter
+		if len(node.Children) >= 2 && node.Children[0].Type == "wildcard" && node.Children[1].Type == "filter" {
+			// For $..*[?(...)] pattern, apply wildcard to all nodes first, then apply filter
+			var allWildcardResults []types.Result
+			
+			// Apply wildcard to each collected node to get all properties
+			for _, nodeResult := range allNodes {
+				wildcardResults := e.evaluateWildcard(node.Children[0], nodeResult, options)
+				allWildcardResults = append(allWildcardResults, wildcardResults...)
+			}
+			
+			// Deduplicate wildcard results by path
+			allWildcardResults = e.deduplicateResults(allWildcardResults)
+			
+			// Now apply the filter to all wildcard results
+			filterNode := node.Children[1]
+			results = e.evaluateFilterOnResults(filterNode, allWildcardResults, options)
+		} else {
+			// Normal case: apply child node to each collected node
+			for _, nodeResult := range allNodes {
+				childResults := e.evaluateNode(node.Children[0], []types.Result{nodeResult}, options)
+				results = append(results, childResults...)
+			}
+			
+			// Deduplicate results by path
+			results = e.deduplicateResults(results)
 		}
 	} else {
 		// No children - return all nodes at all levels (this case shouldn't happen with ..)
@@ -500,6 +638,8 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 				return
 			}
 			visited[current.Path] = true
+			// Include the current node itself
+			results = append(results, current)
 
 			switch v := current.Value.(type) {
 			case map[string]interface{}:
@@ -512,7 +652,6 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 						Index:          0,
 						OriginalIndex:  0,
 					}
-					results = append(results, childResult)
 					traverse(childResult)
 				}
 			case []interface{}:
@@ -525,7 +664,6 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 						Index:          i,
 						OriginalIndex:  i,
 					}
-					results = append(results, childResult)
 					traverse(childResult)
 				}
 			}

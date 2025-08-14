@@ -1,0 +1,69 @@
+{
+  "timestamp": "2025-08-14T12:43:44.168Z",
+  "summary": {
+    "total": 2,
+    "perfectMatches": 0,
+    "countMatches": 1,
+    "valueMatches": 1,
+    "categories": {
+      "debug": {
+        "total": 2,
+        "matches": 0
+      }
+    }
+  },
+  "results": [
+    {
+      "testCase": {
+        "name": "Debug: Simple books all",
+        "jsonpath": "$..book[*]",
+        "data": "simple_books",
+        "category": "debug",
+        "description": "Debug test for array access"
+      },
+      "goResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": false,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": false
+      }
+    },
+    {
+      "testCase": {
+        "name": "Debug: Simple books filter",
+        "jsonpath": "$..book[?(@property !== 0)]",
+        "data": "simple_books",
+        "category": "debug",
+        "description": "Debug test for array index filtering"
+      },
+      "goResult": {
+        "count": 3,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": false,
+        "valuesMatch": false,
+        "pathsMatch": false,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": false
+      }
+    }
+  ]
+}

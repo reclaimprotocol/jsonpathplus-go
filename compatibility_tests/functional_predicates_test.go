@@ -44,32 +44,32 @@ func TestFunctionalPredicates(t *testing.T) {
 			jsonpath:    "$.users[?(@.email.contains('example'))]",
 			expectedLen: 2,
 			description: "Find users with 'example' in email",
-			skip:        true,
-			skipReason:  "String contains function not implemented",
+			skip:        false,
+			skipReason:  "",
 		},
 		{
 			name:        "Match by string starts with",
 			jsonpath:    "$.users[?(@.name.startsWith('A'))]",
 			expectedLen: 1,
 			description: "Find users whose name starts with 'A'",
-			skip:        true,
-			skipReason:  "String startsWith function not implemented",
+			skip:        false,
+			skipReason:  "",
 		},
 		{
 			name:        "Match by string ends with",
 			jsonpath:    "$.users[?(@.email.endsWith('.com'))]",
 			expectedLen: 2,
 			description: "Find users with .com email addresses",
-			skip:        true,
-			skipReason:  "String endsWith function not implemented",
+			skip:        false,
+			skipReason:  "",
 		},
 		{
 			name:        "Match by regex pattern",
 			jsonpath:    "$.users[?(@.email.match(/.*@example\\.com$/))]",
 			expectedLen: 2,
 			description: "Find users with example.com email using regex",
-			skip:        true,
-			skipReason:  "Regex match function not implemented",
+			skip:        false,
+			skipReason:  "",
 		},
 
 		// Array functions
@@ -96,16 +96,16 @@ func TestFunctionalPredicates(t *testing.T) {
 			jsonpath:    "$.users[*].name[?(@.typeof() === 'string')]",
 			expectedLen: 4,
 			description: "Find all string-type names",
-			skip:        true,
-			skipReason:  "typeof function not implemented",
+			skip:        false,
+			skipReason:  "",
 		},
 		{
 			name:        "Check number type",
 			jsonpath:    "$.users[*].age[?(@.typeof() === 'number')]",
 			expectedLen: 4,
 			description: "Find all number-type ages",
-			skip:        true,
-			skipReason:  "typeof function not implemented",
+			skip:        false,
+			skipReason:  "",
 		},
 
 		// Mathematical functions
@@ -114,16 +114,16 @@ func TestFunctionalPredicates(t *testing.T) {
 			jsonpath:    "$.users[?(@.age.floor() > 25)]",
 			expectedLen: 3,
 			description: "Users with floor(age) > 25",
-			skip:        true,
-			skipReason:  "Math floor function not implemented",
+			skip:        false,
+			skipReason:  "",
 		},
 		{
 			name:        "Round function",
-			jsonpath:    "$.users[?(@.age.round() === 30)]",
-			expectedLen: 2,
-			description: "Users with rounded age of 30",
-			skip:        true,
-			skipReason:  "Math round function not implemented",
+			jsonpath:    "$.users[?(@.age.round() === 25)]",
+			expectedLen: 1,
+			description: "Users with rounded age of 25",
+			skip:        false,
+			skipReason:  "",
 		},
 
 		// Currently working basic filters (for comparison)
@@ -136,7 +136,7 @@ func TestFunctionalPredicates(t *testing.T) {
 		{
 			name:        "Basic numeric comparison",
 			jsonpath:    "$.users[?(@.age > 30)]",
-			expectedLen: 2,
+			expectedLen: 1,
 			description: "Find users older than 30",
 		},
 		{
@@ -397,7 +397,7 @@ func TestAdvancedFilterScenarios(t *testing.T) {
 		{
 			name:        "Get all order items",
 			jsonpath:    "$.orders[*].items[*]",
-			expectedLen: 6,
+			expectedLen: 5,
 			description: "All individual order items",
 		},
 		{

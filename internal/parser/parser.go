@@ -89,6 +89,12 @@ func (p *Parser) parseDotSegment(path string) (*types.AstNode, int, error) {
 	// Handle recursive descent (..)
 	if path[1] == '.' {
 		recursiveNode := &types.AstNode{Type: "recursive", Value: ".."}
+		// If next is a wildcard, attach it as a child and consume
+		if len(path) > 2 && path[2] == '*' {
+			wildcardNode := &types.AstNode{Type: "wildcard", Value: "*"}
+			recursiveNode.Children = append(recursiveNode.Children, wildcardNode)
+			return recursiveNode, 3, nil
+		}
 
 		// Check if there's more after the ..
 		if len(path) > 2 {
@@ -135,7 +141,11 @@ func (p *Parser) parseDotSegment(path string) (*types.AstNode, int, error) {
 				return &types.AstNode{Type: "property_names", Value: "*"}, 3, nil
 			}
 			if path[2] == '^' {
-				return &types.AstNode{Type: "parent", Value: "*"}, 3, nil
+				// Return parent of all wildcard children by first selecting wildcard, then parent
+				wildcardNode := &types.AstNode{Type: "wildcard", Value: "*"}
+				parentNode := &types.AstNode{Type: "parent", Value: "*"}
+				parentNode.Children = []*types.AstNode{wildcardNode}
+				return parentNode, 3, nil
 			}
 		}
 		return &types.AstNode{Type: "wildcard", Value: "*"}, 2, nil
@@ -155,7 +165,11 @@ func (p *Parser) parseDotSegment(path string) (*types.AstNode, int, error) {
 			return &types.AstNode{Type: "property_names", Value: property}, end + 1, nil
 		}
 		if path[end] == '^' {
-			return &types.AstNode{Type: "parent", Value: property}, end + 1, nil
+			// Build a parent node whose child selects the property first
+			propNode := &types.AstNode{Type: "property", Value: property}
+			parentNode := &types.AstNode{Type: "parent", Value: property}
+			parentNode.Children = []*types.AstNode{propNode}
+			return parentNode, end + 1, nil
 		}
 	}
 

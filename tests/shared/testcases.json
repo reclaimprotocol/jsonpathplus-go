@@ -1,0 +1,191 @@
+{
+  "testData": {
+    "goessner_spec_data": {
+      "store": {
+        "book": [
+          {
+            "category": "reference",
+            "author": "Nigel Rees",
+            "title": "Sayings of the Century",
+            "price": 8.95
+          },
+          {
+            "category": "fiction",
+            "author": "Evelyn Waugh",
+            "title": "Sword of Honour",
+            "price": 12.99
+          },
+          {
+            "category": "fiction",
+            "author": "Herman Melville",
+            "title": "Moby Dick",
+            "isbn": "0-553-21311-3",
+            "price": 8.99
+          },
+          {
+            "category": "fiction",
+            "author": "J. R. R. Tolkien",
+            "title": "The Lord of the Rings",
+            "isbn": "0-395-19395-8",
+            "price": 22.99
+          }
+        ],
+        "bicycle": {
+          "color": "red",
+          "price": 19.95
+        }
+      }
+    },
+    "company_data": {
+      "company": {
+        "departments": {
+          "engineering": {
+            "employees": [
+              {"name": "Alice", "level": "senior", "role": "developer"},
+              {"name": "Bob", "level": "junior", "role": "designer"}
+            ],
+            "manager": "Eve"
+          },
+          "sales": {
+            "employees": [
+              {"name": "Charlie", "level": "senior", "role": "rep"}
+            ],
+            "manager": "Dave"
+          }
+        },
+        "metadata": {
+          "founded": 2010,
+          "location": "San Francisco"
+        }
+      }
+    },
+    "orders_data": {
+      "orders": [
+        {
+          "id": "ORD001",
+          "customer": {"name": "Alice", "type": "premium"},
+          "items": [
+            {"product": "laptop", "price": 999.99, "quantity": 1},
+            {"product": "mouse", "price": 29.99, "quantity": 2}
+          ],
+          "status": "shipped",
+          "total": 1059.97
+        },
+        {
+          "id": "ORD002", 
+          "customer": {"name": "Bob", "type": "regular"},
+          "items": [
+            {"product": "keyboard", "price": 79.99, "quantity": 1}
+          ],
+          "status": "pending",
+          "total": 79.99
+        },
+        {
+          "id": "ORD003",
+          "customer": {"name": "Charlie", "type": "premium"},
+          "items": [
+            {"product": "monitor", "price": 299.99, "quantity": 1},
+            {"product": "cable", "price": 19.99, "quantity": 3}
+          ],
+          "status": "shipped",
+          "total": 359.97
+        }
+      ]
+    },
+    "simple_books": {
+      "store": {
+        "book": [
+          {"title": "Book0"},
+          {"title": "Book1"},
+          {"title": "Book2"}
+        ]
+      }
+    }
+  },
+  "testCases": [
+    {
+      "name": "Authors of all books",
+      "jsonpath": "$.store.book[*].author",
+      "data": "goessner_spec_data",
+      "category": "basic",
+      "description": "Basic property access in arrays"
+    },
+    {
+      "name": "All authors", 
+      "jsonpath": "$..author",
+      "data": "goessner_spec_data",
+      "category": "recursive_descent",
+      "description": "Recursive descent for specific property"
+    },
+    {
+      "name": "All elements beneath root",
+      "jsonpath": "$..*",
+      "data": "goessner_spec_data", 
+      "category": "recursive_descent",
+      "description": "Complete recursive descent"
+    },
+    {
+      "name": "Third book",
+      "jsonpath": "$..book[2]",
+      "data": "goessner_spec_data",
+      "category": "array_access",
+      "description": "Array index access with recursive descent"
+    },
+    {
+      "name": "Books with ISBN",
+      "jsonpath": "$..book[?(@.isbn)]",
+      "data": "goessner_spec_data",
+      "category": "filters",
+      "description": "Filter by property existence"
+    },
+    {
+      "name": "Books cheaper than 10",
+      "jsonpath": "$..book[?(@.price<10)]", 
+      "data": "goessner_spec_data",
+      "category": "filters",
+      "description": "Numeric comparison filter"
+    },
+    {
+      "name": "Price properties not equal to 8.95",
+      "jsonpath": "$..*[?(@property === 'price' && @ !== 8.95)]",
+      "data": "goessner_spec_data",
+      "category": "property_filters",
+      "description": "Property name filter with value condition"
+    },
+    {
+      "name": "Books not at index 0", 
+      "jsonpath": "$..book[?(@property !== 0)]",
+      "data": "goessner_spec_data",
+      "category": "property_filters",
+      "description": "Array index filter"
+    },
+    {
+      "name": "Parent filter - simple",
+      "jsonpath": "$.store.book[?(@parent.bicycle)]",
+      "data": "goessner_spec_data",
+      "category": "parent_filters",
+      "description": "Parent object property existence"
+    },
+    {
+      "name": "Orders with laptop products",
+      "jsonpath": "$.orders[?(@.items[*].product === 'laptop')]",
+      "data": "orders_data",
+      "category": "array_wildcards",
+      "description": "Array wildcard in filter expressions"
+    },
+    {
+      "name": "Debug: Simple books all",
+      "jsonpath": "$..book[*]",
+      "data": "simple_books",
+      "category": "debug",
+      "description": "Debug test for array access"
+    },
+    {
+      "name": "Debug: Simple books filter",
+      "jsonpath": "$..book[?(@property !== 0)]",
+      "data": "simple_books",
+      "category": "debug",
+      "description": "Debug test for array index filtering"
+    }
+  ]
+}
