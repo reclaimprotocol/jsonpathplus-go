@@ -1,0 +1,5 @@
+// This directory contains archived debug files with multiple main functions
+// These are not part of the main build
+//go:build ignore
+
+package main
