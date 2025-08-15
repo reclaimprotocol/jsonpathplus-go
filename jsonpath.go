@@ -208,6 +208,11 @@ func findStringPositionForResult(result Result, jsonStr string) StringPosition {
 		if _, isObject := result.Parent.(map[string]interface{}); isObject {
 			return findPropertyValuePosition(result.ParentProperty, jsonStr, path)
 		}
+
+		// Property access in OrderedMap objects
+		if _, isOrderedMap := result.Parent.(*utils.OrderedMap); isOrderedMap {
+			return findPropertyValuePosition(result.ParentProperty, jsonStr, path)
+		}
 	}
 
 	// Fallback: try to find by parsing the path
@@ -260,13 +265,16 @@ func findPropertyValuePosition(propName, jsonStr, path string) StringPosition {
 	// Extract the array index from the path if present
 	arrayIndex := -1
 	if strings.Contains(path, "[") && strings.Contains(path, "]") {
-		// Extract array index from path like $[0].id or $.arr[1].prop
-		start := strings.LastIndex(path, "[")
-		end := strings.Index(path[start:], "]")
-		if start != -1 && end != -1 {
-			indexStr := path[start+1 : start+end]
-			if idx, err := strconv.Atoi(indexStr); err == nil {
-				arrayIndex = idx
+		// Extract array index from path like $[0]['id'] or $.arr[1].prop
+		// Look for numeric array indices first (e.g., [0], [1], [2])
+		start := strings.Index(path, "[")
+		if start != -1 {
+			end := strings.Index(path[start:], "]")
+			if end != -1 {
+				indexStr := path[start+1 : start+end]
+				if idx, err := strconv.Atoi(indexStr); err == nil {
+					arrayIndex = idx
+				}
 			}
 		}
 	}
