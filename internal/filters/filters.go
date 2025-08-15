@@ -431,9 +431,7 @@ func (f *FilterEvaluator) cleanFilterExpression(expr string) string {
 		return strings.TrimSpace(expr)
 	}
 	// Allow direct-value comparisons like "@=== 'x'" by stripping leading @
-	if strings.HasPrefix(expr, "@") {
-		expr = strings.TrimPrefix(expr, "@")
-	}
+	expr = strings.TrimPrefix(expr, "@")
 	// Simplify by unconditionally trimming the "@ " prefix if present
 	expr = strings.TrimPrefix(expr, "@ ")
 	return strings.TrimSpace(expr)
