@@ -90,12 +90,12 @@ func (om *OrderedMap) ToMap() map[string]interface{} {
 func (om *OrderedMap) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	buf.WriteByte('{')
-	
+
 	for i, key := range om.keys {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		
+
 		// Marshal key
 		keyBytes, err := json.Marshal(key)
 		if err != nil {
@@ -103,7 +103,7 @@ func (om *OrderedMap) MarshalJSON() ([]byte, error) {
 		}
 		buf.Write(keyBytes)
 		buf.WriteByte(':')
-		
+
 		// Marshal value
 		valueBytes, err := json.Marshal(om.values[key])
 		if err != nil {
@@ -111,7 +111,7 @@ func (om *OrderedMap) MarshalJSON() ([]byte, error) {
 		}
 		buf.Write(valueBytes)
 	}
-	
+
 	buf.WriteByte('}')
 	return buf.Bytes(), nil
 }
@@ -123,10 +123,10 @@ func (om *OrderedMap) UnmarshalJSON(data []byte) error {
 	for k := range om.values {
 		delete(om.values, k)
 	}
-	
+
 	// Parse JSON to preserve order
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	
+
 	// Expect '{'
 	token, err := decoder.Token()
 	if err != nil {
@@ -135,7 +135,7 @@ func (om *OrderedMap) UnmarshalJSON(data []byte) error {
 	if delim, ok := token.(json.Delim); !ok || delim != '{' {
 		return fmt.Errorf("expected '{', got %v", token)
 	}
-	
+
 	// Parse key-value pairs
 	for decoder.More() {
 		// Read key
@@ -147,16 +147,16 @@ func (om *OrderedMap) UnmarshalJSON(data []byte) error {
 		if !ok {
 			return fmt.Errorf("expected string key, got %v", token)
 		}
-		
+
 		// Read value
 		var value interface{}
 		if err := decoder.Decode(&value); err != nil {
 			return err
 		}
-		
+
 		om.Set(key, value)
 	}
-	
+
 	// Expect '}'
 	token, err = decoder.Token()
 	if err != nil {
@@ -165,7 +165,7 @@ func (om *OrderedMap) UnmarshalJSON(data []byte) error {
 	if delim, ok := token.(json.Delim); !ok || delim != '}' {
 		return fmt.Errorf("expected '}', got %v", token)
 	}
-	
+
 	return nil
 }
 
@@ -180,7 +180,7 @@ func parseOrderedValue(decoder *json.Decoder) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	switch token := token.(type) {
 	case json.Delim:
 		if token == '{' {
@@ -196,21 +196,21 @@ func parseOrderedValue(decoder *json.Decoder) (interface{}, error) {
 				if !ok {
 					return nil, fmt.Errorf("expected string key, got %v", keyToken)
 				}
-				
+
 				// Read value recursively
 				value, err := parseOrderedValue(decoder)
 				if err != nil {
 					return nil, err
 				}
-				
+
 				om.Set(key, value)
 			}
-			
+
 			// Expect '}'
 			if _, err := decoder.Token(); err != nil {
 				return nil, err
 			}
-			
+
 			return om, nil
 		} else if token == '[' {
 			// Parse array
@@ -222,19 +222,19 @@ func parseOrderedValue(decoder *json.Decoder) (interface{}, error) {
 				}
 				arr = append(arr, value)
 			}
-			
+
 			// Expect ']'
 			if _, err := decoder.Token(); err != nil {
 				return nil, err
 			}
-			
+
 			return arr, nil
 		}
 	default:
 		// Primitive value
 		return token, nil
 	}
-	
+
 	return nil, fmt.Errorf("unexpected token: %v", token)
 }
 
@@ -249,7 +249,7 @@ func ConvertToOrdered(data interface{}) interface{} {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
-		
+
 		for _, key := range keys {
 			om.Set(key, ConvertToOrdered(v[key]))
 		}

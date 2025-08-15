@@ -568,7 +568,7 @@ func getBaseProperty(expr string) string {
 				return property
 			}
 		}
-		
+
 		// If no function found, look for nested property access
 		dotIndex := strings.Index(expr[1:], ".")
 		if dotIndex == -1 {

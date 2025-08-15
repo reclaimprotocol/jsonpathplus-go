@@ -57,7 +57,7 @@ func New(path string) (*JSONPath, error) {
 // Execute executes the JSONPath against the given data
 func (jp *JSONPath) Execute(data interface{}) (results []Result, err error) {
 	options := &types.Options{}
-	
+
 	// Catch panics from JavaScript compatibility errors (like null.length)
 	defer func() {
 		if r := recover(); r != nil {
@@ -71,7 +71,7 @@ func (jp *JSONPath) Execute(data interface{}) (results []Result, err error) {
 			panic(r)
 		}
 	}()
-	
+
 	results = jp.engine.evaluator.Evaluate(jp.ast, data, options)
 	err = nil
 	return

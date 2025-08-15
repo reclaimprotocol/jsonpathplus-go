@@ -32,7 +32,7 @@ func main() {
 
 	fmt.Printf("Go Results: %d\n", len(results))
 	for i, result := range results {
-		fmt.Printf("%d. Path: %s, Value: %v, Property: %s\n", 
+		fmt.Printf("%d. Path: %s, Value: %v, Property: %s\n",
 			i+1, result.Path, result.Value, result.ParentProperty)
 	}
 
@@ -43,12 +43,12 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Printf("All recursive results: %d\n", len(allResults))
-	
+
 	// Find all price properties
 	fmt.Printf("\n=== Finding price properties manually ===\n")
 	for i, result := range allResults {
 		if result.ParentProperty == "price" {
-			fmt.Printf("%d. Path: %s, Value: %v, Property: %s\n", 
+			fmt.Printf("%d. Path: %s, Value: %v, Property: %s\n",
 				i+1, result.Path, result.Value, result.ParentProperty)
 		}
 	}

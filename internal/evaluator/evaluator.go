@@ -19,7 +19,7 @@ func formatPath(basePath, key string, isArrayIndex bool) string {
 			return fmt.Sprintf("%s[%d]", basePath, idx)
 		}
 	}
-	
+
 	// JavaScript JSONPath-Plus converts numeric string keys to numeric format in paths
 	// e.g., $['users']['1'] becomes $['users'][1] to match JS behavior
 	if _, err := strconv.Atoi(key); err == nil {
@@ -27,7 +27,7 @@ func formatPath(basePath, key string, isArrayIndex bool) string {
 			return fmt.Sprintf("%s[%d]", basePath, idx)
 		}
 	}
-	
+
 	// Non-numeric object keys use quoted strings: $['users']['name']
 	return fmt.Sprintf("%s['%s']", basePath, key)
 }
@@ -145,14 +145,14 @@ func (e *Evaluator) evaluateSingleNode(node *types.AstNode, ctx types.Result, op
 func (e *Evaluator) deduplicateResults(results []types.Result) []types.Result {
 	seen := make(map[string]bool)
 	var deduplicated []types.Result
-	
+
 	for _, result := range results {
 		if !seen[result.Path] {
 			seen[result.Path] = true
 			deduplicated = append(deduplicated, result)
 		}
 	}
-	
+
 	return deduplicated
 }
 
@@ -505,8 +505,8 @@ func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, option
 			itemResult := types.Result{
 				Value:          item,
 				Path:           fmt.Sprintf("%s[%d]", ctx.Path, i),
-				Parent:         ctx.Parent,        // Parent is the parent of the array (for @parent)
-				ParentProperty: strconv.Itoa(i),   // Property is the array index (for @property)
+				Parent:         ctx.Parent,      // Parent is the parent of the array (for @parent)
+				ParentProperty: strconv.Itoa(i), // Property is the array index (for @property)
 				Index:          i,
 				OriginalIndex:  i,
 			}
@@ -535,13 +535,13 @@ func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, option
 			itemResult := types.Result{
 				Value:          value,
 				Path:           formatPath(ctx.Path, key, false),
-				Parent:         ctx.Value,         // Parent is the object itself (for @parent)
-				ParentProperty: key,               // Property is the object key (for @property)
+				Parent:         ctx.Value, // Parent is the object itself (for @parent)
+				ParentProperty: key,       // Property is the object key (for @property)
 				Index:          index,
 				OriginalIndex:  index,
 			}
 
-			// Create context - for object filtering, @parentProperty should be 
+			// Create context - for object filtering, @parentProperty should be
 			// the property that led to the immediate parent (the object being filtered)
 			// For $.users.1['name'], the parent is the user object at "$.users.1"
 			// which was accessed via property "1", so @parentProperty should be "1"
@@ -577,13 +577,13 @@ func (e *Evaluator) evaluateFilter(node *types.AstNode, ctx types.Result, option
 			itemResult := types.Result{
 				Value:          value,
 				Path:           formatPath(ctx.Path, key, false),
-				Parent:         ctx.Value,         // Parent is the object itself (for @parent)
-				ParentProperty: key,               // Property is the object key (for @property)
+				Parent:         ctx.Value, // Parent is the object itself (for @parent)
+				ParentProperty: key,       // Property is the object key (for @property)
 				Index:          index,
 				OriginalIndex:  index,
 			}
 
-			// Create context - for object filtering, @parentProperty should be 
+			// Create context - for object filtering, @parentProperty should be
 			// the property that led to the immediate parent (the object being filtered)
 			// For $.users.1['name'], the parent is the user object at "$.users.1"
 			// which was accessed via property "1", so @parentProperty should be "1"
@@ -634,7 +634,7 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 	if len(node.Children) == 1 && node.Children[0].Type == "wildcard" {
 		// JavaScript JSONPath-Plus EXACT algorithm replication
 		// Based on: else if (loc === '..') in _trace method
-		
+
 		var processRecursiveDescent func(current types.Result)
 		processRecursiveDescent = func(current types.Result) {
 			// Phase 1: Process current expression (equivalent to this._trace(x, val, ...))
@@ -646,7 +646,7 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 					visited[current.Path] = true
 				}
 			}
-			
+
 			// Process '*' on current value - add all direct children
 			switch v := current.Value.(type) {
 			case *utils.OrderedMap:
@@ -695,7 +695,7 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 					}
 				}
 			}
-			
+
 			// Phase 2: Walk through children and recursively apply full expression
 			// (equivalent to this._walk(val, (m) => { this._trace(expr.slice(), val[m], ...) }))
 			switch v := current.Value.(type) {
@@ -748,10 +748,10 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 				}
 			}
 		}
-		
+
 		// Start the recursive descent from root
 		processRecursiveDescent(ctx)
-		
+
 		return results
 	}
 
@@ -760,12 +760,12 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 	if len(node.Children) == 2 && node.Children[0].Type == "wildcard" && node.Children[1].Type == "filter" {
 		// Use the EXACT same two-phase algorithm as $..*
 		var allProperties []types.Result
-		
+
 		var processRecursiveDescent func(current types.Result)
 		processRecursiveDescent = func(current types.Result) {
 			// Phase 1: Process current expression (equivalent to this._trace(x, val, ...))
 			// where x is the remaining expression after '..', which is ['*']
-			
+
 			// Process '*' on current value - add all direct children to allProperties
 			switch v := current.Value.(type) {
 			case *utils.OrderedMap:
@@ -814,7 +814,7 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 					}
 				}
 			}
-			
+
 			// Phase 2: Walk through children and recursively apply full expression
 			// (equivalent to this._walk(val, (m) => { this._trace(expr.slice(), val[m], ...) }))
 			switch v := current.Value.(type) {
@@ -867,15 +867,15 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 				}
 			}
 		}
-		
+
 		// Start the recursive descent from root
 		processRecursiveDescent(ctx)
-		
+
 		// Apply JavaScript's specific ordering for recursive descent filters
 		// JavaScript processes object properties before array elements in filters
 		var objectProps []types.Result
 		var arrayProps []types.Result
-		
+
 		for _, prop := range allProperties {
 			// Check if this is from an object or array by looking at the parent
 			if strings.Contains(prop.Path, "bicycle") {
@@ -884,10 +884,10 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 				arrayProps = append(arrayProps, prop)
 			}
 		}
-		
+
 		// Reconstruct allProperties with objects first, then arrays
 		allProperties = append(objectProps, arrayProps...)
-		
+
 		filterNode := node.Children[1]
 		results = e.evaluateFilterOnResults(filterNode, allProperties, options)
 		return results
@@ -956,16 +956,16 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 		if len(node.Children) >= 2 && node.Children[0].Type == "wildcard" && node.Children[1].Type == "filter" {
 			// For $..*[?(...)] pattern, apply wildcard to all nodes first, then apply filter
 			var allWildcardResults []types.Result
-			
+
 			// Apply wildcard to each collected node to get all properties
 			for _, nodeResult := range allNodes {
 				wildcardResults := e.evaluateWildcard(node.Children[0], nodeResult, options)
 				allWildcardResults = append(allWildcardResults, wildcardResults...)
 			}
-			
+
 			// Deduplicate wildcard results by path
 			allWildcardResults = e.deduplicateResults(allWildcardResults)
-			
+
 			// Now apply the filter to all wildcard results
 			filterNode := node.Children[1]
 			results = e.evaluateFilterOnResults(filterNode, allWildcardResults, options)
@@ -975,7 +975,7 @@ func (e *Evaluator) evaluateRecursive(node *types.AstNode, ctx types.Result, opt
 				childResults := e.evaluateNode(node.Children[0], []types.Result{nodeResult}, options)
 				results = append(results, childResults...)
 			}
-			
+
 			// Deduplicate results by path
 			results = e.deduplicateResults(results)
 		}
