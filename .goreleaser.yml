@@ -102,8 +102,7 @@ source:
 
 # Git configuration
 git:
-  ignore_tags:
-    - "{{ .Env.IGNORE_TAG }}"
+  ignore_tags: []
 
 # Before hooks
 before:
