@@ -5,7 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2025-08-15 🎉 **HISTORIC RELEASE**
+## [1.1.0] - 2025-08-15 🚀 **PRODUCTION RELEASE**
+
+### 🎉 Major Features
+
+- **String Index Tracking** - Complete implementation of character position tracking in JSON strings
+  - Full support for OrderedMap objects
+  - Accurate array element position tracking
+  - Whitespace-aware positioning
+- **CI/CD Ready** - All linting and formatting issues resolved
+  - Fixed golangci-lint S1017 warnings
+  - Applied gofmt -s formatting
+  - Corrected directory structures
+- **Enhanced Testing** - 100% test coverage maintained
+  - String index preservation tests passing
+  - Compatibility tests at 100%
+
+### 🔧 Bug Fixes
+
+- Fixed array index extraction for paths like `$[0]['id']`
+- Resolved OrderedMap string indexing support
+- Corrected multiple bracket pair handling in path parsing
+- Fixed conditional strings.HasPrefix to unconditional TrimPrefix
+
+### 📚 Documentation
+
+- Comprehensive release notes
+- Updated version to 1.1.0
+- Enhanced examples with string indexing
+
+## [1.0.0] - 2025-08-15 🎉 **HISTORIC RELEASE**
 
 ### 🏆 Perfect JavaScript Compatibility Achieved
 
