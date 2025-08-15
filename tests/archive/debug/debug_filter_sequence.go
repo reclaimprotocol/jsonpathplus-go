@@ -20,13 +20,13 @@ func testDirectComparisonFilter(expr string) (bool, bool) {
 
 func testComparisonFilter(expr string) (bool, bool) {
 	fmt.Printf("Testing comparison filter on: %q\n", expr)
-	
+
 	// Check for array access exclusion
 	if strings.Contains(expr, "[") {
 		fmt.Printf("  ❌ Contains '[' - excluded\n")
 		return false, false
 	}
-	
+
 	re := regexp.MustCompile(`\.([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*)\s*(===|!==|<=|>=|==|!=|<|>)\s*(.+)`)
 	matches := re.FindStringSubmatch(expr)
 	if len(matches) != 4 {
@@ -53,27 +53,27 @@ func simulateFilterOrder(expr string) {
 	fmt.Printf("=== SIMULATING FILTER ORDER ===\n")
 	fmt.Printf("Expression: %q\n", expr)
 	fmt.Println(strings.Repeat("-", 40))
-	
+
 	// Order from the actual code:
-	
+
 	// tryDirectComparisonFilter
 	if result, ok := testDirectComparisonFilter(expr); ok {
 		fmt.Printf("🔴 STOPPED at direct comparison filter (result: %t)\n", result)
 		return
 	}
-	
-	// tryArrayWildcardFilter  
+
+	// tryArrayWildcardFilter
 	if result, ok := testArrayWildcardFilter(expr); ok {
 		fmt.Printf("🟢 STOPPED at array wildcard filter (result: %t)\n", result)
 		return
 	}
-	
+
 	// tryComparisonFilter
 	if result, ok := testComparisonFilter(expr); ok {
 		fmt.Printf("🟡 STOPPED at comparison filter (result: %t)\n", result)
 		return
 	}
-	
+
 	fmt.Printf("🔴 No filter matched\n")
 }
 
@@ -83,7 +83,7 @@ func debug_filter_sequenceMain() {
 		`.items[0].product === "laptop"`,
 		`.name === "Alice"`, // Should work with comparison filter
 	}
-	
+
 	for _, expr := range expressions {
 		simulateFilterOrder(expr)
 		fmt.Println()

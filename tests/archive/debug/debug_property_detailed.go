@@ -8,15 +8,15 @@ import (
 
 func debug_property_detailedMain() {
 	data := `{"store":{"book":[{"title":"Book0"},{"title":"Book1"}],"info":{"0":"string_zero","1":"string_one"}}}`
-	
+
 	fmt.Println("=== Testing Property Value Types ===")
-	
+
 	// Test different property filter queries to see what types we get
 	queries := []string{
-		"$..book[*]",        // Array elements - should get numbers
-		"$..info[*]",        // Object keys - should get strings
+		"$..book[*]", // Array elements - should get numbers
+		"$..info[*]", // Object keys - should get strings
 	}
-	
+
 	for _, query := range queries {
 		fmt.Printf("\nQuery: %s\n", query)
 		results, err := jp.Query(query, data)
@@ -33,7 +33,7 @@ func debug_property_detailedMain() {
 			}
 		}
 	}
-	
+
 	// Test specific filter cases
 	fmt.Printf("\n=== Testing Specific Filter Cases ===\n")
 	testCases := []struct {
@@ -47,7 +47,7 @@ func debug_property_detailedMain() {
 		{"$..info[?(@property === '0')]", "Object: @property === '0'"},
 		{"$..info[?(@property !== 0)]", "Object: @property !== 0"},
 	}
-	
+
 	for _, test := range testCases {
 		fmt.Printf("\n%s\n", test.desc)
 		fmt.Printf("Query: %s\n", test.query)
@@ -59,7 +59,9 @@ func debug_property_detailedMain() {
 			if len(results) > 0 {
 				fmt.Printf("Go Paths: [")
 				for i, r := range results {
-					if i > 0 { fmt.Print(", ") }
+					if i > 0 {
+						fmt.Print(", ")
+					}
 					fmt.Printf("\"%s\"", r.Path)
 				}
 				fmt.Println("]")

@@ -16,7 +16,7 @@ func debug_nested_astMain() {
 	simpleQuery := `$.orders[?(@.id === "ORD001")]`
 	fmt.Printf("=== SIMPLE FILTER AST ===\n")
 	fmt.Printf("Query: %s\n", simpleQuery)
-	
+
 	simpleJsonPath, err := jp.New(simpleQuery)
 	if err != nil {
 		fmt.Printf("Parse Error: %v\n", err)
@@ -29,7 +29,7 @@ func debug_nested_astMain() {
 	nestedQuery := `$.orders[?(@.items[?(@.product === "laptop")])]`
 	fmt.Printf("\n=== NESTED FILTER AST ===\n")
 	fmt.Printf("Query: %s\n", nestedQuery)
-	
+
 	nestedJsonPath, err := jp.New(nestedQuery)
 	if err != nil {
 		fmt.Printf("Parse Error: %v\n", err)
@@ -37,7 +37,7 @@ func debug_nested_astMain() {
 		fmt.Println("AST:")
 		printAST(nestedJsonPath.AST(), "")
 	}
-	
+
 	// Let's also test what the filter string looks like
 	fmt.Printf("\n=== FILTER STRINGS ===\n")
 	if nestedJsonPath != nil && nestedJsonPath.AST() != nil {

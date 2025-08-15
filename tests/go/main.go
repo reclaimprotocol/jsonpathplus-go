@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	
+
 	jp "github.com/reclaimprotocol/jsonpathplus-go"
 )
 
@@ -23,7 +23,7 @@ func main() {
 	jsonpathOrFile := os.Args[1]
 	jsonDataOrFile := os.Args[2]
 	var jsonpath, jsonData string
-	
+
 	// Check flags
 	queryFromFile := false
 	dataFromFile := false
@@ -35,16 +35,16 @@ func main() {
 			dataFromFile = true
 		}
 	}
-	
+
 	// Read JSONPath query
 	if queryFromFile {
 		queryData, err := os.ReadFile(jsonpathOrFile)
 		if err != nil {
 			output := map[string]interface{}{
-				"error": fmt.Sprintf("Failed to read query file: %v", err),
-				"count": 0,
+				"error":  fmt.Sprintf("Failed to read query file: %v", err),
+				"count":  0,
 				"values": []interface{}{},
-				"paths": []string{},
+				"paths":  []string{},
 			}
 			jsonBytes, _ := json.Marshal(output)
 			fmt.Println(string(jsonBytes))
@@ -54,16 +54,16 @@ func main() {
 	} else {
 		jsonpath = jsonpathOrFile
 	}
-	
+
 	// Read JSON data
 	if dataFromFile {
 		fileData, err := os.ReadFile(jsonDataOrFile)
 		if err != nil {
 			output := map[string]interface{}{
-				"error": fmt.Sprintf("Failed to read data file: %v", err),
-				"count": 0,
+				"error":  fmt.Sprintf("Failed to read data file: %v", err),
+				"count":  0,
 				"values": []interface{}{},
-				"paths": []string{},
+				"paths":  []string{},
 			}
 			jsonBytes, _ := json.Marshal(output)
 			fmt.Println(string(jsonBytes))
@@ -77,10 +77,10 @@ func main() {
 	results, err := jp.Query(jsonpath, jsonData)
 	if err != nil {
 		output := map[string]interface{}{
-			"error": err.Error(),
-			"count": 0,
+			"error":  err.Error(),
+			"count":  0,
 			"values": []interface{}{},
-			"paths": []string{},
+			"paths":  []string{},
 		}
 		jsonBytes, _ := json.Marshal(output)
 		fmt.Println(string(jsonBytes))
@@ -95,9 +95,9 @@ func main() {
 	}
 
 	output := map[string]interface{}{
-		"count": len(results),
+		"count":  len(results),
 		"values": values,
-		"paths": paths,
+		"paths":  paths,
 	}
 
 	jsonBytes, err := json.Marshal(output)

@@ -2,8 +2,8 @@ package jsonpathplus
 
 import (
 	"fmt"
-	"strings"
 	jp "github.com/reclaimprotocol/jsonpathplus-go"
+	"strings"
 )
 
 func debug_whitespaceMain() {
@@ -16,12 +16,12 @@ func debug_whitespaceMain() {
 	}`
 
 	queries := []string{
-		`$.users[?(@.name === "Alice")]`,        // No spaces
-		`$.users[?(@.name==="Alice")]`,          // No spaces at all
-		`$.users[?(@.name === "Alice")]`,        // Normal spaces
-		`$.users[?(@.name  ===  "Alice")]`,      // Extra spaces
-		`$.users[?( @.name === "Alice" )]`,      // Spaces around expression
-		`$.users[?(@.name === 'Alice')]`,        // Single quotes
+		`$.users[?(@.name === "Alice")]`,   // No spaces
+		`$.users[?(@.name==="Alice")]`,     // No spaces at all
+		`$.users[?(@.name === "Alice")]`,   // Normal spaces
+		`$.users[?(@.name  ===  "Alice")]`, // Extra spaces
+		`$.users[?( @.name === "Alice" )]`, // Spaces around expression
+		`$.users[?(@.name === 'Alice')]`,   // Single quotes
 	}
 
 	fmt.Println("Testing whitespace sensitivity in Go JSONPath implementation:")
@@ -74,4 +74,3 @@ func debug_whitespaceMain() {
 		}
 	}
 }
-

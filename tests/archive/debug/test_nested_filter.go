@@ -2,7 +2,7 @@ package jsonpathplus
 
 import (
 	"fmt"
-	
+
 	jp "github.com/reclaimprotocol/jsonpathplus-go"
 )
 
@@ -14,10 +14,10 @@ func test_nested_filterMain() {
 			{"id": "ORD003", "items": [{"product": "laptop", "price": 1299.99}]}
 		]
 	}`
-	
+
 	query := `$.orders[?(@.items[?(@.product === 'laptop')])]`
 	fmt.Printf("Testing: %s\n", query)
-	
+
 	results, err := jp.Query(query, data)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)

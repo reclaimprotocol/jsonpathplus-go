@@ -1,9 +1,9 @@
 package jsonpathplus
 
 import (
-	"fmt"
 	"encoding/json"
-	
+	"fmt"
+
 	jp "github.com/reclaimprotocol/jsonpathplus-go"
 )
 
@@ -15,7 +15,7 @@ func printAST(node interface{}, indent string) {
 func debug_astMain() {
 	query := `$.orders[?(@.items[?(@.product === 'laptop')])]`
 	fmt.Printf("Parsing: %s\n", query)
-	
+
 	jsonpath, err := jp.New(query)
 	if err != nil {
 		fmt.Printf("Parse Error: %v\n", err)

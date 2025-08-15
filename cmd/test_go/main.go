@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	
+
 	jp "github.com/reclaimprotocol/jsonpathplus-go"
 )
 
@@ -21,10 +21,10 @@ func main() {
 	results, err := jp.Query(jsonpath, jsonData)
 	if err != nil {
 		output := map[string]interface{}{
-			"error": err.Error(),
-			"count": 0,
+			"error":  err.Error(),
+			"count":  0,
 			"values": []interface{}{},
-			"paths": []string{},
+			"paths":  []string{},
 		}
 		jsonBytes, _ := json.Marshal(output)
 		fmt.Println(string(jsonBytes))
@@ -39,9 +39,9 @@ func main() {
 	}
 
 	output := map[string]interface{}{
-		"count": len(results),
+		"count":  len(results),
 		"values": values,
-		"paths": paths,
+		"paths":  paths,
 	}
 
 	jsonBytes, err := json.Marshal(output)

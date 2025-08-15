@@ -14,18 +14,18 @@ func debug_array_wildcardMain() {
 			{"id": "ORD003", "items": [{"product": "laptop", "price": 1299.99}]}
 		]
 	}`
-	
+
 	queries := []string{
 		// Array wildcard variations
 		`$.orders[?(@.items[*].product === "laptop")]`,
 		`$.orders[?(@.items[*].product == "laptop")]`,
 		`$.orders[?(@.items[0].product === "laptop")]`, // Test specific index
-		
+
 		// These should also work
 		`$.orders[?(@.items[*].price > 1000)]`,
 		`$.orders[?(@.items[0].price > 500)]`,
 	}
-	
+
 	for i, query := range queries {
 		fmt.Printf("Test %d: %s\n", i+1, query)
 		results, err := jp.Query(query, orderData)
@@ -37,7 +37,9 @@ func debug_array_wildcardMain() {
 				fmt.Printf(" (")
 				for j, result := range results {
 					if order, ok := result.Value.(map[string]interface{}); ok {
-						if j > 0 { fmt.Printf(", ") }
+						if j > 0 {
+							fmt.Printf(", ")
+						}
 						fmt.Printf("%v", order["id"])
 					}
 				}

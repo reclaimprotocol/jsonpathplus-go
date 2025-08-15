@@ -2,7 +2,7 @@ package jsonpathplus
 
 import (
 	"fmt"
-	
+
 	jp "github.com/reclaimprotocol/jsonpathplus-go"
 )
 
@@ -14,10 +14,10 @@ func test_wildcard_filterMain() {
 			{"id": 3, "items": [{"product": "laptop", "qty": 1}]}
 		]
 	}`
-	
+
 	query := `$.orders[?(@.items[*].product === 'laptop')]`
 	fmt.Printf("Testing: %s\n", query)
-	
+
 	results, err := jp.Query(query, data)
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)

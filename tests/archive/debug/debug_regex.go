@@ -8,21 +8,21 @@ import (
 func debug_regexMain() {
 	// Test the nested filter regex
 	expr := `@.items[?(@.product === "laptop")]`
-	
+
 	patterns := []string{
-		`@\.([a-zA-Z_]\w*)(\[[^\[\]]*\])?\[\\?\(([^)]+)\)\]`,      // Current pattern
-		`@\.([a-zA-Z_]\w*)\[\\?\(([^)]+)\)\]`,                    // Simplified pattern
-		`@\.(\w+)\[\?\(([^)]+)\)\]`,                             // Even simpler
+		`@\.([a-zA-Z_]\w*)(\[[^\[\]]*\])?\[\\?\(([^)]+)\)\]`, // Current pattern
+		`@\.([a-zA-Z_]\w*)\[\\?\(([^)]+)\)\]`,                // Simplified pattern
+		`@\.(\w+)\[\?\(([^)]+)\)\]`,                          // Even simpler
 	}
-	
+
 	fmt.Printf("Testing expression: %s\n", expr)
 	fmt.Printf("==================================================\n")
-	
+
 	for i, pattern := range patterns {
 		fmt.Printf("\nPattern %d: %s\n", i+1, pattern)
 		re := regexp.MustCompile(pattern)
 		matches := re.FindStringSubmatch(expr)
-		
+
 		if len(matches) == 0 {
 			fmt.Printf("❌ No matches\n")
 		} else {
@@ -32,20 +32,20 @@ func debug_regexMain() {
 			}
 		}
 	}
-	
+
 	// Let's also test manually building the pattern piece by piece
 	fmt.Printf("\n==================================================\n")
 	fmt.Printf("Manual pattern building:\n")
-	
+
 	testParts := []string{
-		`@\.`,                    // @.
-		`([a-zA-Z_]\w*)`,        // items  
-		`\[`,                    // [
-		`\?\(`,                  // ?(
-		`([^)]+)`,               // @.product === "laptop"
-		`\)\]`,                  // )]
+		`@\.`,            // @.
+		`([a-zA-Z_]\w*)`, // items
+		`\[`,             // [
+		`\?\(`,           // ?(
+		`([^)]+)`,        // @.product === "laptop"
+		`\)\]`,           // )]
 	}
-	
+
 	fullPattern := ""
 	for i, part := range testParts {
 		fullPattern += part

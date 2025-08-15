@@ -13,7 +13,7 @@ func debug_nested_detailedMain() {
 			{"id": "ORD003", "items": [{"product": "laptop", "price": 1299.99}]}
 		]
 	}`
-	
+
 	// First, let's test a simpler nested approach to verify the data
 	fmt.Println("=== Testing data structure ===")
 	simpleQuery := `$.orders[*].items[*].product`
@@ -26,7 +26,7 @@ func debug_nested_detailedMain() {
 			fmt.Printf("  %d: %v\n", i+1, result.Value)
 		}
 	}
-	
+
 	// Test array wildcard filter (should work)
 	fmt.Println("\n=== Testing array wildcard filter ===")
 	wildcardQuery := `$.orders[?(@.items[*].product === "laptop")]`
@@ -41,7 +41,7 @@ func debug_nested_detailedMain() {
 			}
 		}
 	}
-	
+
 	// Test the nested filter we're trying to fix
 	fmt.Println("\n=== Testing nested filter ===")
 	nestedQuery := `$.orders[?(@.items[?(@.product === "laptop")])]`
@@ -56,7 +56,7 @@ func debug_nested_detailedMain() {
 			}
 		}
 	}
-	
+
 	// Let's also test the JavaScript version for comparison
 	fmt.Println("\n=== Expected JavaScript behavior ===")
 	fmt.Println("JavaScript should return 2 orders: ORD001 and ORD003")

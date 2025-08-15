@@ -8,13 +8,13 @@ import (
 // extractParentPropertyFromPath extracts the parent property name from a JSONPath
 func extractParentPropertyFromPath(path string) string {
 	fmt.Printf("  Extracting from path: '%s'\n", path)
-	
+
 	// For @parentProperty, we want the property that led to the parent of the current item
 	// Examples:
 	// "$.users.1['name']" -> "users" (parent of parent of 'name')
-	// "$.store.book[0]['title']" -> "store" (parent of parent of 'title')  
+	// "$.store.book[0]['title']" -> "store" (parent of parent of 'title')
 	// "$.users['1']" -> "" (filtering users object directly)
-	
+
 	if strings.Contains(path, "['") {
 		fmt.Printf("  Found bracket notation\n")
 		// Path has bracket notation for current property like $.users.1['name']
@@ -24,7 +24,7 @@ func extractParentPropertyFromPath(path string) string {
 		if lastBracket > 0 {
 			parentPath := path[:lastBracket] // "$.users.1"
 			fmt.Printf("  Parent path: '%s'\n", parentPath)
-			
+
 			// Now get the parent of this parent
 			// Find the second-to-last property
 			if strings.Contains(parentPath, ".") {
@@ -39,7 +39,7 @@ func extractParentPropertyFromPath(path string) string {
 			}
 		}
 	}
-	
+
 	fmt.Printf("  No extraction possible\n")
 	return "" // Default for cases we can't parse
 }
@@ -47,11 +47,11 @@ func extractParentPropertyFromPath(path string) string {
 func debug_pathMain() {
 	testPaths := []string{
 		"$.users.1['name']",
-		"$.store.book[0]['title']", 
+		"$.store.book[0]['title']",
 		"$.users['1']",
 		"$.users.1",
 	}
-	
+
 	for _, path := range testPaths {
 		fmt.Printf("Path: %s\n", path)
 		result := extractParentPropertyFromPath(path)

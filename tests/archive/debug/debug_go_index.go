@@ -8,18 +8,18 @@ import (
 
 func debug_go_indexMain() {
 	data := `{"store":{"book":[{"title":"Book0"},{"title":"Book1"},{"title":"Book2"}]}}`
-	
+
 	fmt.Println("=== Testing Go String Index Access ===")
-	
+
 	// Test different index access patterns
 	tests := []string{
-		"$.store.book[0]",           // Direct numeric index
-		"$.store.book['0']",         // String index  
-		"$['store']['book'][0]",     // Bracket notation with numeric
-		"$['store']['book']['0']",   // Bracket notation with string
-		"$.store['book'][0]",        // Mixed notation
+		"$.store.book[0]",         // Direct numeric index
+		"$.store.book['0']",       // String index
+		"$['store']['book'][0]",   // Bracket notation with numeric
+		"$['store']['book']['0']", // Bracket notation with string
+		"$.store['book'][0]",      // Mixed notation
 	}
-	
+
 	for _, query := range tests {
 		fmt.Printf("\nQuery: %s\n", query)
 		results, err := jp.Query(query, data)
@@ -34,10 +34,10 @@ func debug_go_indexMain() {
 			}
 		}
 	}
-	
+
 	fmt.Println("\n=== Testing @property context ===")
 	// Let's also test what @property values we get
-	
+
 	fmt.Printf("\nQuery: $.store.book[*]\n")
 	results, err := jp.Query("$.store.book[*]", data)
 	if err != nil {

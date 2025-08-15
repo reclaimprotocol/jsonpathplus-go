@@ -29,16 +29,16 @@ func cleanFilterExpression(expr string) string {
 
 func debug_filter_exprMain() {
 	originalExpr := `@.items[*].product === "laptop"`
-	
+
 	// Test what happens to the expression after cleaning
 	cleanedExpr := cleanFilterExpression(originalExpr)
 	fmt.Printf("Original: %q\n", originalExpr)
 	fmt.Printf("Cleaned:  %q\n", cleanedExpr)
-	
+
 	// Test the array wildcard regex
 	re := regexp.MustCompile(`\.([a-zA-Z_]\w*)\[\*\]\.([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*)\s*(===|!==|<=|>=|==|!=|<|>)\s*(.+)`)
 	matches := re.FindStringSubmatch(cleanedExpr)
-	
+
 	fmt.Printf("\nArray wildcard regex test:\n")
 	fmt.Printf("Pattern: %s\n", re.String())
 	if len(matches) == 0 {
@@ -49,19 +49,19 @@ func debug_filter_exprMain() {
 			fmt.Printf("  [%d]: %q\n", i, match)
 		}
 	}
-	
-	// Test nested filter cleaning  
+
+	// Test nested filter cleaning
 	fmt.Printf("\n" + strings.Repeat("=", 50) + "\n")
-	
+
 	nestedOriginal := `@.items[?(@.product === "laptop")]`
 	nestedCleaned := cleanFilterExpression(nestedOriginal)
 	fmt.Printf("Nested Original: %q\n", nestedOriginal)
 	fmt.Printf("Nested Cleaned:  %q\n", nestedCleaned)
-	
+
 	// Test nested filter regex
 	nestedRe := regexp.MustCompile(`\.(\w+)\[\?\(([^)]+)\)\]`)
 	nestedMatches := nestedRe.FindStringSubmatch(nestedCleaned)
-	
+
 	fmt.Printf("\nNested filter regex test:\n")
 	fmt.Printf("Pattern: %s\n", nestedRe.String())
 	if len(nestedMatches) == 0 {
