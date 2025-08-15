@@ -31,9 +31,8 @@ archives:
         format: zip
     files:
       - README.md
-      - LICENSE
-      - examples/**
-      - "*.go"
+      - "docs/**"
+      - "cmd/examples/**"
 
 # Checksum configuration
 checksum:
@@ -113,16 +112,6 @@ before:
     - go mod verify
     - go test -short ./...
 
-# Publisher configuration for Go modules
-publishers:
-  - name: go-proxy
-    env:
-      - GOPROXY_KEY={{ .Env.GOPROXY_KEY }}
-    cmd: curl -f -X POST -H "Authorization: Bearer {{ .Env.GOPROXY_KEY }}" https://proxy.golang.org/sumdb/sum.golang.org/supported
-
-# Homebrew tap - disabled (no homebrew-tap repository)
-# brews: []
-
-# SBOMs (Software Bill of Materials)
-sboms:
-  - artifacts: archive
+# Publishers and SBOMs disabled for this project
+# publishers: []
+# sboms: []
