@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.5] - 2025-11-22 🐛 **PARSER FIX**
+
+### 🐛 Bug Fixes
+- **Fixed Parser Issue** - Resolved issue where `.[` syntax (dot followed by bracket) caused parsing errors.
+  - Enabled support for paths like `$.data.[?(@.field >= value)]`.
+  - Verified with new test cases and full regression suite.
+
+### 🧪 Testing
+- Added test cases for `.[` syntax with filter expressions.
+- Maintained 100% compatibility with JavaScript implementation.
 ## [1.1.1] - 2025-08-15 🔧 **RELEASE AUTOMATION FIX**
 
 ### 🔧 Infrastructure
