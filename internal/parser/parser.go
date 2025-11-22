@@ -132,6 +132,17 @@ func (p *Parser) parseDotSegment(path string) (*types.AstNode, int, error) {
 		return recursiveNode, 2, nil
 	}
 
+	// Handle .[ syntax (dot followed by bracket) - treat as bracket segment
+	if path[1] == '[' {
+		// Skip the dot and parse as bracket segment
+		node, pos, err := p.parseBracketSegment(path[1:])
+		if err != nil {
+			return nil, 0, err
+		}
+		// Add 1 to pos to account for the skipped dot
+		return node, pos + 1, nil
+	}
+
 	// Handle property access (.property) or wildcard (.*)
 	pos := 1
 	if path[1] == '*' {

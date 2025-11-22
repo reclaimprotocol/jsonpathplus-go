@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-08-15T00:54:14.295Z",
+  "timestamp": "2025-11-22T12:08:25.962Z",
   "summary": {
-    "total": 50,
-    "perfectMatches": 50,
-    "countMatches": 50,
-    "valueMatches": 50,
+    "total": 53,
+    "perfectMatches": 53,
+    "countMatches": 53,
+    "valueMatches": 53,
     "categories": {
       "basic": {
         "total": 1,
@@ -19,8 +19,8 @@
         "matches": 3
       },
       "filters": {
-        "total": 2,
-        "matches": 2
+        "total": 5,
+        "matches": 5
       },
       "property_filters": {
         "total": 7,
@@ -1399,6 +1399,84 @@
       "jsResult": {
         "count": 1,
         "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Followers count >= 100 (Array)",
+        "jsonpath": "$.data.user.result.legacy.[?(@.followers_count >= 100)].followers_count",
+        "data": "twitter_like_data",
+        "category": "filters",
+        "description": "Filter with >= operator on array"
+      },
+      "goResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 1,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Friends count >= 0 (Array)",
+        "jsonpath": "$.data.user.result.legacy.[?(@.friends_count >= 0)].friends_count",
+        "data": "twitter_like_data",
+        "category": "filters",
+        "description": "Filter with >= operator on array"
+      },
+      "goResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "jsResult": {
+        "count": 2,
+        "hasValues": true
+      },
+      "comparison": {
+        "countMatch": true,
+        "valuesMatch": true,
+        "pathsMatch": true,
+        "goError": false,
+        "jsError": false,
+        "errorMatch": true,
+        "perfectMatch": true
+      }
+    },
+    {
+      "testCase": {
+        "name": "Followers count >= 100 (Object)",
+        "jsonpath": "$.data.user.result.legacy.[?(@.followers_count >= 100)].followers_count",
+        "data": "twitter_like_data_obj",
+        "category": "filters",
+        "description": "Filter with >= operator on object"
+      },
+      "goResult": {
+        "count": 0,
+        "hasValues": false
+      },
+      "jsResult": {
+        "count": 0,
+        "hasValues": false
       },
       "comparison": {
         "countMatch": true,

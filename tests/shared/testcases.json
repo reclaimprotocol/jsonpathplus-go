@@ -41,14 +41,26 @@
         "departments": {
           "engineering": {
             "employees": [
-              {"name": "Alice", "level": "senior", "role": "developer"},
-              {"name": "Bob", "level": "junior", "role": "designer"}
+              {
+                "name": "Alice",
+                "level": "senior",
+                "role": "developer"
+              },
+              {
+                "name": "Bob",
+                "level": "junior",
+                "role": "designer"
+              }
             ],
             "manager": "Eve"
           },
           "sales": {
             "employees": [
-              {"name": "Charlie", "level": "senior", "role": "rep"}
+              {
+                "name": "Charlie",
+                "level": "senior",
+                "role": "rep"
+              }
             ],
             "manager": "Dave"
           }
@@ -63,29 +75,58 @@
       "orders": [
         {
           "id": "ORD001",
-          "customer": {"name": "Alice", "type": "premium"},
+          "customer": {
+            "name": "Alice",
+            "type": "premium"
+          },
           "items": [
-            {"product": "laptop", "price": 999.99, "quantity": 1},
-            {"product": "mouse", "price": 29.99, "quantity": 2}
+            {
+              "product": "laptop",
+              "price": 999.99,
+              "quantity": 1
+            },
+            {
+              "product": "mouse",
+              "price": 29.99,
+              "quantity": 2
+            }
           ],
           "status": "shipped",
           "total": 1059.97
         },
         {
-          "id": "ORD002", 
-          "customer": {"name": "Bob", "type": "regular"},
+          "id": "ORD002",
+          "customer": {
+            "name": "Bob",
+            "type": "regular"
+          },
           "items": [
-            {"product": "keyboard", "price": 79.99, "quantity": 1}
+            {
+              "product": "keyboard",
+              "price": 79.99,
+              "quantity": 1
+            }
           ],
           "status": "pending",
           "total": 79.99
         },
         {
           "id": "ORD003",
-          "customer": {"name": "Charlie", "type": "premium"},
+          "customer": {
+            "name": "Charlie",
+            "type": "premium"
+          },
           "items": [
-            {"product": "monitor", "price": 299.99, "quantity": 1},
-            {"product": "cable", "price": 19.99, "quantity": 3}
+            {
+              "product": "monitor",
+              "price": 299.99,
+              "quantity": 1
+            },
+            {
+              "product": "cable",
+              "price": 19.99,
+              "quantity": 3
+            }
           ],
           "status": "shipped",
           "total": 359.97
@@ -95,9 +136,15 @@
     "simple_books": {
       "store": {
         "book": [
-          {"title": "Book0"},
-          {"title": "Book1"},
-          {"title": "Book2"}
+          {
+            "title": "Book0"
+          },
+          {
+            "title": "Book1"
+          },
+          {
+            "title": "Book2"
+          }
         ]
       }
     },
@@ -107,23 +154,57 @@
         "hello",
         true,
         null,
-        {"key": "value"},
-        [1, 2, 3]
+        {
+          "key": "value"
+        },
+        [
+          1,
+          2,
+          3
+        ]
       ]
     },
     "nested_arrays": {
       "matrix": [
-        [1, 2, 3],
-        [4, 5, 6],
-        [7, 8, 9]
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          4,
+          5,
+          6
+        ],
+        [
+          7,
+          8,
+          9
+        ]
       ],
-      "tags": ["red", "green", "blue"]
+      "tags": [
+        "red",
+        "green",
+        "blue"
+      ]
     },
     "complex_structure": {
       "users": {
-        "1": {"name": "Alice", "age": 25, "active": true},
-        "2": {"name": "Bob", "age": 30, "active": false},
-        "10": {"name": "Charlie", "age": 35, "active": true}
+        "1": {
+          "name": "Alice",
+          "age": 25,
+          "active": true
+        },
+        "2": {
+          "name": "Bob",
+          "age": 30,
+          "active": false
+        },
+        "10": {
+          "name": "Charlie",
+          "age": 35,
+          "active": true
+        }
       },
       "settings": {
         "theme": "dark",
@@ -146,6 +227,39 @@
         "123numeric": "value3",
         "": "empty key value"
       }
+    },
+    "twitter_like_data": {
+      "data": {
+        "user": {
+          "result": {
+            "legacy": [
+              {
+                "followers_count": 150,
+                "friends_count": 50,
+                "name": "User1"
+              },
+              {
+                "followers_count": 10,
+                "friends_count": 5,
+                "name": "User2"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "twitter_like_data_obj": {
+      "data": {
+        "user": {
+          "result": {
+            "legacy": {
+              "followers_count": 150,
+              "friends_count": 50,
+              "name": "User1"
+            }
+          }
+        }
+      }
     }
   },
   "testCases": [
@@ -157,7 +271,7 @@
       "description": "Basic property access in arrays"
     },
     {
-      "name": "All authors", 
+      "name": "All authors",
       "jsonpath": "$..author",
       "data": "goessner_spec_data",
       "category": "recursive_descent",
@@ -166,7 +280,7 @@
     {
       "name": "All elements beneath root",
       "jsonpath": "$..*",
-      "data": "goessner_spec_data", 
+      "data": "goessner_spec_data",
       "category": "recursive_descent",
       "description": "Complete recursive descent"
     },
@@ -186,7 +300,7 @@
     },
     {
       "name": "Books cheaper than 10",
-      "jsonpath": "$..book[?(@.price<10)]", 
+      "jsonpath": "$..book[?(@.price<10)]",
       "data": "goessner_spec_data",
       "category": "filters",
       "description": "Numeric comparison filter"
@@ -199,7 +313,7 @@
       "description": "Property name filter with value condition"
     },
     {
-      "name": "Books not at index 0", 
+      "name": "Books not at index 0",
       "jsonpath": "$..book[?(@property !== 0)]",
       "data": "goessner_spec_data",
       "category": "property_filters",
@@ -236,7 +350,7 @@
     {
       "name": "Array last element",
       "jsonpath": "$.matrix[-1]",
-      "data": "nested_arrays", 
+      "data": "nested_arrays",
       "category": "array_access",
       "description": "Last element with negative index"
     },
@@ -255,7 +369,7 @@
       "description": "Deep array element access"
     },
     {
-      "name": "All nested array elements", 
+      "name": "All nested array elements",
       "jsonpath": "$.matrix[*][*]",
       "data": "nested_arrays",
       "category": "nested_wildcard",
@@ -269,7 +383,7 @@
       "description": "String property comparison"
     },
     {
-      "name": "Property not equals string", 
+      "name": "Property not equals string",
       "jsonpath": "$.users[?(@property !== '1')]",
       "data": "complex_structure",
       "category": "property_filters",
@@ -278,7 +392,7 @@
     {
       "name": "Property greater than",
       "jsonpath": "$.users[?(@property > '5')]",
-      "data": "complex_structure", 
+      "data": "complex_structure",
       "category": "property_filters",
       "description": "String property comparison"
     },
@@ -286,7 +400,7 @@
       "name": "Array property equals number",
       "jsonpath": "$.data[?(@property === 0)]",
       "data": "mixed_types",
-      "category": "property_filters", 
+      "category": "property_filters",
       "description": "Numeric property for arrays"
     },
     {
@@ -294,11 +408,11 @@
       "jsonpath": "$.data[?(@property !== 0)]",
       "data": "mixed_types",
       "category": "property_filters",
-      "description": "Numeric property negation for arrays" 
+      "description": "Numeric property negation for arrays"
     },
     {
       "name": "Parent property access",
-      "jsonpath": "$.users.1[?(@parent.settings)]", 
+      "jsonpath": "$.users.1[?(@parent.settings)]",
       "data": "complex_structure",
       "category": "parent_filters",
       "description": "Parent object property existence"
@@ -313,7 +427,7 @@
     {
       "name": "Path filter",
       "jsonpath": "$.users[?(@path === \"$['users'][1]\")]",
-      "data": "complex_structure", 
+      "data": "complex_structure",
       "category": "path_filters",
       "description": "Path-based filtering"
     },
@@ -321,7 +435,7 @@
       "name": "ParentProperty filter",
       "jsonpath": "$.users.1[?(@parentProperty === '1')]",
       "data": "complex_structure",
-      "category": "parent_property_filters", 
+      "category": "parent_property_filters",
       "description": "ParentProperty filtering"
     },
     {
@@ -333,7 +447,7 @@
     },
     {
       "name": "Boolean true filter",
-      "jsonpath": "$.data[?(@ === true)]", 
+      "jsonpath": "$.data[?(@ === true)]",
       "data": "mixed_types",
       "category": "value_filters",
       "description": "Boolean true comparison"
@@ -341,7 +455,7 @@
     {
       "name": "Boolean false filter",
       "jsonpath": "$.data[?(@ === false)]",
-      "data": "mixed_types", 
+      "data": "mixed_types",
       "category": "value_filters",
       "description": "Boolean false comparison"
     },
@@ -356,7 +470,7 @@
       "name": "String filter",
       "jsonpath": "$.data[?(@ === 'hello')]",
       "data": "mixed_types",
-      "category": "value_filters", 
+      "category": "value_filters",
       "description": "String value comparison"
     },
     {
@@ -367,7 +481,7 @@
       "description": "AND operator in filter"
     },
     {
-      "name": "Logical OR filter", 
+      "name": "Logical OR filter",
       "jsonpath": "$.users[?(@.age < 25 || @.active === false)]",
       "data": "complex_structure",
       "category": "logical_filters",
@@ -397,7 +511,7 @@
     {
       "name": "Zero value access",
       "jsonpath": "$.zeroValue",
-      "data": "edge_cases", 
+      "data": "edge_cases",
       "category": "edge_cases",
       "description": "Access zero value"
     },
@@ -406,11 +520,11 @@
       "jsonpath": "$.falseValue",
       "data": "edge_cases",
       "category": "edge_cases",
-      "description": "Access false value"  
+      "description": "Access false value"
     },
     {
       "name": "Empty string access",
-      "jsonpath": "$.emptyString", 
+      "jsonpath": "$.emptyString",
       "data": "edge_cases",
       "category": "edge_cases",
       "description": "Access empty string"
@@ -419,7 +533,7 @@
       "name": "Special character keys",
       "jsonpath": "$.specialChars['hyphen-key']",
       "data": "edge_cases",
-      "category": "edge_cases", 
+      "category": "edge_cases",
       "description": "Key with special characters"
     },
     {
@@ -432,7 +546,7 @@
     {
       "name": "Numeric key",
       "jsonpath": "$.specialChars['123numeric']",
-      "data": "edge_cases", 
+      "data": "edge_cases",
       "category": "edge_cases",
       "description": "Numeric string key"
     },
@@ -453,7 +567,7 @@
     {
       "name": "Recursive with filter",
       "jsonpath": "$..[?(@.name)]",
-      "data": "complex_structure", 
+      "data": "complex_structure",
       "category": "recursive_filters",
       "description": "Recursive descent with filter"
     },
@@ -472,7 +586,7 @@
       "description": "Union operator for multiple indices"
     },
     {
-      "name": "Array slice with step", 
+      "name": "Array slice with step",
       "jsonpath": "$.data[0:6:2]",
       "data": "mixed_types",
       "category": "array_slice",
@@ -480,7 +594,7 @@
     },
     {
       "name": "Negative slice",
-      "jsonpath": "$.data[-3:-1]", 
+      "jsonpath": "$.data[-3:-1]",
       "data": "mixed_types",
       "category": "array_slice",
       "description": "Negative indices in slice"
@@ -496,8 +610,29 @@
       "name": "Match function",
       "jsonpath": "$.users[?(@.name.match(/^A/))]",
       "data": "complex_structure",
-      "category": "function_filters", 
+      "category": "function_filters",
       "description": "Match function with regex"
+    },
+    {
+      "name": "Followers count >= 100 (Array)",
+      "jsonpath": "$.data.user.result.legacy.[?(@.followers_count >= 100)].followers_count",
+      "data": "twitter_like_data",
+      "category": "filters",
+      "description": "Filter with >= operator on array"
+    },
+    {
+      "name": "Friends count >= 0 (Array)",
+      "jsonpath": "$.data.user.result.legacy.[?(@.friends_count >= 0)].friends_count",
+      "data": "twitter_like_data",
+      "category": "filters",
+      "description": "Filter with >= operator on array"
+    },
+    {
+      "name": "Followers count >= 100 (Object)",
+      "jsonpath": "$.data.user.result.legacy.[?(@.followers_count >= 100)].followers_count",
+      "data": "twitter_like_data_obj",
+      "category": "filters",
+      "description": "Filter with >= operator on object"
     }
   ]
 }
