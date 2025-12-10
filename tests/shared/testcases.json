@@ -260,6 +260,62 @@
           }
         }
       }
+    },
+    "salesforce_actions": {
+      "actions": [
+        {
+          "id": "action1",
+          "returnValue": {
+            "returnValue": {
+              "Contact": {
+                "FirstName": "John",
+                "LastName": "Doe",
+                "Email": "john.doe@example.com"
+              }
+            }
+          }
+        },
+        {
+          "id": "action2",
+          "returnValue": {
+            "returnValue": {
+              "Account": {
+                "Name": "Acme Corp",
+                "AccountNumber": "ACC-001"
+              }
+            }
+          }
+        },
+        {
+          "id": "action3",
+          "returnValue": {
+            "returnValue": {
+              "Loyalty_Member_Tier": [
+                {
+                  "TierName": "Gold",
+                  "TierExpirationDate": "2025-12-31",
+                  "Points": 5000
+                },
+                {
+                  "TierName": "Silver",
+                  "TierExpirationDate": "2024-12-31",
+                  "Points": 2500
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "action4",
+          "returnValue": {
+            "returnValue": {
+              "Other": {
+                "Description": "Some other data"
+              }
+            }
+          }
+        }
+      ]
     }
   },
   "testCases": [
@@ -633,6 +689,20 @@
       "data": "twitter_like_data_obj",
       "category": "filters",
       "description": "Filter with >= operator on object"
+    },
+    {
+      "name": "Nested property access after filter - Contact LastName",
+      "jsonpath": "$.actions[?(@.returnValue.returnValue.Contact)].returnValue.returnValue.Contact.LastName",
+      "data": "salesforce_actions",
+      "category": "nested_filter_access",
+      "description": "Filter by nested property existence, then access deeply nested property"
+    },
+    {
+      "name": "Nested property access after filter - Loyalty Tier Expiration",
+      "jsonpath": "$.actions[?(@.returnValue.returnValue.Loyalty_Member_Tier)].returnValue.returnValue.Loyalty_Member_Tier[0].TierExpirationDate",
+      "data": "salesforce_actions",
+      "category": "nested_filter_access",
+      "description": "Filter by nested array property existence, then access array element property"
     }
   ]
 }

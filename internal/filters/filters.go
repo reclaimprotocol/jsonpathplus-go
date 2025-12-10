@@ -655,7 +655,8 @@ func (f *FilterEvaluator) tryComparisonFilter(expr string, current interface{}) 
 }
 
 func (f *FilterEvaluator) tryExistenceFilter(expr string, current interface{}) (bool, bool) {
-	reExists := regexp.MustCompile(`^\.(\w+)$`)
+	// Support nested property paths like .returnValue.returnValue.Contact
+	reExists := regexp.MustCompile(`^\.([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*)$`)
 	matches := reExists.FindStringSubmatch(expr)
 	if len(matches) != 2 {
 		return false, false
@@ -666,10 +667,8 @@ func (f *FilterEvaluator) tryExistenceFilter(expr string, current interface{}) (
 		return false, true
 	}
 
-	propValue, exists := getObjectValue(current, property)
-	if !exists {
-		return false, true
-	}
+	// Use utils.GetPropertyValue which supports nested property access
+	propValue := utils.GetPropertyValue(current, property)
 
 	if propValue == nil {
 		return false, true

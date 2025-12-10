@@ -1,0 +1,56 @@
+{
+    "actions": [
+        {
+            "id": "action1",
+            "returnValue": {
+                "returnValue": {
+                    "Contact": {
+                        "FirstName": "John",
+                        "LastName": "Doe",
+                        "Email": "john.doe@example.com"
+                    }
+                }
+            }
+        },
+        {
+            "id": "action2",
+            "returnValue": {
+                "returnValue": {
+                    "Account": {
+                        "Name": "Acme Corp",
+                        "AccountNumber": "ACC-001"
+                    }
+                }
+            }
+        },
+        {
+            "id": "action3",
+            "returnValue": {
+                "returnValue": {
+                    "Loyalty_Member_Tier": [
+                        {
+                            "TierName": "Gold",
+                            "TierExpirationDate": "2025-12-31",
+                            "Points": 5000
+                        },
+                        {
+                            "TierName": "Silver",
+                            "TierExpirationDate": "2024-12-31",
+                            "Points": 2500
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "action4",
+            "returnValue": {
+                "returnValue": {
+                    "Other": {
+                        "Description": "Some other data"
+                    }
+                }
+            }
+        }
+    ]
+}
