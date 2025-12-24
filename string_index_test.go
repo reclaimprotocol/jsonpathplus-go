@@ -45,7 +45,7 @@ func testSimpleObjectStringIndex(t *testing.T, _ *JSONPathEngine) {
 		expectedIndex int
 		description   string
 	}{
-		{"$.id", 1, "Property 'id' starts at position 1 (after opening brace)"},
+		{"$.id", 1, "Property 'id' starts at position 1"},
 		{"$.name", 10, "Property 'name' starts at position 10"},
 	}
 

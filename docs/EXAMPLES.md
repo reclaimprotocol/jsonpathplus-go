@@ -28,34 +28,24 @@ func main() {
     }
     
     for _, result := range results {
-        fmt.Printf("Title: %s at position %d\n", 
-            result.Value, result.OriginalIndex)
+        fmt.Printf("Title: %s at position %d (Length: %d)\n", 
+            result.Value, result.Start, result.Length)
     }
 }
 ```
 
-## String Position Tracking
+## String Position Tracking (v2 Default)
 
 ```go
 jsonStr := `{"users":[{"name":"Alice"},{"name":"Bob"}]}`
 
 results, err := jp.Query("$.users[*].name", jsonStr)
-for _, result := range results {
-    fmt.Printf("Name: %s\n", result.Value)
-    fmt.Printf("  Character position: %d\n", result.OriginalIndex) 
-    fmt.Printf("  Length in JSON: %d\n", result.Length)
-    fmt.Printf("  JSONPath: %s\n", result.Path)
-}
-
-// Output:
-// Name: Alice
-//   Character position: 11
-//   Length in JSON: 6
-//   JSONPath: $.users[0].name
-// Name: Bob  
-//   Character position: 32
-//   Length in JSON: 5
-//   JSONPath: $.users[1].name
+// Result contains (v2 behavior):
+// - Value: "test" 
+// - Start: 12 (character position of "name" key)
+// - End: 26 (end character position of "test" value)
+// - Length: 14 (covers `"name": "test"`)
+// - Path: "$.name"
 ```
 
 ## Production Engine
@@ -69,30 +59,21 @@ import (
 
 func main() {
     // Create production engine
-    config := jp.ProductionConfig()
-    config.EnableMetrics = true
-    
-    engine, err := jp.NewEngine(config)
+    engine, err := jp.NewEngine()
     if err != nil {
         panic(err)
     }
     defer engine.Close()
     
     // Thread-safe queries
-    results, err := engine.QueryData("$.users[*]", data)
+    results, err := engine.Query("$.users[*]", data)
     if err != nil {
         panic(err)
     }
-    
-    // Check performance metrics
-    metrics := engine.GetMetrics()
-    fmt.Printf("Queries executed: %d\n", metrics.QueriesExecuted)
-    fmt.Printf("Average time: %v\n", metrics.AverageExecutionTime)
-    
 }
 ```
 
-## Complex Queries
+## Advanced Queries
 
 ```go
 jsonStr := `{
@@ -114,16 +95,4 @@ results, _ := jp.Query("$.products[0:2]", jsonStr)
 
 // Union operator
 results, _ := jp.Query("$.products[*]['name','price']", jsonStr)
-```
-
-## Error Handling
-
-```go
-results, err := jp.Query("$.invalid..path", jsonStr)
-if err != nil {
-    if jpErr, ok := err.(*jp.JSONPathError); ok {
-        fmt.Printf("JSONPath error: %s at position %d\n", 
-            jpErr.Message, jpErr.Position)
-    }
-}
 ```

@@ -4,6 +4,9 @@
 
 This is a comprehensive JSONPath implementation with extended JSONPath-Plus features, providing a modular architecture and advanced query capabilities.
 
+> [!IMPORTANT]
+> **v2.0.0 Breaking Change**: Default indexing for object properties now includes the entire key-value pair as a single range.
+
 ## Core Functions
 
 ### `Query(path string, input interface{}) ([]Result, error)`
@@ -18,24 +21,9 @@ This is a comprehensive JSONPath implementation with extended JSONPath-Plus feat
 - `[]Result` - Array of query results with metadata
 - `error` - Error if query fails
 
-**Example:**
-```go
-// With JSON string
-results, err := jp.Query("$.users[*].name", `{"users":[{"name":"Alice"}]}`)
+### `QueryWithOptions(path string, input interface{}, options *Options) ([]Result, error)`
 
-// With parsed data
-var data interface{}
-json.Unmarshal([]byte(jsonStr), &data)
-results, err := jp.Query("$.users[*].name", data)
-```
-
-**Parameters:**
-- `path` - JSONPath expression
-- `data` - Parsed JSON data as interface{}
-
-**Returns:**
-- `[]Result` - Array of query results
-- `error` - Error if query fails
+Executes a JSONPath query with custom options.
 
 ## Result Structure
 
@@ -46,34 +34,34 @@ type Result struct {
     Parent           interface{} // Reference to parent object/array
     ParentProperty   string      // Property name or array index in parent
     Index            int         // Position in result set
-    OriginalIndex    int         // Character position in original JSON string
-    Length           int         // Length of the element in the JSON string
+    Start            int         // Starting character position (key)
+    End              int         // Ending character position (value)
+    Length           int         // Total length (key to value)
+    OriginalIndex    int         // Same as Start (for backward compatibility)
 }
 ```
 
 ## Production Engine
 
-### `NewEngine(config *Config) (*JSONPathEngine, error)`
+### `NewEngine() (*JSONPathEngine, error)`
 
 Creates a production-ready JSONPath engine.
 
 ### Engine Methods
 
-- `QueryData(path, data)` - Query parsed data
-- `QueryDataWithContext(ctx, path, data)` - Query with context
-- `GetMetrics()` - Performance metrics
-  
-- `Close()` - Cleanup resources
+- `Query(path, input)` - Query JSON string or parsed data
+- `QueryWithOptions(path, input, options)` - Query with options
+- `Close()` - Cleanup resources (no-op)
 
 ## Configuration
 
-### `DefaultConfig() *Config`
+### `Options`
 
-Returns default configuration suitable for development.
-
-### `ProductionConfig() *Config`
-
-Returns configuration optimized for production use with security features enabled.
+```go
+type Options struct {
+    Root interface{} // Root object for $ references in filters
+}
+```
 
 ## Error Types
 

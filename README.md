@@ -5,7 +5,11 @@
 [![GoDoc](https://godoc.org/github.com/reclaimprotocol/jsonpathplus-go?status.svg)](https://godoc.org/github.com/reclaimprotocol/jsonpathplus-go)
 [![JavaScript Compatibility](https://img.shields.io/badge/JavaScript%20Compatibility-100%25-brightgreen)](tests/)
 
-🎉 **Perfect JavaScript Compatibility Achieved!** - A high-performance Go implementation of JSONPath with **100% JSONPath-Plus JavaScript compatibility** and **string character position tracking**.
+🎉 **Perfect JavaScript Compatibility Achieved!** - A high-performance Go implementation of JSONPath with **100% JSONPath-Plus JavaScript compatibility** and **enhanced string character position tracking**.
+
+> [!IMPORTANT]
+> **v2.0.0 is here!**
+> This major release changes the default indexing behavior for object properties to include the entire key-value pair as a single range.
 
 ## 🚀 Quick Start
 
@@ -24,15 +28,15 @@ import (
 func main() {
     jsonStr := `{"users":[{"name":"Alice","age":30},{"name":"Bob","age":25}]}`
     
-    // Query with character position tracking
+    // Query with character position tracking (default v2 behavior)
     results, err := jp.Query("$.users[*].name", jsonStr)
     if err != nil {
         panic(err)
     }
     
     for _, result := range results {
-        fmt.Printf("Value: %v, Position: %d, Length: %d\n", 
-            result.Value, result.OriginalIndex, result.Length)
+        fmt.Printf("Value: %v, Start: %d, End: %d, Length: %d\n", 
+            result.Value, result.Start, result.End, result.Length)
     }
 }
 ```
@@ -65,7 +69,7 @@ Run compatibility tests: `cd tests && node compare.js`
 ## ✨ Features
 
 - 🎯 **100% JavaScript Compatibility** - Perfect 1:1 compatibility with JSONPath-Plus (50/50 tests passing)
-- 📍 **String Position Tracking** - Get exact character positions in original JSON
+- 📍 **Enhanced String Position Tracking** - Get exact character ranges (key-value) in original JSON by default
 - 🏭 **Production Ready** - Built-in logging, metrics, and security
 - 🧵 **Thread Safe** - Concurrent operations with context support
 - 🔒 **Secure** - Input validation and rate limiting
@@ -98,26 +102,27 @@ Run compatibility tests: `cd tests && node compare.js`
 ### Production Engine
 
 ```go
-engine, err := jp.NewEngine(jp.DefaultConfig())
+engine, err := jp.NewEngine()
 if err != nil {
     log.Fatal(err)
 }
 defer engine.Close()
 
-// Thread-safe queries with timeout
-results, err := engine.QueryData("$.store.book[*]", data)
+// Thread-safe queries 
+results, err := engine.Query("$.store.book[*]", data)
 ```
 
-### String Position Tracking
+### String Position Tracking (v2 Default)
 
 ```go
 jsonStr := `{"id": 123, "name": "test"}`
 results, err := jp.Query("$.name", jsonStr)
 
-// Result contains:
+// Result contains (v2 behavior):
 // - Value: "test" 
-// - OriginalIndex: 15 (character position of "name" key)
-// - Length: 6 (length of "name" in JSON)
+// - Start: 12 (character position of "name" key)
+// - End: 26 (end character position of "test" value)
+// - Length: 14 (covers `"name": "test"`)
 // - Path: "$.name"
 ```
 
@@ -166,6 +171,7 @@ See [`cmd/`](cmd/) directory for comprehensive examples:
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+6. Update documentation for any breaking changes
 
 ## 📄 License
 

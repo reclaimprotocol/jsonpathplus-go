@@ -1,3 +1,17 @@
+# v2.0.0 - Major Release: Value-Centric Indexing by Default
+
+## 🚀 Breaking Changes
+
+- **Default Indexing Behavior**: Promoted value-centric indexing to the default. Queries for object properties now return a character range covering both the **key** and the **value** (e.g., `"id": 123`).
+- **Module Update**: The library has transitioned to `github.com/reclaimprotocol/jsonpathplus-go`. All users must update their import paths.
+- **API Simplification**: Removed `IncludeValue` option as it is now the standard behavior. `OriginalIndex` remains for backward compatibility, pointing to the start of the key.
+
+## ✨ New Features
+
+- **Enhanced Result Metadata**: Results now explicitly include `Start`, `End`, and `Length` for all matches.
+
+---
+
 # v1.2.0 - Nested Filter Property Access Support
 
 ## ✨ New Features

@@ -7,10 +7,10 @@ import (
 
 const (
 	// Version represents the current version of the library.
-	Version = "1.2.0"
+	Version = "2.0.0"
 
 	// APIVersion represents the API version for compatibility tracking.
-	APIVersion = "v1"
+	APIVersion = "v2"
 
 	// MinSupportedGoVersion is the minimum Go version required.
 	MinSupportedGoVersion = "1.19"

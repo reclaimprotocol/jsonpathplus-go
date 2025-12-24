@@ -104,6 +104,15 @@ func JSONParse(jsonStr string) (interface{}, error) {
 
 // Query executes a JSONPath query against JSON string or data
 func Query(path string, input interface{}) ([]Result, error) {
+	return QueryWithOptions(path, input, &Options{})
+}
+
+// QueryWithOptions executes a JSONPath query against JSON string or data with options
+func QueryWithOptions(path string, input interface{}, options *Options) ([]Result, error) {
+	if options == nil {
+		options = &Options{}
+	}
+
 	var data interface{}
 	var jsonStr string
 	var isStringInput bool
@@ -127,7 +136,7 @@ func Query(path string, input interface{}) ([]Result, error) {
 		return nil, err
 	}
 
-	results, err := jp.Execute(data)
+	results, err := jp.ExecuteWithOptions(data, options)
 	if err != nil {
 		return nil, err
 	}
@@ -164,6 +173,11 @@ func Validate(path string) error {
 // Query executes a JSONPath query using the engine
 func (engine *JSONPathEngine) Query(path string, input interface{}) ([]Result, error) {
 	return Query(path, input)
+}
+
+// QueryWithOptions executes a JSONPath query using the engine with options
+func (engine *JSONPathEngine) QueryWithOptions(path string, input interface{}, options *Options) ([]Result, error) {
+	return QueryWithOptions(path, input, options)
 }
 
 // Close closes the engine (no-op for compatibility)
@@ -260,7 +274,8 @@ func findArrayElementPosition(index int, jsonStr string) StringPosition {
 	return StringPosition{}
 }
 
-// findPropertyValuePosition finds the position of a property key (not value)
+// findPropertyValuePosition finds the position of a property value (not the key)
+// findPropertyValuePosition finds the position of a property including its value
 func findPropertyValuePosition(propName, jsonStr, path string) StringPosition {
 	// Extract the array index from the path if present
 	arrayIndex := -1
@@ -301,6 +316,18 @@ func findPropertyValuePosition(propName, jsonStr, path string) StringPosition {
 		if afterKey < len(jsonStr) && jsonStr[afterKey] == ':' {
 			// If we have an array index, return the occurrence that matches
 			if arrayIndex == -1 || occurrenceCount == arrayIndex {
+				// We found the colon, now skip it and any whitespace to find the value
+				valueStart := afterKey + 1
+				for valueStart < len(jsonStr) && isWhitespace(jsonStr[valueStart]) {
+					valueStart++
+				}
+
+				if valueStart < len(jsonStr) {
+					valueEnd := skipJSONElement(jsonStr, valueStart)
+					// Return from start of key to end of value
+					return StringPosition{Start: absolutePos, End: valueEnd, Length: valueEnd - absolutePos}
+				}
+				// Fallback to key position if value not found
 				return StringPosition{Start: absolutePos, End: absolutePos + len(searchStr), Length: len(searchStr)}
 			}
 			occurrenceCount++
@@ -318,6 +345,11 @@ func findPositionByPath(path, jsonStr string) StringPosition {
 	// For complex paths, we'd need more sophisticated parsing
 
 	// Handle simple property access like $.property
+	if strings.HasPrefix(path, "$..") {
+		// Recursive descent not handled here
+		return StringPosition{}
+	}
+
 	if strings.HasPrefix(path, "$.") && !strings.Contains(path[2:], ".") && !strings.Contains(path, "[") {
 		propName := path[2:]
 		return findPropertyValuePosition(propName, jsonStr, path)
