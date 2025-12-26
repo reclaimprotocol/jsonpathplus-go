@@ -29,7 +29,7 @@ A production-ready Go implementation of JSONPath with **enhanced string characte
 ## 📦 **Installation**
 
 ```bash
-go get github.com/reclaimprotocol/jsonpathplus-go
+go get github.com/reclaimprotocol/jsonpathplus-go/v2
 ```
 
 ## 🎯 **Quick Start**
@@ -41,7 +41,7 @@ package main
 
 import (
     "fmt"
-    jp "github.com/reclaimprotocol/jsonpathplus-go"
+    jp "github.com/reclaimprotocol/jsonpathplus-go/v2"
 )
 
 func main() {

@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/reclaimprotocol/jsonpathplus-go/internal/evaluator"
-	"github.com/reclaimprotocol/jsonpathplus-go/internal/parser"
-	"github.com/reclaimprotocol/jsonpathplus-go/pkg/types"
-	"github.com/reclaimprotocol/jsonpathplus-go/pkg/utils"
+	"github.com/reclaimprotocol/jsonpathplus-go/v2/internal/evaluator"
+	"github.com/reclaimprotocol/jsonpathplus-go/v2/internal/parser"
+	"github.com/reclaimprotocol/jsonpathplus-go/v2/pkg/types"
+	"github.com/reclaimprotocol/jsonpathplus-go/v2/pkg/utils"
 )
 
 // Result represents a JSONPath query result (alias for types.Result for backward compatibility)

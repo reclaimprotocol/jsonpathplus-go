@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/reclaimprotocol/jsonpathplus-go/pkg/types"
+	"github.com/reclaimprotocol/jsonpathplus-go/v2/pkg/types"
 )
 
 // Parser handles JSONPath expression parsing

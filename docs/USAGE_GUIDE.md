@@ -7,7 +7,7 @@ This comprehensive guide covers all features and best practices for using the JS
 ### Installation
 
 ```bash
-go get github.com/reclaimprotocol/jsonpathplus-go
+go get github.com/reclaimprotocol/jsonpathplus-go/v2
 ```
 
 ### Basic Usage
@@ -17,7 +17,7 @@ package main
 
 import (
     "fmt"
-    jp "github.com/reclaimprotocol/jsonpathplus-go"
+    jp "github.com/reclaimprotocol/jsonpathplus-go/v2"
 )
 
 func main() {

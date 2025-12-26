@@ -3,7 +3,7 @@
 ## 🚀 Breaking Changes
 
 - **Default Indexing Behavior**: Promoted value-centric indexing to the default. Queries for object properties now return a character range covering both the **key** and the **value** (e.g., `"id": 123`).
-- **Module Update**: The library has transitioned to `github.com/reclaimprotocol/jsonpathplus-go`. All users must update their import paths.
+- **Module Update**: The library has transitioned to `github.com/reclaimprotocol/jsonpathplus-go/v2`. All users must update their import paths.
 - **API Simplification**: Removed `IncludeValue` option as it is now the standard behavior. `OriginalIndex` remains for backward compatibility, pointing to the start of the key.
 
 ## ✨ New Features
@@ -39,8 +39,8 @@
 
 ## 🔗 Links
 
-- Test cases demonstrating the new feature in [`testcases.json`](https://github.com/reclaimprotocol/jsonpathplus-go/blob/main/tests/shared/testcases.json)
-- Implementation in [`filters.go`](https://github.com/reclaimprotocol/jsonpathplus-go/blob/main/internal/filters/filters.go)
+- Test cases demonstrating the new feature in [`testcases.json`](https://github.com/reclaimprotocol/jsonpathplus-go/v2/blob/main/tests/shared/testcases.json)
+- Implementation in [`filters.go`](https://github.com/reclaimprotocol/jsonpathplus-go/v2/blob/main/internal/filters/filters.go)
 
 ## 🙏 Contributors
 

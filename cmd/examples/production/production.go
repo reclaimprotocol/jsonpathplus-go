@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	jp "github.com/reclaimprotocol/jsonpathplus-go"
+	jp "github.com/reclaimprotocol/jsonpathplus-go/v2"
 )
 
 // ProductionExample demonstrates production-ready usage

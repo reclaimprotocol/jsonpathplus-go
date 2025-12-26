@@ -24,7 +24,7 @@ the full JSONPath specification with additional production-ready features:
 	import (
 		"fmt"
 		"log"
-		jp "github.com/reclaimprotocol/jsonpathplus-go"
+		jp "github.com/reclaimprotocol/jsonpathplus-go/v2"
 	)
 
 	func main() {
@@ -264,7 +264,7 @@ Contributions are welcome! Please see CONTRIBUTING.md for guidelines.
 # Support
 
 For issues, feature requests, or questions:
-- GitHub Issues: https://github.com/reclaimprotocol/jsonpathplus-go/issues
-- Documentation: https://pkg.go.dev/github.com/reclaimprotocol/jsonpathplus-go
+- GitHub Issues: https://github.com/reclaimprotocol/jsonpathplus-go/v2/issues
+- Documentation: https://pkg.go.dev/github.com/reclaimprotocol/jsonpathplus-go/v2
 */
 package jsonpathplus

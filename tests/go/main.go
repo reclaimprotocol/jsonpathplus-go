@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	jp "github.com/reclaimprotocol/jsonpathplus-go"
+	jp "github.com/reclaimprotocol/jsonpathplus-go/v2"
 )
 
 // normalizeObjectOrdering ensures consistent property ordering to match JavaScript behavior

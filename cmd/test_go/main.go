@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	jp "github.com/reclaimprotocol/jsonpathplus-go"
+	jp "github.com/reclaimprotocol/jsonpathplus-go/v2"
 )
 
 func main() {

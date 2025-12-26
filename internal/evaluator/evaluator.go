@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/reclaimprotocol/jsonpathplus-go/internal/filters"
-	"github.com/reclaimprotocol/jsonpathplus-go/internal/operators"
-	"github.com/reclaimprotocol/jsonpathplus-go/pkg/types"
-	"github.com/reclaimprotocol/jsonpathplus-go/pkg/utils"
+	"github.com/reclaimprotocol/jsonpathplus-go/v2/internal/filters"
+	"github.com/reclaimprotocol/jsonpathplus-go/v2/internal/operators"
+	"github.com/reclaimprotocol/jsonpathplus-go/v2/pkg/types"
+	"github.com/reclaimprotocol/jsonpathplus-go/v2/pkg/utils"
 )
 
 // formatPath creates a consistent path format matching JavaScript JSONPath-Plus bracket notation

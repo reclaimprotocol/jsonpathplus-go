@@ -1,8 +1,8 @@
 # JSONPath-Plus Go
 
-[![CI](https://github.com/reclaimprotocol/jsonpathplus-go/actions/workflows/ci.yml/badge.svg)](https://github.com/reclaimprotocol/jsonpathplus-go/actions/workflows/ci.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/reclaimprotocol/jsonpathplus-go)](https://goreportcard.com/report/github.com/reclaimprotocol/jsonpathplus-go)
-[![GoDoc](https://godoc.org/github.com/reclaimprotocol/jsonpathplus-go?status.svg)](https://godoc.org/github.com/reclaimprotocol/jsonpathplus-go)
+[![CI](https://github.com/reclaimprotocol/jsonpathplus-go/v2/actions/workflows/ci.yml/badge.svg)](https://github.com/reclaimprotocol/jsonpathplus-go/v2/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/reclaimprotocol/jsonpathplus-go/v2)](https://goreportcard.com/report/github.com/reclaimprotocol/jsonpathplus-go/v2)
+[![GoDoc](https://godoc.org/github.com/reclaimprotocol/jsonpathplus-go/v2?status.svg)](https://godoc.org/github.com/reclaimprotocol/jsonpathplus-go/v2)
 [![JavaScript Compatibility](https://img.shields.io/badge/JavaScript%20Compatibility-100%25-brightgreen)](tests/)
 
 🎉 **Perfect JavaScript Compatibility Achieved!** - A high-performance Go implementation of JSONPath with **100% JSONPath-Plus JavaScript compatibility** and **enhanced string character position tracking**.
@@ -14,7 +14,7 @@
 ## 🚀 Quick Start
 
 ```bash
-go get github.com/reclaimprotocol/jsonpathplus-go
+go get github.com/reclaimprotocol/jsonpathplus-go/v2
 ```
 
 ```go
@@ -22,7 +22,7 @@ package main
 
 import (
     "fmt"
-    jp "github.com/reclaimprotocol/jsonpathplus-go"
+    jp "github.com/reclaimprotocol/jsonpathplus-go/v2"
 )
 
 func main() {

@@ -8,7 +8,7 @@ package main
 import (
     "fmt"
     "log"
-    jp "github.com/reclaimprotocol/jsonpathplus-go"
+    jp "github.com/reclaimprotocol/jsonpathplus-go/v2"
 )
 
 func main() {
@@ -54,7 +54,7 @@ results, err := jp.Query("$.users[*].name", jsonStr)
 package main
 
 import (
-    jp "github.com/reclaimprotocol/jsonpathplus-go"
+    jp "github.com/reclaimprotocol/jsonpathplus-go/v2"
 )
 
 func main() {

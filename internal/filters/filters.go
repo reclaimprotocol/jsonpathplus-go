@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/reclaimprotocol/jsonpathplus-go/pkg/types"
-	"github.com/reclaimprotocol/jsonpathplus-go/pkg/utils"
+	"github.com/reclaimprotocol/jsonpathplus-go/v2/pkg/types"
+	"github.com/reclaimprotocol/jsonpathplus-go/v2/pkg/utils"
 )
 
 // FilterEvaluator handles filter expression evaluation
